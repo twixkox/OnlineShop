@@ -1,0 +1,28 @@
+﻿@model ChangeRole
+@{
+    ViewData["Title"] = "Смена прав доступа пользователя";
+}
+
+<div class="text-center text-uppercase text-success mb-5 mt-5">
+    <h2 class="row-title">Смена прав доступа пользователя</h2>
+</div>
+
+<form method="post">
+    <div class="row justify-content-center mt-3">
+        <div class="col-6 mb-3">
+            <div class="text-danger fw-bold text-uppercase" asp-validation-summary="All"></div>
+            <input type="hidden" name="Login" value="@Model.Login" />
+            <input type="hidden" name="Roles" value="@Model.Roles" />
+            <p class="text-center">
+                <select asp-for="@Model.Role" class="form-select list-group-item-success"
+                        asp-items="@Model.Roles">
+                </select>
+            </p>
+        </div>
+    </div>
+    <div class="text-center m-3">
+        <button class="btn btn-outline-success" type="submit">
+            Обновить
+        </button>
+    </div>
+</form>

@@ -1,0 +1,71 @@
+﻿@model List<OrderViewModel>
+@{
+    ViewData["Title"] = "Заказы";
+}
+
+<div class="row mt-3">
+    @await Html.PartialAsync("SideBar")
+    <div class="col-9 mb-3">
+        <div class="text-center text-uppercase text-success mb-5 mt-5">
+            <h2 class="row-title">Заказы</h2>
+        </div>
+
+        @if (Model?.Count > 0)
+        {
+            <div class="row justify-content-center mt-3">
+                <div class="col-12">
+                    <table class="table table-responsive table-striped table-hover mb-5">
+                        <thead>
+                            <tr align="center">
+                                <th scope="col">#</th>
+                                <th scope="col">Сумма</th>
+                                <th scope="col">Статус</th>
+                                <th scope="col">Пользователь (логин)</th>
+                                <th scope="col">Дата</th>
+                                <th scope="col">Время</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (var i = 0; i < Model.Count; i++)
+                            {
+                                <tr align="center" class="align-baseline">
+                                    <td class="fw-bold">@(i + 1)</td>
+                                    <td>@Model[i].TotalCost?.ToString("c")</td>
+                                    <td>@Html.DisplayFor(m => Model[i].Status)</td>
+                                    <td>@Model[i].UserId</td>
+                                    <td>@Model[i].CreationDateOrder.ToShortDateString()</td>
+                                    <td>@Model[i].CreationDateOrder.ToShortTimeString()</td>
+                                    <td align="left">
+                                        <a class="text-success"
+                                           asp-area="Admin"
+                                           asp-controller="Order"
+                                           asp-action="Detail"
+                                           asp-route-OrderId="@Model[i].Id">
+                                            Подробнее
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot>
+                            <tr align="center">
+                                <th colspan="4"></th>
+                                <th colspan="3">
+                                    Общее количество заказов: @Model.Count
+                                </th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="text-center">
+                <h2 class="row-title">В хранилище нет заказов!</h2>
+            </div>
+        }
+
+    </div>
+</div>

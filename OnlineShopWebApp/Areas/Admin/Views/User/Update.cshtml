@@ -1,0 +1,48 @@
+﻿@model UserViewModel
+@{
+    ViewData["Title"] = "Редактирование данных пользователя";
+}
+
+<div class="text-center text-uppercase text-success mb-5 mt-5">
+    <h2 class="row-title">Редактирование данных пользователя</h2>
+</div>
+
+<form method="post">
+    <div class="row justify-content-center mt-3">
+        <div class="col-6 mb-3">
+            <div class="text-danger fw-bold text-uppercase" asp-validation-summary="All"></div>
+            <input type="hidden" name="Id" value="@Model.Id" />
+
+            <p>
+                <label class="form-label" asp-for="FirstName"></label><br />
+                <input class="form-control" asp-for="FirstName" value="@Model.FirstName" />
+                <span asp-validation-for="FirstName"></span>
+            </p>
+            <p>
+                <label class="form-label" asp-for="LastName"></label><br />
+                <input class="form-control" asp-for="LastName" value="@Model.LastName" />
+                <span asp-validation-for="LastName"></span>
+            </p>
+            <p>
+                <label class="form-label" asp-for="Phone"></label><br />
+                <input class="form-control" asp-for="Phone" value="@Model.Phone" />
+                <span asp-validation-for="Phone"></span>
+            </p>
+            <p>
+                <label class="form-label" asp-for="UserName"></label><br />
+                <input class="form-control" asp-for="UserName" value="@Model.UserName" readonly="readonly" />
+                <span asp-validation-for="UserName"></span>
+            </p>
+            <p>
+                <label class="form-label" asp-for="Password"></label><br />
+                <input class="form-control" asp-for="Password" value="@Model.Password" readonly="readonly" />
+                <span asp-validation-for="Password"></span>
+            </p>
+        </div>
+    </div>
+    <div class="text-center m-3">
+        <button class="btn btn-outline-success" type="submit">
+            Обновить
+        </button>
+    </div>
+</form>

@@ -1,0 +1,9 @@
+﻿@model List<ProductViewModel>
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<div class="text-center text-uppercase text-success mb-5 mt-5">
+    <h2 class="row-title">Каталог товаров</h2>
+</div>
+@await Html.PartialAsync("ProductsCatalog", Model)

@@ -1,0 +1,105 @@
+﻿@model UserViewModel
+@{
+    ViewData["Title"] = "Пользователь";
+}
+
+<div class="row mt-3">
+    @await Html.PartialAsync("SideBar")
+
+
+    <div class="col-9 mb-3">
+        <div class="text-center text-uppercase text-success mb-5 mt-5">
+            <h2 class="row-title">Пользователь</h2>
+        </div>
+        <form method="post">
+
+            @if (Model != null)
+            {
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <div class="text-end mt-5">
+                    <button class="btn btn-outline-success dropdown-toggle" role="button" id="dropdownMenuButton" data-toggle="dropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        Действия
+                    </button>
+                    <ul class="dropdown-menu list-group-item-success" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a class="dropdown-item"
+                               asp-area="Admin"
+                               asp-controller="User"
+                               asp-action="ChangePassword"
+                               asp-route-userId="@Model.Id">
+                                Смена пароля
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               asp-area="Admin"
+                               asp-controller="User"
+                               asp-action="Update"
+                               asp-route-userId="@Model.Id">
+                                Редактирование данных
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               asp-area="Admin"
+                               asp-controller="Role"
+                               asp-action="AssignRole"
+                               asp-route-userId="@Model.Id">
+                                Смена прав доступа
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               asp-area="Admin"
+                               asp-controller="User"
+                               asp-action="Delete"
+                               asp-route-userId="@Model.Id">
+                                Удалить пользователя
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <table class="table table-hover">
+                    <tr>
+                        <td><span>ID</span></td>
+                        <td>@Model.Id</td>
+                    </tr>
+                    <tr>
+                        <td><span>Email (логин)</span></td>
+                        <td class="fw-bold">@Model.UserName</td>
+                    </tr>
+                    <tr>
+                        <td><span>Имя</span></td>
+                        <td>@Model.FirstName</td>
+                    </tr>
+                    <tr>
+                        <td><span>Фамилия</span></td>
+                        <td>@Model.LastName</td>
+                    </tr>
+                    <tr>
+                        <td><span>Телефон</span></td>
+                        <td>@Model.Phone</td>
+                    </tr>
+
+                    <tr>
+                        <td><span>Роль</span></td>
+                        <td>@Model.Role</td>
+                    </tr>
+                    <tr>
+                        <td class="w-25"><span>Дата регистрации</span></td>
+                        <td class="w-auto">@Model.CreationDateTime</td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <div class="text-center">
+                    <h2>Такого пользователя не существует!</h2>
+                </div>
+            }
+        </form>
+    </div>
+</div>

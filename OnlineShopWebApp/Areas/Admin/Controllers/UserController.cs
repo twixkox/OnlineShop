@@ -1,0 +1,168 @@
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Admin.Models;
+using OnlineShopWebApp.Helpers;
+using OnlineShopWebApp.Models;
+
+
+namespace OnlineShopWebApp.Areas.Admin.Controllers
+{
+    [Area("Admin")]
+    public class UserController : Controller
+    {
+        private readonly UserManager<User> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
+        
+
+        public UserController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        {
+            _userManager = userManager;
+            _roleManager = roleManager;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var users = await _userManager.Users.ToListAsync();
+            
+            var result = users.ToListUserViewModels();
+            foreach (var user in users)
+            {
+                var role = await _userManager.GetRolesAsync(user);
+
+                if (role != null)
+                {
+                    var existingUser = result.FirstOrDefault(x => x.Id == user.Id);
+                    existingUser.Role = role.First();
+                }
+            }
+            return View(result);
+        }
+
+        public async Task<IActionResult> Detail(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            var role = await _userManager.GetRolesAsync(user);
+
+            var result = await user.ToUserViewModel();
+            result.Role = role.First();
+
+            return View(result);
+        }
+
+        [HttpGet]
+        public IActionResult Add()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Add(RegistrationUser user)
+        {
+            if (!ModelState.IsValid) return View(user);
+
+            var checkLogin = await _userManager.FindByEmailAsync(user.UserName);
+            if (checkLogin != null)
+            {
+                ModelState.AddModelError("", "Пользователь с таким логином уже существует");
+            }
+
+            var existingUser = new User()
+            {
+                Email = user.UserName,
+                UserName = user.UserName,
+                PhoneNumber = user.Phone,
+                FirstName = user.FirstName,
+                CreationDateTime = DateTime.Now,
+                LastName = user.LastName,             
+            };
+
+            await _userManager.CreateAsync(existingUser,user.Password);
+
+            await _userManager.AddToRoleAsync(existingUser, "User");
+
+            return RedirectToAction("Index");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Update(string userId)
+        {
+            var existingUser = await _userManager.FindByIdAsync(userId);
+
+            return View(existingUser.ToUserViewModel());
+        }
+
+        [HttpPut]
+        public async Task<IActionResult> Update(User user)
+        {
+            if (!ModelState.IsValid) return View(user);
+
+            await _userManager.UpdateAsync(user);
+
+            return RedirectToAction("Index");
+        }
+
+        public async Task<IActionResult> Delete(string userId)
+        {
+            var existingUser = await _userManager.FindByIdAsync(userId);
+
+            await _userManager.DeleteAsync(existingUser);
+
+            return RedirectToAction("Index");
+        }
+        [HttpGet]
+        public async Task<IActionResult> Roles(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                TempData["ErrorMessage"] = "Пользователь не найден";
+                return RedirectToAction("Index");
+            }
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+            ViewBag.UserName = user.UserName;
+            ViewBag.UserId = userId;
+
+            return View(userRoles);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> ChangePassword(string userId)
+        {
+            var existingUser = await _userManager.FindByIdAsync(userId);
+
+            var result = new ChangePassword
+            {
+                UserId = userId,
+                Email = existingUser.Email
+            };
+
+            return View(result);
+
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePassword user)
+        {
+            var existingUser = await _userManager.FindByIdAsync(user.UserId);
+
+            var token = await _userManager.RemovePasswordAsync(existingUser);
+
+            var result = await _userManager.AddPasswordAsync(existingUser, user.Password);
+
+            if (result.Succeeded)
+            {
+                TempData["SuccessMessage"] = "Пароль успешно изменен";
+                return RedirectToAction("DetailAsync", new { userId = user.UserId });
+            }
+
+            return View(result);
+        }
+
+
+        
+    }
+}

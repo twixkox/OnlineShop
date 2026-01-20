@@ -1,0 +1,20 @@
+﻿@model List<ProductViewModel>
+@{
+    ViewData["Title"] = "Главная";
+}
+
+<div class="text-center text-uppercase text-success mb-5 mt-5">
+    <h2 class="row-title">Товары, соответствующие поиску</h2>
+</div>
+
+<div class="row justify-content-center mt-3">
+    @await Html.PartialAsync("ProductsCatalog", Model)
+</div>
+
+<div class="text-center m-5">
+    <a class="btn btn-outline-success"
+       asp-controller="Home"
+       asp-action="Index">
+        Отобразить каталог товаров
+    </a>
+</div>

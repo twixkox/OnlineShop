@@ -1,0 +1,19 @@
+﻿using Microsoft.AspNetCore.Http.Features;
+
+namespace OnlineShopWebApp.Models
+{
+    public class CartViewModel
+    {
+        public Guid Id { get; set; }
+
+        public string UserId = "UserId";
+
+        public int Discount { get; set; }
+
+        public List<CartItemViewModel> Items { get; set; }
+
+        public decimal TotalCost => Items.Sum(x => x.Cost);
+
+        public int Quantity => Items.Sum(x => x.Quantity);
+    }
+}

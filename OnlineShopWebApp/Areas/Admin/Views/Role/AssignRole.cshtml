@@ -1,0 +1,60 @@
+﻿@using OnlineShopWebApp.Models
+@model AssignRoleViewModel
+@{
+    ViewData["Title"] = "Назначение роли";
+}
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h3>@ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <h5>Пользователь: @Model.UserName</h5>
+                    @if (!string.IsNullOrEmpty(Model.CurrentRole))
+                    {
+                        <p>Текущая роль: <strong>@Model.CurrentRole</strong></p>
+                    }
+                    <hr />
+
+                    <form asp-action="AssignRole" method="post">
+                        <input type="hidden" asp-for="UserId" />
+                        <input type="hidden" asp-for="UserName" />
+
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="SelectedRoleId" class="form-label"></label>
+                            <select asp-for="SelectedRoleId" class="form-control">
+                                <option value="">-- Выберите роль --</option>
+                                @foreach (var role in Model.AvailableRoles)
+                                {
+                                    <option value="@role.Id">@role.Name</option>
+                                }
+                            </select>
+                            <span asp-validation-for="SelectedRoleId" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-check"></i> Назначить роль
+                            </button>
+                            <a asp-controller="User" asp-action="Detail" asp-route-userId="@Model.UserId"
+                               class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Отмена
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
