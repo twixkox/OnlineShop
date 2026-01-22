@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Helpers;
+using OnlineShopWebApp.Models;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
 {
@@ -9,13 +11,13 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
     public class ProductController : Controller
     {
         private readonly IProductStorages _products;
-        private readonly IWebHostEnvironment _appEnvironment;
+        private readonly IFileStorageService _fileProvider;
         private readonly ILogger<ProductController> _logger;
-        public ProductController(IProductStorages products, IWebHostEnvironment appEnvironment, ILogger<ProductController> logger)
+        public ProductController(IProductStorages products, IFileStorageService fileProvider, ILogger<ProductController> logger)
         {
-
+            _fileProvider = fileProvider;
             _products = products;
-            _appEnvironment = appEnvironment;
+            
             _logger = logger;
         }
 
@@ -51,25 +53,16 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             {
                 if (product.UploadedFile != null)
                 {
-                    string productPhotoPath = Path.Combine(_appEnvironment.WebRootPath + "/images/products/");
-
-                    if (!Directory.Exists(productPhotoPath))
-                    {
-                        Directory.CreateDirectory(productPhotoPath);
-                    }
-
-                    var fileName = Guid.NewGuid() + "." + product.UploadedFile.FileName.Split('.').Last();
-                    using (var fileStream = new FileStream(productPhotoPath + fileName, FileMode.Create))
-                    {
-                        product.UploadedFile.CopyTo(fileStream);
-                    }
+                    var path = await _fileProvider.SaveImageAsync(product.UploadedFile);
+                    var thumbnailImage = await _fileProvider.GenerateThumbnailImageAsync(path);
 
                     var productDb = new Product
                     {
                         Name = product.Name,
                         Description = product.Description,
                         Cost = product.Cost,
-                        PhotoPath = "/images/products/" + fileName
+                        PhotoPath = path,
+                        ThumbnailPath = thumbnailImage,
                     };
                   
                     await _products.AddAsync(productDb);
@@ -118,12 +111,8 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             {
                 if (product.UploadedFile != null)
                 {
-                    string productPhotoPath = Path.Combine(_appEnvironment.WebRootPath + "/images/products/");
-                    var fileName = Guid.NewGuid() + "." + product.UploadedFile.FileName.Split('.').Last();
-                    using (var fileStream = new FileStream(productPhotoPath + fileName, FileMode.Create))
-                    {
-                        product.UploadedFile.CopyTo(fileStream);
-                    }
+                    var path = await _fileProvider.SaveImageAsync(product.UploadedFile);
+                    var thumbnailImage = await _fileProvider.GenerateThumbnailImageAsync(path);
 
                     var productDb = new Product
                     {
@@ -131,7 +120,8 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                         Name = product.Name,
                         Description = product.Description,
                         Cost = product.Cost,
-                        PhotoPath = "/images/products/" + fileName,
+                        PhotoPath = path,
+                        ThumbnailPath = thumbnailImage
                     };
 
                     await _products.EditProductAsync(productDb);

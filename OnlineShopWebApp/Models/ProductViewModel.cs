@@ -27,6 +27,8 @@ namespace OnlineShopWebApp
         [MaybeNull]
         public string PhotoPath { get; set; }
         [MaybeNull]
+        public string ThumbnailsPhotoPath { get; set; }
+        [MaybeNull]
         public IFormFile UploadedFile { get; set; }
 
     }

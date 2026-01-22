@@ -10,5 +10,7 @@ namespace OnlineShop.Db.Models
 
         public DateTime CreationDateTime {  get; set; }
 
+        public string ProfileImage { get; set; }
+
     }
 }

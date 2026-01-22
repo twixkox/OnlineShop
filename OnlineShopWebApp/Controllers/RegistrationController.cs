@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Models;
 using System.Threading.Tasks;
 
@@ -10,10 +12,16 @@ namespace OnlineShopWebApp.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager)
+        private readonly IWebHostEnvironment _appEnviroment;
+        private readonly ILogger<RegistrationController> _logger;
+        private readonly IFileStorageService _fileStorageService;
+        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager, IWebHostEnvironment appEnviroment, ILogger<RegistrationController> logger, IFileStorageService fileStorageService)
         {
+            _fileStorageService = fileStorageService;
+            _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
+            _appEnviroment = appEnviroment;
         }
 
         public IActionResult Index()
@@ -27,6 +35,7 @@ namespace OnlineShopWebApp.Controllers
                        
             if (!ModelState.IsValid) return View("Index", user);
 
+
             var currentUser = new User()
             {
                 Email = user.UserName,
@@ -35,7 +44,7 @@ namespace OnlineShopWebApp.Controllers
                 PhoneNumber = user.Phone,
                 CreationDateTime = DateTime.Now,
                 UserName = user.UserName,
-                
+                ProfileImage = _fileStorageService.GetUserPhotoPath()
             };
 
             await _userManager.CreateAsync(currentUser,user.Password);

@@ -65,6 +65,7 @@ namespace OnlineShopWebApp.Helpers
                 Description = product.Description,
                 Cost = product.Cost,
                 PhotoPath = product.PhotoPath,
+                ThumbnailsPhotoPath = product.ThumbnailPath!
             };
         }
 
@@ -77,6 +78,7 @@ namespace OnlineShopWebApp.Helpers
                 Description = productViewModel.Description,
                 Cost = productViewModel.Cost,
                 PhotoPath = productViewModel.PhotoPath,
+                ThumbnailPath = productViewModel.ThumbnailsPhotoPath
             };
         }
 

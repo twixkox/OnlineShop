@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Diagnostics.CodeAnalysis;
+
 namespace OnlineShop.Db.Models
 {
     public class Product
@@ -11,6 +14,9 @@ namespace OnlineShop.Db.Models
         public decimal Cost { get; set; }
 
         public string PhotoPath { get; set; }
+
+        [MaybeNull]
+        public string ThumbnailPath { get; set; }
 
         public List<CartItem> CartItems { get; set; }
 

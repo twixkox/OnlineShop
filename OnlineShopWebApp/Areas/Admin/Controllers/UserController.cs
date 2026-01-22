@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Areas.Admin.Models;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
@@ -14,12 +15,15 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
-        
+        private readonly IWebHostEnvironment _appEnviroment;
+        private readonly IFileStorageService _fileProvider;
 
-        public UserController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public UserController(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IWebHostEnvironment appEnviroment, IFileStorageService fileProvider)
         {
+            _fileProvider = fileProvider;
             _userManager = userManager;
             _roleManager = roleManager;
+            _appEnviroment = appEnviroment;
         }
 
         public async Task<IActionResult> Index()
@@ -64,6 +68,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             if (!ModelState.IsValid) return View(user);
 
             var checkLogin = await _userManager.FindByEmailAsync(user.UserName);
+            
             if (checkLogin != null)
             {
                 ModelState.AddModelError("", "Пользователь с таким логином уже существует");
@@ -76,7 +81,8 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 PhoneNumber = user.Phone,
                 FirstName = user.FirstName,
                 CreationDateTime = DateTime.Now,
-                LastName = user.LastName,             
+                LastName = user.LastName,
+                ProfileImage = _fileProvider.GetUserPhotoPath()
             };
 
             await _userManager.CreateAsync(existingUser,user.Password);

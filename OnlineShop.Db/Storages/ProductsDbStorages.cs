@@ -44,6 +44,7 @@ namespace OnlineShop.Db.Storages
                 currentProduct.Cost = product.Cost;
                 currentProduct.Description = product.Description;
                 currentProduct.PhotoPath = product.PhotoPath;
+                currentProduct.ThumbnailPath = product.ThumbnailPath;
             }
 
             await databaseContext.SaveChangesAsync();

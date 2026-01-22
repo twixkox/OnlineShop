@@ -4,7 +4,9 @@ using OnlineShop.Db;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShop.Db.Storages;
+using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Areas.Admin.Models;
+using OnlineShopWebApp.Models;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,26 @@ var builder = WebApplication.CreateBuilder(args);
 
 // получаем строку подключения из файла конфигурации
 string connection = builder.Configuration.GetConnectionString("OnlineShop");
+#region PathToFiles
+var webRootPath = builder.Environment.WebRootPath;
+var uploadPaths = new[]
+{
+    Path.Combine(webRootPath, "uploads", "products", "original"),
+    Path.Combine(webRootPath, "uploads", "products", "thumbnails"),
+    Path.Combine(webRootPath, "uploads", "products", "optimized"),
+    Path.Combine(webRootPath, "uploads", "users", "avatars"),
+    Path.Combine(webRootPath, "uploads", "temp")
+};
+
+foreach (var path  in uploadPaths)
+{
+    if (!Directory.Exists(path))
+    {
+        Directory.CreateDirectory(path);
+    }
+}
+#endregion
+
 
 // добавляем контекст DatabaseContext в качестве сервиса в приложение
 builder.Services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(connection));
@@ -30,14 +52,15 @@ builder.Services.ConfigureApplicationCookie(options =>
         IsEssential = true,
     };
 });
-
+#region DI-container
+builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddTransient<IProductStorages, ProductsDbStorages>();
 builder.Services.AddTransient<ICartsStorages, CartsDbStorages>();
 builder.Services.AddTransient<IOrderStorages, OrdersDbStorages>();
 builder.Services.AddTransient<IFavoritesStorages, FavoritesDbStorages>();
 
-// Конфигурация Serilog
- 
+#endregion
+
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Information()
     .WriteTo.Console()

@@ -35,7 +35,7 @@ namespace OnlineShop.Db
 
             if (await userManager.FindByNameAsync(adminEmail) == null)
             {
-                var admin = new User { Email = adminEmail, UserName = adminEmail, FirstName = "Admin",LastName = "Admin", PhoneNumber = "1123",CreationDateTime = DateTime.Now };
+                var admin = new User { Email = adminEmail, UserName = adminEmail, FirstName = "Admin",LastName = "Admin", PhoneNumber = "1123",CreationDateTime = DateTime.Now, ProfileImage = "" };
 
                 var result = await userManager.CreateAsync(admin, adminPassword);
 
