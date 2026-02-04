@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db;
@@ -5,7 +6,6 @@ using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShop.Db.Storages;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
-using OnlineShopWebApp.Areas.Admin.Models;
 using OnlineShopWebApp.Models;
 using Serilog;
 
@@ -58,6 +58,7 @@ builder.Services.AddTransient<IProductStorages, ProductsDbStorages>();
 builder.Services.AddTransient<ICartsStorages, CartsDbStorages>();
 builder.Services.AddTransient<IOrderStorages, OrdersDbStorages>();
 builder.Services.AddTransient<IFavoritesStorages, FavoritesDbStorages>();
+builder.Services.AddSingleton<ICookieManager, ChunkingCookieManager>();
 
 #endregion
 

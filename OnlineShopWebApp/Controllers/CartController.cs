@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
+using OnlineShop.Db.Models;
 using OnlineShopWebApp.Helpers;
+using System.Security.Claims;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -8,6 +10,7 @@ namespace OnlineShopWebApp.Controllers
     {
         private readonly ICartsStorages _cartsStorage;
         private readonly IProductStorages _productStorage;
+
 
         public CartController(ICartsStorages cartsStorage, IProductStorages productStorage)
         {
@@ -17,18 +20,26 @@ namespace OnlineShopWebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var cart = await _cartsStorage.TryGetByUserIdAsync(Constants.UserId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var cart = await _cartsStorage.TryGetByUserIdAsync(userId);
 
             return View(cart.ToCartViewModel());
+
         }
-        public async Task<IActionResult> Add(Guid productId)
+        public async Task<IActionResult> Add(Guid productId, int quantity = 1)
         {
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var product = await _productStorage.TryGetProductByIdAsync(productId);
 
-            await _cartsStorage.AddAsync(product, Constants.UserId);
+            await _cartsStorage.AddAsync(product, userId);
 
             return RedirectToAction("Index");
+
         }
+
 
         public async Task<IActionResult> Clear(string userId)
         {
@@ -38,7 +49,9 @@ namespace OnlineShopWebApp.Controllers
 
         public async Task<IActionResult> Subtract(Guid productId)
         {
-            await _cartsStorage.SubtractAsync(productId,Constants.UserId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await _cartsStorage.SubtractAsync(productId, userId);
             return RedirectToAction("Index");
         }
     }

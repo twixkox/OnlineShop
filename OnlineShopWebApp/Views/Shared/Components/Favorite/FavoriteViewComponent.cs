@@ -8,9 +8,9 @@ namespace OnlineShopWebApp.Views.Shared.Components.Favorite
     {
         private readonly IFavoritesStorages _favoritesStorages = favoriteStorages;
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(string userId)
         {
-            var favorite = await _favoritesStorages.TryGetByUserIdAsync(Constants.UserId);
+            var favorite = await _favoritesStorages.TryGetByUserIdAsync(userId);
 
             var favoriteViewModel = favorite.ToFavoriteViewModel();
 

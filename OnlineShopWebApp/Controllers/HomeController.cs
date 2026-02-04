@@ -14,7 +14,8 @@ namespace OnlineShopWebApp.Controllers
         }
 
         public async Task<IActionResult> Index()
-        {
+        { 
+             
             var products = await _productStorage.GetAllAsync();
 
             return View(products.ToProductsViewModels());

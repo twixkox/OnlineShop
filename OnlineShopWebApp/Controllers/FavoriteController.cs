@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Helpers;
+using System.Security.Claims;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -17,13 +18,17 @@ namespace OnlineShopWebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var favorites = await _favoriteStorages.TryGetByUserIdAsync(Constants.UserId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var favorites = await _favoriteStorages.TryGetByUserIdAsync(userId);
 
             return View(favorites?.ToFavoriteViewModel());
         }
 
-        public async Task<IActionResult> Add(Guid productId,string userId = "UserId")
+        public async Task<IActionResult> Add(Guid productId)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
             var product = await _productStorages.TryGetProductByIdAsync(productId);
 
             if (product != null) await _favoriteStorages.AddAsync(product, userId);

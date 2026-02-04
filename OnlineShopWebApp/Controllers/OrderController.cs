@@ -3,6 +3,7 @@ using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
+using System.Security.Claims;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -18,7 +19,9 @@ namespace OnlineShopWebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var cartDb = await _cartsStorages.TryGetByUserIdAsync(Constants.UserId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var cartDb = await _cartsStorages.TryGetByUserIdAsync(userId);
 
             var cartViewModel = cartDb.ToCartViewModel();
 
@@ -34,19 +37,22 @@ namespace OnlineShopWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Buy(OrderViewModel orders)
         {
-            var cart = await _cartsStorages.TryGetByUserIdAsync(Constants.UserId);
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            
+            var cart = await _cartsStorages.TryGetByUserIdAsync(userId);
 
             var order = new Order
             {
                 DeliveryUserInfo = Mapping.ToDeliveryUserInfo(orders.DeliveryUserInfo),
                 Items = cart.Items,
+                UserId = userId
             };
 
             if (!ModelState.IsValid) return View("Index", order.ToOrderViewModel());
 
             await _orderStorages.AddAsync(order);
 
-            await _cartsStorages.ClearAsync(Constants.UserId);
+            await _cartsStorages.ClearAsync(userId);
             return RedirectToAction("OrderSuccess");
         }
         public IActionResult OrderSuccess()

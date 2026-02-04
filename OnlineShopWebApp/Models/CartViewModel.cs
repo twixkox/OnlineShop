@@ -6,7 +6,7 @@ namespace OnlineShopWebApp.Models
     {
         public Guid Id { get; set; }
 
-        public string UserId = "UserId";
+        public string UserId { get; set; }
 
         public int Discount { get; set; }
 

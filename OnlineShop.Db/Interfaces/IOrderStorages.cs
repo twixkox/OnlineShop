@@ -11,5 +11,7 @@ namespace OnlineShop.Db.Interfaces
 
         Task UpdateStatusAsync(Guid orderId, OrderStatus newStatus);
 
+        Task<List<Order>> GetAllOrdersCurrentUser(string userId);
+
     }
 }

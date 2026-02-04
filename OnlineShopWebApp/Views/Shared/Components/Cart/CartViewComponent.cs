@@ -8,9 +8,9 @@ namespace OnlineShopWebApp.Views.Shared.ViewComponents.CartViewComponents
     {
         private readonly ICartsStorages _cartStorages = cartsStorages;
 
-        public async Task <IViewComponentResult> InvokeAsync()
+        public async Task <IViewComponentResult> InvokeAsync(string userId)
         {
-            var cart = await _cartStorages.TryGetByUserIdAsync(Constants.UserId);
+            var cart = await _cartStorages.TryGetByUserIdAsync(userId);
 
             var carViewModel = cart.ToCartViewModel();
 

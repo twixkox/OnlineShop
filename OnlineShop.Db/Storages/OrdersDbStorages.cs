@@ -29,9 +29,22 @@ namespace OnlineShop.Db.Storages
                 .ToListAsync();
         }
 
+        public async Task<List<Order>> GetAllOrdersCurrentUser(string userId)
+        {
+            return await databaseContext.Order
+                .Where(x => x.UserId == userId)
+                .Include(x => x.DeliveryUserInfo)
+                .Include(x => x.Items)
+                .ThenInclude(x => x.Product) 
+                .ToListAsync();
+        }
+
         public async Task<Order> TryGetByIdAsync(Guid orderId)
         {
-            return await databaseContext.Order.Include(x => x.Items).ThenInclude(x => x.Product).Include(x => x.DeliveryUserInfo).FirstOrDefaultAsync(order => order.Id == orderId);
+            return await databaseContext.Order.Include(x => x.Items)
+                .ThenInclude(x => x.Product)
+                .Include(x => x.DeliveryUserInfo)
+                .FirstOrDefaultAsync(order => order.Id == orderId);
         }
             
         public async Task UpdateStatusAsync(Guid orderId, OrderStatus newStatus)
