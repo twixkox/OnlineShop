@@ -29,3 +29,276 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+/* ===== ЕДИНЫЙ СТИЛЬ ДЛЯ АВТОРИЗАЦИИ ===== */
+
+/* Основной цвет (можно изменить) */
+:root {
+    --auth-primary-color: #4a6cf7;
+    --auth-primary-hover: #3a5ce5;
+    --auth-primary-light: rgba(74, 108, 247, 0.1);
+    --auth-text-color: #333;
+    --auth-border-color: #e0e0e0;
+}
+
+/* Кнопки в хедере */
+.auth-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-auth {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-login {
+    background-color: white;
+    color: var(--auth-primary-color);
+    border-color: var(--auth-primary-color);
+}
+
+.btn-register {
+    background-color: var(--auth-primary-color);
+    color: white;
+    border-color: var(--auth-primary-color);
+}
+
+.btn-auth:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
+}
+
+.btn-login:hover {
+    background-color: var(--auth-primary-light);
+}
+
+.btn-register:hover {
+    background-color: var(--auth-primary-hover);
+    border-color: var(--auth-primary-hover);
+}
+
+.btn-auth-icon {
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+}
+
+/* Модальные окна */
+.auth-modal {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.modal-header-primary {
+    background-color: var(--auth-primary-color);
+    color: white;
+    padding: 1.5rem;
+    border-bottom: none;
+}
+
+    .modal-header-primary .modal-title {
+        font-weight: 600;
+        font-size: 1.3rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+        .modal-header-primary .modal-title i {
+            font-size: 1.2rem;
+        }
+
+.modal-subtitle {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.9rem;
+    margin: 0.5rem 0 0;
+    font-weight: 400;
+}
+
+.modal-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+/* Формы */
+.form-floating {
+    position: relative;
+}
+
+    .form-floating > .form-control {
+        border-radius: 8px;
+        border: 1px solid var(--auth-border-color);
+        padding: 1rem 0.75rem;
+        height: calc(3.5rem + 2px);
+        transition: all 0.3s ease;
+    }
+
+    .form-floating > label {
+        padding: 1rem 0.75rem;
+        color: #666;
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: var(--auth-primary-color);
+        box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
+    }
+
+        .form-floating > .form-control:focus ~ label {
+            color: var(--auth-primary-color);
+        }
+
+/* Иконка показа пароля */
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #999;
+    z-index: 10;
+    background: white;
+    padding: 4px;
+    border-radius: 4px;
+}
+
+    .password-toggle:hover {
+        color: var(--auth-primary-color);
+        background-color: var(--auth-primary-light);
+    }
+
+/* Индикатор силы пароля */
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+    .password-strength .progress {
+        background-color: #f0f0f0;
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .password-strength .progress-bar {
+        background-color: #ff4757;
+        transition: all 0.3s ease;
+    }
+
+.password-strength-text {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.25rem;
+    font-size: 0.8rem;
+}
+
+    .password-strength-text span {
+        font-weight: 600;
+    }
+
+/* Кнопка отправки */
+.auth-submit-btn {
+    background-color: var(--auth-primary-color);
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+    .auth-submit-btn:hover:not(:disabled) {
+        background-color: var(--auth-primary-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+    }
+
+    .auth-submit-btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .auth-submit-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+/* Ссылки */
+.btn-link.text-primary {
+    color: var(--auth-primary-color) !important;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+    .btn-link.text-primary:hover {
+        text-decoration: underline;
+    }
+
+.text-primary {
+    color: var(--auth-primary-color) !important;
+}
+
+/* Чекбоксы */
+.form-check-input:checked {
+    background-color: var(--auth-primary-color);
+    border-color: var(--auth-primary-color);
+}
+
+.form-check-input:focus {
+    border-color: var(--auth-primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(74, 108, 247, 0.25);
+}
+
+/* Сообщения валидации */
+.invalid-feedback {
+    color: #ff4757;
+    font-size: 0.85rem;
+    margin-top: 0.25rem;
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.auth-modal .modal-body {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .auth-buttons {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .btn-auth {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-dialog {
+        margin: 1rem;
+    }
+
+    .auth-modal {
+        margin: 0;
+    }
+}

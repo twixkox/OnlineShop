@@ -76,8 +76,10 @@ namespace OnlineShop.Db.Migrations
                     b.Property<double>("Discount")
                         .HasColumnType("float");
 
+                    b.Property<string>("SessionId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -201,16 +203,6 @@ namespace OnlineShop.Db.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("ef667330-84d7-48ee-908b-5aa72b61114b"),
-                            Cost = 1000m,
-                            Description = "Описание",
-                            Name = "Товар 1",
-                            PhotoPath = "images/products/12312312"
-                        });
                 });
 
             modelBuilder.Entity("CartCartItem", b =>

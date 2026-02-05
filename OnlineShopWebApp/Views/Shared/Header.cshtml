@@ -75,22 +75,193 @@
                     }
                     else
                     {
-                        <!-- Авторизация -->
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Authorization" asp-action="Authorization">
-                                Войти
-                            </a>
-                        </li>
 
-                        <!-- Регистрация -->
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Registration" asp-action="Index">
-                                Регистрация
-                            </a>
-                        </li>
+                        <div class="auth-buttons">
+                            <!-- Кнопка входа -->
+                            <button type="button" class="btn btn-auth btn-login me-2"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#loginModal">
+                                <span class="btn-auth-icon">
+                                    <i class="bi bi-box-arrow-in-right"></i>
+                                </span>
+                                <span class="btn-auth-text">Войти</span>
+                            </button>
+
+                            <!-- Кнопка регистрации -->
+                            <button type="button" class="btn btn-auth btn-register"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#registrationModal">
+                                <span class="btn-auth-icon">
+                                    <i class="bi bi-person-plus"></i>
+                                </span>
+                                <span class="btn-auth-text">Регистрация</span>
+                            </button>
+                        </div>
+                        <!-- Модальное окно авторизации -->
+                        <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered modal-sm">
+                                <div class="modal-content auth-modal">
+
+                                    <div class="modal-header-primary">
+                                        <div class="modal-header-content">
+                                            <h5 class="modal-title">
+                                                <i class="bi bi-lock me-2"></i>
+                                                Вход в систему
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-body p-4">
+                                        <form method="post" action="/Authorization/Authorization" id="loginForm">
+
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="loginUsername"
+                                                       name="UserName" placeholder=" " required>
+                                                <label for="loginUsername">
+                                                    <i class="bi bi-person me-1"></i>
+                                                    Имя пользователя
+                                                </label>
+                                            </div>
+
+                                            <div class="form-floating mb-3">
+                                                <input type="password" class="form-control" id="loginPassword"
+                                                       name="Password" placeholder=" " required>
+                                                <label for="loginPassword">
+                                                    <i class="bi bi-key me-1"></i>
+                                                    Пароль
+                                                </label>
+                                                <span class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                                                    <i class="bi bi-eye"></i>
+                                                </span>
+                                            </div>
+
+                                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="RememberMe" id="rememberMe">
+                                                    <label class="form-check-label small" for="rememberMe">
+                                                        Запомнить меня
+                                                    </label>
+                                                </div>
+                                                <a href="#" class="small text-decoration-none text-primary">Забыли пароль?</a>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 auth-submit-btn">
+                                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                                <span class="btn-text">Войти</span>
+                                            </button>
+
+                                            <div class="text-center">
+                                                <p class="small text-muted mb-0">
+                                                    Нет аккаунта?
+                                                    <button type="button" class="btn btn-link p-0 small text-primary"
+                                                            data-bs-dismiss="modal"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#registrationModal">
+                                                        Зарегистрироваться
+                                                    </button>
+                                                </p>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Модальное окно регистрации -->
+                        <div class="modal fade" id="registrationModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content auth-modal">
+
+                                    <div class="modal-header-primary">
+                                        <div class="modal-header-content">
+                                            <h5 class="modal-title">
+                                                <i class="bi bi-person-plus me-2"></i>
+                                                Регистрация
+                                            </h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <p class="modal-subtitle">Создание нового аккаунта</p>
+                                    </div>
+
+                                    <div class="modal-body p-4">
+                                        <form method="post" action="/Registration/Registration" id="registrationForm">
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-floating">
+                                                        <input type="text" class="form-control" id="regFirstName"
+                                                               name="FirstName" placeholder=" ">
+                                                        <label for="regFirstName">Имя</label>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-floating">
+                                                        <input type="text" class="form-control" id="regLastName"
+                                                               name="LastName" placeholder=" ">
+                                                        <label for="regLastName">Фамилия</label>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="form-floating mb-3">
+                                                <input type="text" class="form-control" id="regUsername"
+                                                       name="UserName" placeholder=" " required>
+                                                <label for="regUsername">Имя пользователя *</label>
+                                            </div>
+
+                                            <div class="form-floating mb-3">
+                                                <input type="tel" class="form-control" id="regPhone"
+                                                       name="Phone" placeholder=" ">
+                                                <label for="regPhone">Телефон</label>
+                                            </div>
+
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-6">
+                                                    <div class="form-floating">
+                                                        <input type="password" class="form-control" id="regPassword"
+                                                               name="Password" placeholder=" " required>
+                                                        <label for="regPassword">Пароль *</label>
+                                                        <span class="password-toggle" onclick="togglePassword('regPassword', this)">
+                                                            <i class="bi bi-eye"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-floating">
+                                                        <input type="password" class="form-control" id="regPasswordConfirm"
+                                                               name="ReplayPassword" placeholder=" " required>
+                                                        <label for="regPasswordConfirm">Подтверждение *</label>
+                                                        <span class="password-toggle" onclick="togglePassword('regPasswordConfirm', this)">
+                                                            <i class="bi bi-eye"></i>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 auth-submit-btn">
+                                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                                                <span class="btn-text">Зарегистрироваться</span>
+                                            </button>
+
+                                            <div class="text-center">
+                                                <p class="small text-muted mb-0">
+                                                    Уже есть аккаунт?
+                                                    <button type="button" class="btn btn-link p-0 small text-primary"
+                                                            data-bs-dismiss="modal"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#loginModal">
+                                                        Войти
+                                                    </button>
+                                                </p>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     }
 
-                    <!-- Панель администратора (только для админов) -->
+
                     @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                     {
                         <li class="nav-item">

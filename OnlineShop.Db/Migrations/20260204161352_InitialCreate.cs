@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace OnlineShop.Db.Migrations
 {
     /// <inheritdoc />
-    public partial class AddThumbnailPath : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -16,7 +16,8 @@ namespace OnlineShop.Db.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SessionId = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Discount = table.Column<double>(type: "float", nullable: false)
                 },
                 constraints: table =>
@@ -179,11 +180,6 @@ namespace OnlineShop.Db.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.InsertData(
-                table: "Products",
-                columns: new[] { "Id", "Cost", "Description", "Name", "PhotoPath", "ThumbnailPath" },
-                values: new object[] { new Guid("ef667330-84d7-48ee-908b-5aa72b61114b"), 1000m, "Описание", "Товар 1", "images/products/12312312", null });
 
             migrationBuilder.CreateIndex(
                 name: "IX_CartCartItem_ItemsId",

@@ -12,8 +12,8 @@ using OnlineShop.Db;
 namespace OnlineShop.Db.Migrations.Identity
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20260121163529_AddThumbnailPath")]
-    partial class AddThumbnailPath
+    [Migration("20260204161403_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
