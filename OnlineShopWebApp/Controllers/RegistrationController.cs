@@ -33,7 +33,10 @@ namespace OnlineShopWebApp.Controllers
         {
             if (user.UserName == user.Password) ModelState.AddModelError("", "Логин и пароль должны отличаться");
                        
-            if (!ModelState.IsValid) return View("Index", user);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
 
 
             var currentUser = new User()

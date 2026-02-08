@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 using OnlineShop.Db.Models;
 
 namespace OnlineShop.Db
@@ -12,6 +13,8 @@ namespace OnlineShop.Db
         public DbSet<Favorite> Favorites { get; set; }
 
         public DbSet<Order> Order { get; set; }
+
+        public DbSet<Category> Categories { get; set; }
 
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {

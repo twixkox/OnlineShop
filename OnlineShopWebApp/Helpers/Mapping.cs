@@ -7,8 +7,71 @@ namespace OnlineShopWebApp.Helpers
 {
     public static class Mapping
     {
-       
-        public static async Task<UserViewModel> ToUserViewModel(this User user)
+        #region Category
+        public static CategoryViewModel ToCategoryViewModel(this Category category)
+        {
+            if (category == null) { return null; }
+
+            else
+            {
+                var existingCategory = new CategoryViewModel
+                {
+                    Name = category.Name,
+                    Description = category.Description,
+                    Id = category.Id,
+                };
+                return existingCategory;
+            }
+        }
+
+        public static Category ToCategory(this CategoryViewModel categoryViewModel)
+        {
+            if (categoryViewModel == null) { return null; }
+            else
+            {
+                var existingCategory = new Category
+                {
+                    Name = categoryViewModel.Name,
+                    Description = categoryViewModel.Description,
+                    Id = categoryViewModel.Id,
+                };
+                return existingCategory;
+            }
+        }
+
+        public static List<Category> ToListCategory(this List<CategoryViewModel> categoryViewModels)
+        {
+            if (categoryViewModels == null) { return new List<Category>(); }
+            else
+            {
+                var existingCategories = new List<Category>();
+
+                foreach (var categoryViewModel in categoryViewModels)
+                {
+
+                    existingCategories.Add(ToCategory(categoryViewModel));
+                }
+                return existingCategories;
+            }
+        }
+
+        public static List<CategoryViewModel> ToListCategoryViewModels(this List<Category> categories)
+        {
+            if (categories == null) { return new List<CategoryViewModel>(); }
+            else
+            {
+                var existingCageroriesViewModels = new List<CategoryViewModel>();
+                foreach (var category in categories)
+                {
+                    existingCageroriesViewModels.Add(ToCategoryViewModel(category));
+                }
+                return existingCageroriesViewModels;
+            }
+        }
+
+        #endregion
+            #region User
+        public static UserViewModel ToUserViewModel(this User user)
         {
             if (user == null) { return null; }
 
@@ -55,6 +118,7 @@ namespace OnlineShopWebApp.Helpers
             }
         }
 
+        #endregion
         #region Product
         public static ProductViewModel ToProductViewModel(this Product product)
         {

@@ -50,7 +50,8 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
             var role = await _userManager.GetRolesAsync(user);
 
-            var result = await user.ToUserViewModel();
+            var result = user.ToUserViewModel();
+
             result.Role = role.First();
 
             return View(result);

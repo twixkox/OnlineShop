@@ -1,0 +1,31 @@
+﻿@model CategoryViewModel
+@{
+    ViewData["Title"] = "Добавление категории";
+}
+
+<div class="text-center text-uppercase text-success mb-5 mt-5">
+    <h2 class="row-title">Добавление новой категории товаров</h2>
+</div>
+
+<form method="post">
+    <div class="row justify-content-center mt-3">
+        <div class="col-6 mb-3">
+            <div class="text-danger fw-bold text-uppercase" asp-validation-summary="ModelOnly"></div>
+            <p>
+                <label class="form-label" asp-for="Name"></label><br />
+                <input class="form-control" asp-for="Name" />
+                <span asp-validation-for="Name"></span>
+            </p>
+            <p>
+                <label class="form-label" asp-for="Description"></label><br />
+                <input class="form-control" asp-for="Description" />
+                <span asp-validation-for="Description"></span>
+            </p>
+        </div>
+    </div>
+    <div class="text-center m-3">
+        <button class="btn btn-outline-success" type="submit">
+            Добавить
+        </button>
+    </div>
+</form>

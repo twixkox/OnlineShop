@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace OnlineShop.Db.Migrations
+namespace OnlineShop.Db.Migrations.Database
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class SwapstringIdToGuid : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,6 +23,19 @@ namespace OnlineShop.Db.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Carts", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Categories",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Categories", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -61,12 +74,19 @@ namespace OnlineShop.Db.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    CategoryId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhotoPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ThumbnailPath = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ThumbnailPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CategoryId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Products_Categories_CategoryId1",
+                        column: x => x.CategoryId1,
+                        principalTable: "Categories",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -205,6 +225,11 @@ namespace OnlineShop.Db.Migrations
                 name: "IX_Order_DeliveryUserInfoId",
                 table: "Order",
                 column: "DeliveryUserInfoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Products_CategoryId1",
+                table: "Products",
+                column: "CategoryId1");
         }
 
         /// <inheritdoc />
@@ -236,6 +261,9 @@ namespace OnlineShop.Db.Migrations
 
             migrationBuilder.DropTable(
                 name: "DeliveryUserInfo");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }

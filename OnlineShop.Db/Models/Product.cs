@@ -13,6 +13,8 @@ namespace OnlineShop.Db.Models
 
         public decimal Cost { get; set; }
 
+        public string CategoryId { get; set; }
+
         public string PhotoPath { get; set; }
 
         [MaybeNull]
@@ -21,6 +23,8 @@ namespace OnlineShop.Db.Models
         public List<CartItem> CartItems { get; set; }
 
         public List<Favorite> Favorite { get; set; }
+
+        public Category? Category { get; set; }
     }
 }
 

@@ -57,6 +57,7 @@ builder.Services.AddScoped<IFileStorageService, FileStorageService>();
 builder.Services.AddTransient<IProductStorages, ProductsDbStorages>();
 builder.Services.AddTransient<ICartsStorages, CartsDbStorages>();
 builder.Services.AddTransient<IOrderStorages, OrdersDbStorages>();
+builder.Services.AddTransient<ICategoryStorages, CategoryDbStorages>();
 builder.Services.AddTransient<IFavoritesStorages, FavoritesDbStorages>();
 builder.Services.AddSingleton<ICookieManager, ChunkingCookieManager>();
 

@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineShop.Db;
 
 #nullable disable
 
-namespace OnlineShop.Db.Migrations
+namespace OnlineShop.Db.Migrations.Database
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260206153108_SwapstringIdToGuid")]
+    partial class SwapstringIdToGuid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -106,6 +109,24 @@ namespace OnlineShop.Db.Migrations
                     b.ToTable("CartItem");
                 });
 
+            modelBuilder.Entity("OnlineShop.Db.Models.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("OnlineShop.Db.Models.DeliveryUserInfo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -182,6 +203,13 @@ namespace OnlineShop.Db.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CategoryId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("CategoryId1")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");
 
@@ -201,6 +229,8 @@ namespace OnlineShop.Db.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CategoryId1");
 
                     b.ToTable("Products");
                 });
@@ -270,6 +300,20 @@ namespace OnlineShop.Db.Migrations
                         .IsRequired();
 
                     b.Navigation("DeliveryUserInfo");
+                });
+
+            modelBuilder.Entity("OnlineShop.Db.Models.Product", b =>
+                {
+                    b.HasOne("OnlineShop.Db.Models.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId1");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("OnlineShop.Db.Models.Category", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("OnlineShop.Db.Models.Product", b =>
