@@ -11,5 +11,7 @@ namespace OnlineShop.Db.Interfaces
         Task ClearAsync(string userId);
 
         Task SubtractAsync(Guid productId, string UserId);
+
+        
     }
 }

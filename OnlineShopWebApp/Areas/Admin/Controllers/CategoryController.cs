@@ -48,8 +48,39 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
             return RedirectToAction("Index");
         }
+        [HttpGet]
+        public async Task<IActionResult> Edit(Guid id)
+        {
+            var existingCategory = await _category.TryGetById(id);
+            return View(existingCategory.ToCategoryViewModel());
+        }
+        [HttpPost]
+        public async Task<IActionResult> Edit(CategoryViewModel category)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(category);
+            }
 
+            var categoryDb = new Category
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Description = category.Description,
+            };
+            await _category.Edit(categoryDb);
 
+            return RedirectToAction("Index");
+        }
+        
+        [HttpGet]    
+        public async Task<IActionResult> Delete(Guid id)
+        {
+
+            await _category.Delete(id);
+
+            return RedirectToAction("Index");
+        }
     }
 }
 //добавление категории

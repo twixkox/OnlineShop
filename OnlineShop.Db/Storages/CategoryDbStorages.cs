@@ -42,6 +42,7 @@ namespace OnlineShop.Db.Storages
 
             if (existingCategory != null)
             {
+                existingCategory.Id = category.Id;
                 existingCategory.Name = category.Name;
                 existingCategory.Description = category.Description;
             }
@@ -52,6 +53,11 @@ namespace OnlineShop.Db.Storages
         public async Task<List<Product>> TryGetProductsByCategoryId(string categoryId)
         {
             return await databaseContext.Products.Where(p => p.CategoryId.Contains(categoryId)).ToListAsync();
+        }
+
+        public async Task<Category> TryGetById(Guid categoryId)
+        {
+            return await databaseContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);
         }
     }
 }

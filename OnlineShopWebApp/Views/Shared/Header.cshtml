@@ -264,10 +264,39 @@
 
                     @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                     {
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="Admin" asp-controller="Order" asp-action="Index">
-                                <i class="bi bi-speedometer2 me-1"></i>Админ
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle p-20" href="Админ панель"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                Админ панель
                             </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Order" asp-action="Index">
+                                        <i class="bi bi-person me-2"></i>Заказы
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="User" asp-action="Index">
+                                        <i class="bi bi-person me-2"></i>Пользователи
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Role" asp-action="Index">
+                                        <i class="bi bi-person me-2"></i>Роли
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">
+                                        <i class="bi bi-bag-check me-2"></i>Товары
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">
+                                        <i class="bi bi-bag-check me-2"></i>Категории
+                                    </a>
+                                </li>
+                               
+                            </ul>
                         </li>
                     }
                 </ul>
