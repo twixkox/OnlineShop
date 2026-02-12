@@ -15,6 +15,8 @@ namespace OnlineShop.Db.Models
 
         public string CategoryId { get; set; }
 
+        public string? CategoryName { get; set; }
+
         public string PhotoPath { get; set; }
 
         [MaybeNull]

@@ -9,10 +9,10 @@ using OnlineShop.Db;
 
 #nullable disable
 
-namespace OnlineShop.Db.Migrations
+namespace OnlineShop.Db.Migrations.Identity
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20260206153059_Initilize")]
+    [Migration("20260211104410_Initilize")]
     partial class Initilize
     {
         /// <inheritdoc />

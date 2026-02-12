@@ -24,6 +24,19 @@
                 <input class="form-control" asp-for="Description" />
                 <span asp-validation-for="Description"></span>
             </p>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="AvailableCategory" class="form-label"></label>
+                    <select asp-for="CategoryId" class="form-select" aria-label="Пример выбора по умолчанию">
+                    
+                        <option selected>Откройте это меню выбора</option>
+                        @foreach (var category in Model.AvailableCategory)
+                        {
+                            <option value="@category.Id">@category.Name</option>
+                        }
+                    </select>
+                    <span asp-validation-for="CategoryId" class="text-danger"></span>
+                    </div>
             <p>
                 <label>Загрузить изображение</label>
                 <input type="file" name="UploadedFile" class="form-control" />

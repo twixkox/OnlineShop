@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace OnlineShop.Db.Migrations.Database
+namespace OnlineShop.Db.Migrations
 {
     /// <inheritdoc />
-    public partial class SwapstringIdToGuid : Migration
+    public partial class Initilize : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -75,6 +75,7 @@ namespace OnlineShop.Db.Migrations.Database
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Cost = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     CategoryId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CategoryName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PhotoPath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ThumbnailPath = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CategoryId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)

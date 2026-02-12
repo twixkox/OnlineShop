@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OnlineShop.Db;
 
 #nullable disable
 
-namespace OnlineShop.Db.Migrations.Database
+namespace OnlineShop.Db.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260211104352_Initilize")]
+    partial class Initilize
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -206,6 +209,9 @@ namespace OnlineShop.Db.Migrations.Database
 
                     b.Property<Guid?>("CategoryId1")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CategoryName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");

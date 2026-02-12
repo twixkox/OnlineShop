@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
+using OnlineShop.Db.Models;
+using OnlineShopWebApp.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
@@ -28,8 +31,19 @@ namespace OnlineShopWebApp
         public string PhotoPath { get; set; }
         [MaybeNull]
         public string ThumbnailsPhotoPath { get; set; }
+
+        public string CurrentCategoryName { get; set; }
+
+        public string CategoryId { get; set; }
+
+        [Required(ErrorMessage = "Выберите категорию")]
+        [Display(Name = "Категория")]
+        public List<CategoryViewModel> AvailableCategory { get; set; } = new();
+
         [MaybeNull]
         public IFormFile UploadedFile { get; set; }
+
+      
 
     }
 }

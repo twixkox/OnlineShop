@@ -49,7 +49,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
         [HttpGet]
-        public async Task<IActionResult> Edit(Guid id)
+        public async Task<IActionResult> Edit(string id)
         {
             var existingCategory = await _category.TryGetById(id);
             return View(existingCategory.ToCategoryViewModel());
@@ -74,7 +74,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         }
         
         [HttpGet]    
-        public async Task<IActionResult> Delete(Guid id)
+        public async Task<IActionResult> Delete(string id)
         {
 
             await _category.Delete(id);

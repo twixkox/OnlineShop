@@ -45,6 +45,9 @@ namespace OnlineShop.Db.Storages
                 currentProduct.Description = product.Description;
                 currentProduct.PhotoPath = product.PhotoPath;
                 currentProduct.ThumbnailPath = product.ThumbnailPath;
+                currentProduct.CategoryId = product.CategoryId;
+                currentProduct.CategoryName = product.CategoryName;
+                
             }
 
             await databaseContext.SaveChangesAsync();
@@ -55,6 +58,7 @@ namespace OnlineShop.Db.Storages
 
             return await databaseContext.Products.Where(p => p.Name.Contains(query)).ToListAsync();
         }
+      
     }
 }
 

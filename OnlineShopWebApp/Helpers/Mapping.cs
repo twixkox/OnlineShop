@@ -122,6 +122,7 @@ namespace OnlineShopWebApp.Helpers
         #region Product
         public static ProductViewModel ToProductViewModel(this Product product)
         {
+
             return new ProductViewModel
             {
                 Id = product.Id,
@@ -129,7 +130,10 @@ namespace OnlineShopWebApp.Helpers
                 Description = product.Description,
                 Cost = product.Cost,
                 PhotoPath = product.PhotoPath,
-                ThumbnailsPhotoPath = product.ThumbnailPath!
+                ThumbnailsPhotoPath = product.ThumbnailPath!,
+                CategoryId = product.CategoryId,
+                CurrentCategoryName = product.CategoryName,
+                 
             };
         }
 
@@ -142,7 +146,11 @@ namespace OnlineShopWebApp.Helpers
                 Description = productViewModel.Description,
                 Cost = productViewModel.Cost,
                 PhotoPath = productViewModel.PhotoPath,
-                ThumbnailPath = productViewModel.ThumbnailsPhotoPath
+                ThumbnailPath = productViewModel.ThumbnailsPhotoPath,
+                CategoryId = productViewModel.CategoryId,
+                CategoryName = productViewModel.CurrentCategoryName,
+                
+                
             };
         }
 

@@ -27,9 +27,9 @@ namespace OnlineShop.Db.Storages
             await databaseContext.SaveChangesAsync();
         }
 
-        public async Task Delete(Guid categoryId)
+        public async Task Delete(string categoryId)
         {
-            var existingCategory = await databaseContext.Categories.FirstOrDefaultAsync(c => c.Id == categoryId);
+            var existingCategory = await databaseContext.Categories.FirstOrDefaultAsync(c => c.Id == Guid.Parse(categoryId));
 
             if (existingCategory != null) { databaseContext.Categories.Remove(existingCategory); }
 
@@ -55,9 +55,9 @@ namespace OnlineShop.Db.Storages
             return await databaseContext.Products.Where(p => p.CategoryId.Contains(categoryId)).ToListAsync();
         }
 
-        public async Task<Category> TryGetById(Guid categoryId)
+        public async Task<Category> TryGetById(string categoryId)
         {
-            return await databaseContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);
+            return await databaseContext.Categories.FirstOrDefaultAsync(x => x.Id == Guid.Parse(categoryId));
         }
     }
 }

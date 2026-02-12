@@ -1,5 +1,5 @@
 ﻿@using OnlineShop.Db.Models
-@model Product
+@model ProductViewModel
 @{
     ViewData["Title"] = "Редактирование товара";
 }
@@ -12,8 +12,9 @@
         <div class="col-6 mb-3">
             <input type="hidden" name="Id" value="@Model.Id" />
             <p>
-                <img class="card-img-top" src=@Model.PhotoPath alt="Изображение товара">
-                <div class="card-body text-center">
+                <div class="text-center">
+                    <img src="/@Model.ThumbnailsPhotoPath" class="rounded" alt="...">
+                </div>
             </p>
             <p>
                 <label class="form-label" asp-for="Name"></label><br />
@@ -25,6 +26,24 @@
                 <input class="form-control" asp-for="Cost" value="@Model.Cost" />
                 <span asp-validation-for="Cost"></span>
             </p>
+            <p>
+                
+            <tr>
+                
+                <td><span>Текущая категория</span></td>
+                    <p class="text-decoration-underline">@Model.CurrentCategoryName.</p>
+            </tr>
+            </p>
+            <label asp-for="AvailableCategory" class="form-label"></label>
+            <select asp-for="CategoryId" class="form-select" aria-label="Пример выбора по умолчанию">
+
+                <option selected>Откройте это меню выбора</option>
+                @foreach (var category in Model.AvailableCategory)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </select>
+            <span asp-validation-for="CategoryId" class="text-danger"></span>
             <p>
                 <label class="form-label" asp-for="Description"></label><br />
                 <textarea class="form-control" asp-for="Description" value="@Model.Description"></textarea>
