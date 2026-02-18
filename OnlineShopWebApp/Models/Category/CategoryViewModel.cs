@@ -1,7 +1,8 @@
-﻿using OnlineShop.Db.Models;
+﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
+using OnlineShop.Db.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace OnlineShopWebApp.Models
+namespace OnlineShopWebApp.Models.Category
 {
     public class CategoryViewModel
     {
@@ -17,5 +18,16 @@ namespace OnlineShopWebApp.Models
         [Display(Name = "Описание категории")]
         [StringLength(50, MinimumLength = 2, ErrorMessage = "Описание категории должно быть от {2} до {1} символов")]
         public string? Description { get; set; }
+
+        [Display(Name = "Родительская категория")]
+        public Guid? ParentCategoryId { get; set; }
+
+        public string? IdentityUrl { get; set; }
+
+        public string? ParentCategoryName { get; set; }
+
+        // Подкатегории
+        public List<CategoryViewModel>? SubCategories { get; set; }
+
     }
 }

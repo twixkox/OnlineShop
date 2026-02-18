@@ -1,32 +1,147 @@
-﻿@model CategoryViewModel
+﻿@using OnlineShopWebApp.Models.Category
+@model CategoryViewModel
 @{
-    ViewData["Title"] = "Редактирование товара";
+    ViewData["Title"] = "Редактирование категории";
 }
 
-<div class="text-center text-uppercase text-success mb-5 mt-5">
-    <h2 class="row-title">Редактирование товара</h2>
+<!-- Шапка с заголовком и навигацией -->
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Редактирование категории "@Model.Name"</p>
+    </div>
+    <a asp-action="Index" class="btn btn-light">
+        <i class="bi bi-arrow-left me-1"></i>Назад к списку
+    </a>
 </div>
-<form method="post" enctype="multipart/form-data">
-    <div class="row justify-content-center mt-3">
-        <div class="col-6 mb-3">
-            <input type="hidden" name="Id" value="@Model.Id" />
-            
-            <p>
-                <label class="form-label" asp-for="Name"></label><br />
-                <input class="form-control" asp-for="Name" value="@Model.Name" />
-                <span asp-validation-for="Name"></span>
-            </p>
-                        <p>
-                <label class="form-label" asp-for="Description"></label><br />
-                <textarea class="form-control" asp-for="Description" value="@Model.Description"></textarea>
-                <span asp-validation-for="Description"></span>
-            </p>
-           
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                        Форма редактирования
+                    </h5>
+                </div>
+                
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        <!-- Скрытое поле для ID -->
+                        <input type="hidden" asp-for="Id" />
+                        
+                        <!-- Название категории -->
+                        <div class="mb-4">
+                            <label class="form-label fw-medium" asp-for="Name">
+                                <i class="bi bi-tag text-success me-1"></i>Название категории
+                            </label>
+                            <input class="form-control form-control-lg" asp-for="Name" 
+                                   placeholder="Введите название категории" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                            <div class="form-text text-muted">
+                                Название должно быть от 2 до 25 символов
+                            </div>
+                        </div>
+
+                      
+                        <!-- Описание -->
+                        <div class="mb-4">
+                            <label class="form-label fw-medium" asp-for="Description">
+                                <i class="bi bi-text-paragraph text-success me-1"></i>Описание
+                            </label>
+                            <textarea class="form-control" asp-for="Description" 
+                                      rows="4" placeholder="Введите описание категории"></textarea>
+                            <span asp-validation-for="Description" class="text-danger small"></span>
+                            <div class="form-text text-muted">
+                                Краткое описание категории (не более 200 символов)
+                            </div>
+                        </div>
+
+                        <!-- IdentityUrl (slug) - если нужно редактировать -->
+                        <div class="mb-4">
+                            <label class="form-label fw-medium" asp-for="IdentityUrl">
+                                <i class="bi bi-link-45deg text-success me-1"></i>URL идентификатор (slug)
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">/catalog/</span>
+                                <input class="form-control" asp-for="IdentityUrl" 
+                                       placeholder="nazvanie-kategorii" />
+                            </div>
+                            <span asp-validation-for="IdentityUrl" class="text-danger small"></span>
+                            <div class="form-text text-muted">
+                                Только латиница, цифры и дефисы. Например: "plodovye-derevya"
+                            </div>
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="d-flex justify-content-between align-items-center mt-5">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Отмена
+                            </a>
+                            <button type="submit" class="btn btn-success px-5">
+                                <i class="bi bi-check-circle me-2"></i>Сохранить изменения
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Информация о категории (дополнительно) -->
+                @if (Model.Id != Guid.Empty)
+                {
+                    <div class="card-footer bg-white py-3">
+                        <div class="small text-muted">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <i class="bi bi-hash me-1"></i> ID: @Model.Id
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <i class="bi bi-folder me-1"></i> 
+                                    @if (Model.ParentCategoryId == null)
+                                    {
+                                        <span>Корневая категория</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Подкатегория</span>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
         </div>
     </div>
-    <div class="text-center m-3">
-        <button class="btn btn-outline-success" type="submit">
-            Редактировать
-        </button>
-    </div>
-</form>
+</div>
+
+@section Scripts {
+    <script>
+        // Автоматическая генерация IdentityUrl из названия (опционально)
+        document.getElementById('Name')?.addEventListener('input', function() {
+            var identityUrl = document.getElementById('IdentityUrl');
+            
+            // Генерируем только если поле пустое или не было изменено вручную
+            if (identityUrl && !identityUrl.value) {
+                var name = this.value.toLowerCase()
+                    .replace(/[^a-zа-яё0-9\s]/gi, '') // удаляем спецсимволы
+                    .replace(/\s+/g, '-')            // пробелы на дефисы
+                    .replace(/[а-яё]/g, function(c) { // простая транслитерация
+                        var map = {
+                            'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+                            'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i',
+                            'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+                            'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+                            'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch',
+                            'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
+                            'э': 'e', 'ю': 'yu', 'я': 'ya'
+                        };
+                        return map[c] || c;
+                    });
+                identityUrl.value = name;
+            }
+        });
+    </script>
+}

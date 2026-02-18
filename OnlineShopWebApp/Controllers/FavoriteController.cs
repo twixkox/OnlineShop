@@ -29,6 +29,11 @@ namespace OnlineShopWebApp.Controllers
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
+            if (userId == null)
+            {
+                return RedirectToAction("Authorization", "Authorization");
+            }
+
             var product = await _productStorages.TryGetProductByIdAsync(productId);
 
             if (product != null) await _favoriteStorages.AddAsync(product, userId);

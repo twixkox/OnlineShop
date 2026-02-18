@@ -1,0 +1,521 @@
+﻿@model List<ProductViewModel>
+@{
+    ViewData["Title"] = ViewBag.CategoryName ?? "Товары категории";
+}
+
+@if (Model != null && Model.Count != 0)
+{
+    <!-- Информация о категории (если передана) -->
+    @if (ViewBag.CategoryName != null)
+    {
+        <div class="bg-success bg-opacity-10 p-4 rounded-3 mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-6 fw-bold text-success mb-2">@ViewBag.CategoryName</h1>
+                    @if (ViewBag.CategoryDescription != null)
+                    {
+                        <p class="text-muted mb-0">@ViewBag.CategoryDescription</p>
+                    }
+                </div>
+                <div class="text-end">
+                    <span class="badge bg-success fs-6 p-3">
+                        <i class="bi bi-box-seam me-2"></i>@Model.Count товаров
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+    <!-- Поиск и сортировка -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="btn-group" role="group">
+                <button type="button" class="btn btn-outline-success active" data-sort="default">
+                    <i class="bi bi-arrow-down-up"></i> По умолчанию
+                </button>
+                <button type="button" class="btn btn-outline-success" data-sort="price-asc">
+                    <i class="bi bi-arrow-up"></i> Цена ↑
+                </button>
+                <button type="button" class="btn btn-outline-success" data-sort="price-desc">
+                    <i class="bi bi-arrow-down"></i> Цена ↓
+                </button>
+                <button type="button" class="btn btn-outline-success" data-sort="name">
+                    <i class="bi bi-sort-alpha-down"></i> Название
+                </button>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="input-group">
+                <span class="input-group-text bg-white">
+                    <i class="bi bi-search text-success"></i>
+                </span>
+                <input type="text" class="form-control" id="searchInput" placeholder="Поиск среди @Model.Count товаров...">
+            </div>
+        </div>
+    </div>
+
+    <!-- Сетка товаров -->
+    <div class="row mt-3" id="productsContainer">
+        @foreach (var product in Model)
+        {
+            <div class="col-xl-3 col-lg-4 col-md-6 mb-4 product-item"
+                 data-name="@product.Name.ToLower()"
+                 data-price="@product.Cost">
+                <div class="card h-100 shadow-sm border-0 hover-card">
+                    <!-- Бейдж категории (если есть) -->
+                    @if (!string.IsNullOrEmpty(product.CurrentCategoryName))
+                    {
+                        <div class="position-absolute top-0 start-0 m-2 z-index-1">
+                            <span class="badge bg-success bg-opacity-75 text-white">
+                                <i class="bi bi-folder me-1"></i>@product.CurrentCategoryName
+                            </span>
+                        </div>
+                    }
+
+                    <!-- Изображение товара -->
+                    <div class="position-relative">
+                        @if (!string.IsNullOrEmpty(product.ThumbnailsPhotoPath))
+                        {
+                            <img class="card-img-top" src="@product.ThumbnailsPhotoPath"
+                                 alt="@product.Name" style="height: 200px; object-fit: cover;">
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center"
+                                 style="height: 200px;">
+                                <i class="bi bi-image fs-1 text-muted"></i>
+                            </div>
+                        }
+
+                    <!-- Кнопка избранного -->
+                    <button class="btn btn-light position-absolute top-0 end-0 m-2 favorite-btn"
+                            data-product-id="@product.Id"
+                            onclick="toggleFavorite('@product.Id')">
+                        <i class="bi bi-heart"></i>
+                    </button>
+                </div>
+
+                <!-- Информация о товаре -->
+                <div class="card-body text-center">
+                    <a class="text-success text-decoration-none"
+                       asp-controller="Product"
+                       asp-action="Index"
+                       asp-route-id="@product.Id">
+                        <h5 class="fw-bold mb-2">@product.Name</h5>
+                    </a>
+
+                    <p class="card-text text-muted small mb-3">
+                        @(product.Description?.Length > 60
+                                            ? product.Description.Substring(0, 57) + "..."
+                                            : product.Description ?? "Нет описания")
+                        </p>
+
+                        <h4 class="text-success fw-bold mb-3">@product.Cost.ToString("C")</h4>
+
+                        <!-- Кнопки действий -->
+                        <div class="d-grid gap-2">
+                            <a class="btn btn-success"
+                               asp-controller="Cart"
+                               asp-action="Add"
+                               asp-route-productId="@product.Id">
+                                <i class="bi bi-cart-plus me-1"></i>В корзину
+                            </a>
+
+                            <div class="btn-group w-100" role="group">
+                                <a class="btn btn-outline-secondary"
+                                   asp-controller="Product"
+                                   asp-action="Index"
+                                   asp-route-id="@product.Id">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <button class="btn btn-outline-danger favorite-btn"
+                                        onclick="toggleFavorite('@product.Id')">
+                                    <i class="bi bi-heart"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Пагинация (если нужно) -->
+    @if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
+    {
+        <nav class="mt-5" aria-label="Пагинация">
+            <ul class="pagination justify-content-center">
+                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" href="#" data-page="@(ViewBag.CurrentPage - 1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link" href="#" data-page="@i">@i</a>
+                    </li>
+                }
+
+                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link" href="#" data-page="@(ViewBag.CurrentPage + 1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+
+    <!-- Модальное окно добавления в корзину -->
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Товар добавлен
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-cart-check text-success" style="font-size: 4rem;"></i>
+                    <p class="lead mb-0 mt-3">Товар успешно добавлен в корзину!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Продолжить покупки
+                    </button>
+                    <a asp-controller="Cart" asp-action="Index" class="btn btn-success">
+                        <i class="bi bi-bag me-1"></i>Перейти в корзину
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+    <div class="text-center py-5 my-5">
+        <div class="mb-4">
+            <i class="bi bi-box-seam display-1 text-muted"></i>
+        </div>
+        <h2 class="text-muted mb-3">Нет товаров для отображения!</h2>
+        <p class="text-muted mb-4">В этой категории пока нет товаров или они появятся позже</p>
+        <a asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg">
+            <i class="bi bi-grid-3x3-gap-fill me-2"></i>Вернуться на главную страницу
+        </a>
+    </div>
+}
+
+<style>
+    /* Стили для карточек товаров */
+    .hover-card {
+        transition: transform 0.3s, box-shadow 0.3s;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(40, 167, 69, 0.15) !important;
+        }
+
+    /* Кнопка избранного */
+    .favorite-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s, background-color 0.3s;
+        background: white;
+        border: none;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .hover-card:hover .favorite-btn {
+        opacity: 1;
+    }
+
+    .favorite-btn:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    .favorite-btn.active i {
+        color: #dc3545;
+    }
+
+    .favorite-btn:hover i {
+        color: white;
+    }
+
+    /* Кнопки сортировки */
+    .btn-group .btn-outline-success {
+        border-color: #dee2e6;
+        border-radius: 8px !important;
+        margin: 0 2px;
+    }
+
+        .btn-group .btn-outline-success.active {
+            background-color: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+
+        .btn-group .btn-outline-success:hover:not(.active) {
+            background-color: #f8f9fa;
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+    /* Пагинация */
+    .page-link {
+        color: #28a745;
+        border: none;
+        margin: 0 3px;
+        border-radius: 8px;
+        padding: 8px 14px;
+    }
+
+    .page-item.active .page-link {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
+
+    .page-item .page-link:hover {
+        background-color: #e9ecef;
+        color: #28a745;
+    }
+
+    .page-item.disabled .page-link {
+        color: #6c757d;
+        pointer-events: none;
+        background-color: transparent;
+    }
+
+    /* Анимация появления товаров */
+    .product-item {
+        animation: fadeInUp 0.5s ease;
+        animation-fill-mode: both;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Задержки для анимации */
+    .product-item:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .product-item:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .product-item:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+
+    .product-item:nth-child(4) {
+        animation-delay: 0.4s;
+    }
+
+    .product-item:nth-child(5) {
+        animation-delay: 0.5s;
+    }
+
+    .product-item:nth-child(6) {
+        animation-delay: 0.6s;
+    }
+
+    /* Поиск */
+    #searchInput:focus {
+        border-color: #28a745;
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+    }
+
+    /* Адаптивность */
+    @@media (max-width: 768px) {
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            width: 100%;
+        }
+
+            .btn-group .btn {
+                flex: 1 1 auto;
+                font-size: 0.875rem;
+            }
+    }
+</style>
+
+<script>
+    // Сортировка товаров
+    document.querySelectorAll('[data-sort]').forEach(button => {
+        button.addEventListener('click', function() {
+            // Убираем active со всех кнопок
+            document.querySelectorAll('[data-sort]').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Добавляем active текущей кнопке
+            this.classList.add('active');
+
+            const sortType = this.dataset.sort;
+            const container = document.getElementById('productsContainer');
+            const products = Array.from(document.querySelectorAll('.product-item'));
+
+            // Сортируем
+            products.sort((a, b) => {
+                const nameA = a.dataset.name;
+                const nameB = b.dataset.name;
+                const priceA = parseFloat(a.dataset.price);
+                const priceB = parseFloat(b.dataset.price);
+
+                switch(sortType) {
+                    case 'price-asc':
+                        return priceA - priceB;
+                    case 'price-desc':
+                        return priceB - priceA;
+                    case 'name':
+                        return nameA.localeCompare(nameB);
+                    default:
+                        return 0;
+                }
+            });
+
+            // Перестраиваем DOM
+            container.innerHTML = '';
+            products.forEach(product => container.appendChild(product));
+        });
+    });
+
+    // Поиск по товарам
+    document.getElementById('searchInput')?.addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const products = document.querySelectorAll('.product-item');
+        let visibleCount = 0;
+
+        products.forEach(product => {
+            const name = product.dataset.name;
+            if (name.includes(searchText)) {
+                product.style.display = '';
+                visibleCount++;
+            } else {
+                product.style.display = 'none';
+            }
+        });
+
+        // Показываем сообщение, если ничего не найдено
+        const noResults = document.getElementById('noResultsMessage');
+        if (visibleCount === 0) {
+            if (!noResults) {
+                const message = document.createElement('div');
+                message.id = 'noResultsMessage';
+                message.className = 'col-12 text-center py-5';
+                message.innerHTML = `
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h4 class="text-muted mt-3">Ничего не найдено</h4>
+                    <p class="text-muted">Попробуйте изменить поисковый запрос</p>
+                `;
+                document.getElementById('productsContainer').appendChild(message);
+            }
+        } else if (noResults) {
+            noResults.remove();
+        }
+    });
+
+    // Добавление в корзину с модальным окном
+    document.querySelectorAll('[asp-controller="Cart"][asp-action="Add"]').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const productId = this.getAttribute('asp-route-productId');
+
+            fetch(`/Cart/Add/${productId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Показываем модальное окно
+                    var cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
+                    cartModal.show();
+
+                    // Обновляем счетчик корзины
+                    const cartCounter = document.querySelector('.cart-counter');
+                    if (cartCounter) {
+                        cartCounter.textContent = data.cartCount;
+                    }
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
+
+    // Функция для избранного
+    function toggleFavorite(productId) {
+        fetch(`/Favorite/Toggle/${productId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const btn = event.currentTarget;
+                btn.classList.toggle('active');
+
+                // Показываем уведомление
+                const toast = document.createElement('div');
+                toast.className = 'position-fixed bottom-0 end-0 p-3';
+                toast.style.zIndex = '11';
+                toast.innerHTML = `
+                    <div class="toast show" role="alert">
+                        <div class="toast-header bg-success text-white">
+                            <i class="bi bi-heart-fill me-2"></i>
+                            <strong class="me-auto">Избранное</strong>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${data.message}
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(toast);
+
+                setTimeout(() => toast.remove(), 3000);
+            }
+        });
+    }
+
+    // Пагинация
+    document.querySelectorAll('.page-link[data-page]').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const page = this.dataset.page;
+            const url = new URL(window.location.href);
+            url.searchParams.set('page', page);
+            window.location.href = url.toString();
+        });
+    });
+</script>

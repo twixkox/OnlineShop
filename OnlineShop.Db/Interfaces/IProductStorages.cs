@@ -11,5 +11,7 @@ namespace OnlineShop.Db.Interfaces
 
         Task EditProductAsync(Product product);
         Task<List<Product>> SearchAsync(string query);
+
+        Task<List<Guid>> TryGetProductsByCategoryId(Guid categoryId);
     }
 }

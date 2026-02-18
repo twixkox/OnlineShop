@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Helpers;
@@ -27,10 +28,16 @@ namespace OnlineShopWebApp.Controllers
             return View(cart.ToCartViewModel());
 
         }
+       
         public async Task<IActionResult> Add(Guid productId, int quantity = 1)
         {
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+           if (userId == null)
+            {
+                return RedirectToAction("Authorization", "Authorization");
+            }
 
             var product = await _productStorage.TryGetProductByIdAsync(productId);
 

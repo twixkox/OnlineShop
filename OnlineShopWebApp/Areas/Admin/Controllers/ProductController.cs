@@ -4,6 +4,7 @@ using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
+using OnlineShopWebApp.Models.Category;
 using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
@@ -97,6 +98,9 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             {
                 var product = await _products.TryGetProductByIdAsync(id);
 
+                var category = await _categories.TryGetById(product.CategoryId);
+                product.CategoryName = category.Name;
+
                 var productViewModel = product.ToProductViewModel();
 
                 var allCategories = await _categories.GetAll();
@@ -107,9 +111,6 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     Description = c.Description,
 
                 }).ToList();
-                
-
-            
 
                 _logger.LogInformation($"Выполнено получение продукта для редактирования id - {product.Id}.");
 

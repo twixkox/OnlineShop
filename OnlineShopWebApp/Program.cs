@@ -8,6 +8,7 @@ using OnlineShop.Db.Storages;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Models;
 using Serilog;
+using SixLabors.ImageSharp.Drawing.Processing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -82,7 +83,9 @@ using (var scope = app.Services.CreateScope())
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<User>>();
 
-        await IdentityInitializer.InitializeAsync(userManager, roleManager);  
+        await IdentityInitializer.InitializeAsync(userManager, roleManager);
+        var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+        await ShopDbInitilizer.InitializeAsync(context);
     }
     catch (Exception ex)
     {
@@ -99,11 +102,16 @@ app.UseAuthorization();
 
 app.MapStaticAssets();
 
-
 app.MapControllerRoute(
 name: "MyArea",
 pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
 .WithStaticAssets();
+
+app.MapControllerRoute(
+    name: "catalog",
+    pattern: "catalog/{identityUrl}",
+    defaults: new { controller = "Catalog", action = "Index" });
+
 
 app.MapControllerRoute(
     name: "default",

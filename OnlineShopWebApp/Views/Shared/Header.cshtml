@@ -1,11 +1,76 @@
 ﻿@using System.Security.Claims
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using OnlineShop.Db
+@using OnlineShop.Db.Models
+@inject DatabaseContext _context
+
 <header>
-    <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2">
         <div class="container-fluid">
             <!-- Логотип -->
-            <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                OnlineShop
+            <a class="navbar-brand fw-bold text-success fs-4" asp-area="" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-flower1 me-2"></i>PlantShop
             </a>
+
+            <!-- Кнопка каталога (видна на всех разрешениях) -->
+            <div class="dropdown d-none d-lg-block mx-3">
+                <button class="btn btn-success dropdown-toggle px-4 py-2" type="button"
+                        id="catalogDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-grid-3x3-gap-fill me-2"></i>Каталог товаров
+                </button>
+                <div class="dropdown-menu dropdown-menu-catalog p-3 shadow-lg border-0"
+                     aria-labelledby="catalogDropdown" style="min-width: 300px;">
+
+                    @{
+                        // Получаем все категории
+                        var allCategories = _context.Categories.ToList();
+
+                        // Группируем по имени для отображения (так как нет ParentCategoryId)
+                        var groupedCategories = allCategories
+                        .GroupBy(c => GetMainCategoryName(c.Name))
+                        .OrderBy(g => g.Key);
+                    }
+
+                    @foreach (var group in groupedCategories)
+                    {
+
+
+                        @if (group.Count() > 1)
+                        {
+                            <div class="subcategories ms-4 mt-2">
+                                @foreach (var sub in group.OrderBy(s => s.Name))
+                                {
+                                    <div class="d-flex align-items-center mb-1">
+                                        <i class="bi bi-arrow-return-right text-success me-2 small"></i>
+                                        
+                                        <a asp-area="" asp-controller="Catalog" asp-action="Index"
+                                           asp-route-identityUrl="@sub.IdentityUrl"
+                                           asp-route-categoryId="@sub.Id"
+                                           class="text-decoration-none text-secondary active">
+                                            @sub.Name
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="ms-4 mt-1">
+                                <a asp-controller="Home" asp-action="Index"
+                                   asp-route-identityUrl="@group.First().IdentityUrl"
+                                   class="text-decoration-none text-success small">
+                                    <i class="bi bi-box-arrow-up-right me-1"></i>Перейти
+                                </a>
+                            </div>
+                        }
+
+                        @if (!groupedCategories.Last().Equals(group))
+                        {
+                            <hr class="dropdown-divider my-2">
+                        }
+                    }
+                </div>
+            </div>
 
             <!-- Кнопка для мобильных устройств -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
@@ -15,287 +80,173 @@
             </button>
 
             <!-- Основное меню -->
-            <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+            <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- Главная страница -->
-                    <li class="nav-item">
-                        <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
-                            Главная
-                        </a>
+                    <!-- Каталог в мобильной версии -->
+                    <li class="nav-item d-lg-none">
+                        <div class="nav-link text-dark fw-bold">
+                            <i class="bi bi-grid-3x3-gap-fill me-1"></i>Категории
+                        </div>
+                        <div class="mobile-categories ps-3">
+                            @{
+                                var mobileGroups = allCategories
+                                .GroupBy(c => GetMainCategoryName(c.Name))
+                                .OrderBy(g => g.Key);
+                            }
+
+                            @foreach (var group in groupedCategories)
+                            {
+
+
+                                @if (group.Count() > 1)
+                                {
+                                    <div class="subcategories ms-4 mt-2">
+                                        @foreach (var sub in group.OrderBy(s => s.Name))
+                                        {
+                                            <div class="d-flex align-items-center mb-1">
+                                                <i class="bi bi-arrow-return-right text-success me-2 small"></i>
+                                                <a asp-area="" asp-controller="Catalog" asp-action="Index"
+                                                   asp-route-identityUrl="@sub.IdentityUrl"
+                                                   asp-route-categoryId="@sub.Id"
+                                                   class="text-decoration-none text-secondary active">
+                                                    @sub.Name
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="ms-4 mt-1">
+                                        <a asp-controller="Catalog" asp-action="Category"
+                                           asp-route-identityUrl="@group.First().IdentityUrl"
+                                           class="text-decoration-none text-success small">
+                                            <i class="bi bi-box-arrow-up-right me-1"></i>Перейти
+                                        </a>
+                                    </div>
+                                }
+
+                                @if (!groupedCategories.Last().Equals(group))
+                                {
+                                    <hr class="dropdown-divider my-2">
+                                }
+                            }
+                        </div>
                     </li>
 
                     <!-- Поиск -->
-                    @await Html.PartialAsync("SearchLine")
+                    <li class="nav-item">
+                        @await Html.PartialAsync("SearchLine")
+                    </li>
                 </ul>
 
                 <!-- Правая часть навигации -->
-                <ul class="navbar-nav">
-                    <!-- Корзина -->
-                    <li class="nav-item">
-                        @await Component.InvokeAsync("Cart", @User.FindFirstValue(ClaimTypes.NameIdentifier))
-                    </li>
-
-                    <!-- Избранное -->
-                    <li class="nav-item">
-                        @await Component.InvokeAsync("Favorite", @User.FindFirstValue(ClaimTypes.NameIdentifier))
-                    </li>
+                <ul class="navbar-nav align-items-center">
+                    
 
                     <!-- Авторизация/Пользователь -->
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <li class="nav-item dropdown">
+                        <!-- Корзина -->
+                        <li class="nav-item me-2">
+                            @await Component.InvokeAsync("Cart", @User.FindFirstValue(ClaimTypes.NameIdentifier))
+                        </li>
+
+                        <!-- Избранное -->
+                        <li class="nav-item me-2">
+                            @await Component.InvokeAsync("Favorite", @User.FindFirstValue(ClaimTypes.NameIdentifier))
+                        </li>
+                        <li class="nav-item dropdown ms-2">
                             <a class="nav-link dropdown-toggle p-0" href="#"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                <!-- Простая аватарка -->
                                 <img src="/uploads/users/avatars/UserAvatar.png"
-                                     alt="Профиль"
-                                     class="rounded-circle border"
-                                     width="36"
-                                     height="36"
+                                     alt="@User.Identity.Name"
+                                     class="rounded-circle border border-2 border-success"
+                                     width="38"
+                                     height="38"
                                      style="object-fit: cover;">
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
+                                <li class="px-3 py-2 bg-light">
+                                    <small class="text-muted d-block">Вы вошли как</small>
+                                    <span class="fw-bold">@User.Identity.Name</span>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
                                 <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="Profile">
-                                        <i class="bi bi-person me-2"></i>Профиль
+                                    <a class="dropdown-item py-2" asp-area="" asp-controller="Account" asp-action="Profile">
+                                        <i class="bi bi-person me-2 text-success"></i>Профиль
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Profile" asp-action="UserOrder">
-                                        <i class="bi bi-bag-check me-2"></i>Мои заказы
+                                    <a class="dropdown-item py-2" asp-area="" asp-controller="Profile" asp-action="UserOrder">
+                                        <i class="bi bi-bag-check me-2 text-success"></i>Мои заказы
                                     </a>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><hr class="dropdown-divider my-1"></li>
                                 <li>
-                                    <a class="dropdown-item text-danger" asp-area="" asp-controller="Authorization" asp-action="Logout">
+                                    <a class="dropdown-item py-2 text-danger" asp-area="" asp-controller="Authorization" asp-action="Logout">
                                         <i class="bi bi-box-arrow-right me-2"></i>Выйти
                                     </a>
+                                </li>
                             </ul>
                         </li>
                     }
                     else
                     {
-
-                        <div class="auth-buttons">
-                            <!-- Кнопка входа -->
-                            <button type="button" class="btn btn-auth btn-login me-2"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#loginModal">
-                                <span class="btn-auth-icon">
-                                    <i class="bi bi-box-arrow-in-right"></i>
-                                </span>
-                                <span class="btn-auth-text">Войти</span>
-                            </button>
-
-                            <!-- Кнопка регистрации -->
-                            <button type="button" class="btn btn-auth btn-register"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#registrationModal">
-                                <span class="btn-auth-icon">
-                                    <i class="bi bi-person-plus"></i>
-                                </span>
-                                <span class="btn-auth-text">Регистрация</span>
-                            </button>
-                        </div>
-                        <!-- Модальное окно авторизации -->
-                        <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-sm">
-                                <div class="modal-content auth-modal">
-
-                                    <div class="modal-header-primary">
-                                        <div class="modal-header-content">
-                                            <h5 class="modal-title">
-                                                <i class="bi bi-lock me-2"></i>
-                                                Вход в систему
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                        </div>
-                                    </div>
-
-                                    <div class="modal-body p-4">
-                                        <form method="post" action="/Authorization/Authorization" id="loginForm">
-
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="loginUsername"
-                                                       name="UserName" placeholder=" " required>
-                                                <label for="loginUsername">
-                                                    <i class="bi bi-person me-1"></i>
-                                                    Имя пользователя
-                                                </label>
-                                            </div>
-
-                                            <div class="form-floating mb-3">
-                                                <input type="password" class="form-control" id="loginPassword"
-                                                       name="Password" placeholder=" " required>
-                                                <label for="loginPassword">
-                                                    <i class="bi bi-key me-1"></i>
-                                                    Пароль
-                                                </label>
-                                                <span class="password-toggle" onclick="togglePassword('loginPassword', this)">
-                                                    <i class="bi bi-eye"></i>
-                                                </span>
-                                            </div>
-
-                                            <div class="d-flex justify-content-between align-items-center mb-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="RememberMe" id="rememberMe">
-                                                    <label class="form-check-label small" for="rememberMe">
-                                                        Запомнить меня
-                                                    </label>
-                                                </div>
-                                                <a href="#" class="small text-decoration-none text-primary">Забыли пароль?</a>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 auth-submit-btn">
-                                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-                                                <span class="btn-text">Войти</span>
-                                            </button>
-
-                                            <div class="text-center">
-                                                <p class="small text-muted mb-0">
-                                                    Нет аккаунта?
-                                                    <button type="button" class="btn btn-link p-0 small text-primary"
-                                                            data-bs-dismiss="modal"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#registrationModal">
-                                                        Зарегистрироваться
-                                                    </button>
-                                                </p>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
+                        <li class="nav-item ms-3">
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-success btn-sm px-4 py-2"
+                                        data-bs-toggle="modal" data-bs-target="#loginModal">
+                                    <i class="bi bi-box-arrow-in-right me-1"></i>Войти
+                                </button>
+                                <button type="button" class="btn btn-success btn-sm px-4 py-2"
+                                        data-bs-toggle="modal" data-bs-target="#registrationModal">
+                                    <i class="bi bi-person-plus me-1"></i>Регистрация
+                                </button>
                             </div>
-                        </div>
-
-                         <!-- Модальное окно регистрации -->
-                        <div class="modal fade" id="registrationModal" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content auth-modal">
-
-                                    <div class="modal-header-primary">
-                                        <div class="modal-header-content">
-                                            <h5 class="modal-title">
-                                                <i class="bi bi-person-plus me-2"></i>
-                                                Регистрация
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                                        </div>
-                                        <p class="modal-subtitle">Создание нового аккаунта</p>
-                                    </div>
-
-                                    <div class="modal-body p-4">
-                                        <form method="post" action="/Registration/Registration" id="registrationForm">
-                                            <div class="row g-3 mb-3">
-                                                <div class="col-md-6">
-                                                    <div class="form-floating">
-                                                        <input type="text" class="form-control" id="regFirstName"
-                                                               name="FirstName" placeholder=" ">
-                                                        <label for="regFirstName">Имя</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-floating">
-                                                        <input type="text" class="form-control" id="regLastName"
-                                                               name="LastName" placeholder=" ">
-                                                        <label for="regLastName">Фамилия</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="form-floating mb-3">
-                                                <input type="text" class="form-control" id="regUsername"
-                                                       name="UserName" placeholder=" " required>
-                                                <label for="regUsername">Имя пользователя *</label>
-                                            </div>
-
-                                            <div class="form-floating mb-3">
-                                                <input type="tel" class="form-control" id="regPhone"
-                                                       name="Phone" placeholder=" ">
-                                                <label for="regPhone">Телефон</label>
-                                            </div>
-
-                                            <div class="row g-3 mb-3">
-                                                <div class="col-md-6">
-                                                    <div class="form-floating">
-                                                        <input type="password" class="form-control" id="regPassword"
-                                                               name="Password" placeholder=" " required>
-                                                        <label for="regPassword">Пароль *</label>
-                                                        <span class="password-toggle" onclick="togglePassword('regPassword', this)">
-                                                            <i class="bi bi-eye"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <div class="form-floating">
-                                                        <input type="password" class="form-control" id="regPasswordConfirm"
-                                                               name="ReplayPassword" placeholder=" " required>
-                                                        <label for="regPasswordConfirm">Подтверждение *</label>
-                                                        <span class="password-toggle" onclick="togglePassword('regPasswordConfirm', this)">
-                                                            <i class="bi bi-eye"></i>
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 auth-submit-btn">
-                                                <span class="spinner-border spinner-border-sm d-none" role="status"></span>
-                                                <span class="btn-text">Зарегистрироваться</span>
-                                            </button>
-
-                                            <div class="text-center">
-                                                <p class="small text-muted mb-0">
-                                                    Уже есть аккаунт?
-                                                    <button type="button" class="btn btn-link p-0 small text-primary"
-                                                            data-bs-dismiss="modal"
-                                                            data-bs-toggle="modal"
-                                                            data-bs-target="#loginModal">
-                                                        Войти
-                                                    </button>
-                                                </p>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> 
+                        </li>
                     }
 
-
+                    <!-- Админ панель -->
                     @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                     {
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle p-20" href="Админ панель"
+                        <li class="nav-item dropdown ms-3">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#"
                                data-bs-toggle="dropdown" aria-expanded="false">
-                                Админ панель
+                                <span class="bg-danger bg-opacity-10 p-2 rounded-circle">
+                                    <i class="bi bi-shield-lock text-danger"></i>
+                                </span>
                             </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
+                                <li class="px-3 py-2 bg-light">
+                                    <span class="fw-bold text-danger">Панель управления</span>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
                                 <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Order" asp-action="Index">
-                                        <i class="bi bi-person me-2"></i>Заказы
+                                    <a class="dropdown-item py-2" asp-area="Admin" asp-controller="Order" asp-action="Index">
+                                        <i class="bi bi-truck me-2 text-success"></i>Заказы
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="User" asp-action="Index">
-                                        <i class="bi bi-person me-2"></i>Пользователи
+                                    <a class="dropdown-item py-2" asp-area="Admin" asp-controller="User" asp-action="Index">
+                                        <i class="bi bi-people me-2 text-success"></i>Пользователи
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Role" asp-action="Index">
-                                        <i class="bi bi-person me-2"></i>Роли
+                                    <a class="dropdown-item py-2" asp-area="Admin" asp-controller="Role" asp-action="Index">
+                                        <i class="bi bi-shield me-2 text-success"></i>Роли
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">
-                                        <i class="bi bi-bag-check me-2"></i>Товары
+                                    <a class="dropdown-item py-2" asp-area="Admin" asp-controller="Product" asp-action="Index">
+                                        <i class="bi bi-box-seam me-2 text-success"></i>Товары
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index">
-                                        <i class="bi bi-bag-check me-2"></i>Категории
+                                    <a class="dropdown-item py-2" asp-area="Admin" asp-controller="Category" asp-action="Index">
+                                        <i class="bi bi-grid-3x3-gap-fill me-2 text-success"></i>Категории
                                     </a>
                                 </li>
-                               
                             </ul>
                         </li>
                     }
@@ -304,3 +255,303 @@
         </div>
     </nav>
 </header>
+
+<!-- Модальные окна (без изменений) -->
+@if (!User.Identity.IsAuthenticated)
+{
+    <!-- Модальное окно авторизации -->
+    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content auth-modal">
+                <div class="modal-header-primary">
+                    <div class="modal-header-content">
+                        <h5 class="modal-title">
+                            <i class="bi bi-lock me-2"></i>
+                            Вход в систему
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                </div>
+                <div class="modal-body p-4">
+                    <form method="post" action="/Authorization/Authorization" id="loginForm">
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="loginUsername"
+                                   name="UserName" placeholder=" " required>
+                            <label for="loginUsername">
+                                <i class="bi bi-person me-1"></i>
+                                Имя пользователя
+                            </label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="loginPassword"
+                                   name="Password" placeholder=" " required>
+                            <label for="loginPassword">
+                                <i class="bi bi-key me-1"></i>
+                                Пароль
+                            </label>
+                            <span class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                                <i class="bi bi-eye"></i>
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="RememberMe" id="rememberMe">
+                                <label class="form-check-label small" for="rememberMe">
+                                    Запомнить меня
+                                </label>
+                            </div>
+                            <a href="#" class="small text-decoration-none text-primary">Забыли пароль?</a>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 auth-submit-btn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            <span class="btn-text">Войти</span>
+                        </button>
+                        <div class="text-center">
+                            <p class="small text-muted mb-0">
+                                Нет аккаунта?
+                                <button type="button" class="btn btn-link p-0 small text-primary"
+                                        data-bs-dismiss="modal"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#registrationModal">
+                                    Зарегистрироваться
+                                </button>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно регистрации -->
+    <div class="modal fade" id="registrationModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content auth-modal">
+                <div class="modal-header-primary">
+                    <div class="modal-header-content">
+                        <h5 class="modal-title">
+                            <i class="bi bi-person-plus me-2"></i>
+                            Регистрация
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <p class="modal-subtitle">Создание нового аккаунта</p>
+                </div>
+                <div class="modal-body p-4">
+                    <form method="post" action="/Registration/Registration" id="registrationForm">
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="regFirstName"
+                                           name="FirstName" placeholder=" ">
+                                    <label for="regFirstName">Имя</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" id="regLastName"
+                                           name="LastName" placeholder=" ">
+                                    <label for="regLastName">Фамилия</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="text" class="form-control" id="regUsername"
+                                   name="UserName" placeholder=" " required>
+                            <label for="regUsername">Имя пользователя *</label>
+                        </div>
+                        <div class="form-floating mb-3">
+                            <input type="tel" class="form-control" id="regPhone"
+                                   name="Phone" placeholder=" ">
+                            <label for="regPhone">Телефон</label>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="password" class="form-control" id="regPassword"
+                                           name="Password" placeholder=" " required>
+                                    <label for="regPassword">Пароль *</label>
+                                    <span class="password-toggle" onclick="togglePassword('regPassword', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-floating">
+                                    <input type="password" class="form-control" id="regPasswordConfirm"
+                                           name="ReplayPassword" placeholder=" " required>
+                                    <label for="regPasswordConfirm">Подтверждение *</label>
+                                    <span class="password-toggle" onclick="togglePassword('regPasswordConfirm', this)">
+                                        <i class="bi bi-eye"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3 auth-submit-btn">
+                            <span class="spinner-border spinner-border-sm d-none" role="status"></span>
+                            <span class="btn-text">Зарегистрироваться</span>
+                        </button>
+                        <div class="text-center">
+                            <p class="small text-muted mb-0">
+                                Уже есть аккаунт?
+                                <button type="button" class="btn btn-link p-0 small text-primary"
+                                        data-bs-dismiss="modal"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                    Войти
+                                </button>
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    /* Стили для выпадающего меню каталога */
+    .dropdown-menu-catalog {
+        border-radius: 12px;
+        animation: slideDown 0.3s ease;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+
+    @* Экранируем @keyframes для Razor *@
+    @@keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .dropdown-menu-catalog::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .dropdown-menu-catalog::-webkit-scrollbar-thumb {
+        background-color: #28a745;
+        border-radius: 6px;
+    }
+
+    .dropdown-item-category {
+        transition: all 0.2s;
+        padding: 8px;
+        border-radius: 8px;
+    }
+
+        .dropdown-item-category:hover {
+            background-color: rgba(40, 167, 69, 0.05);
+        }
+
+    .subcategories a:hover {
+        color: #28a745 !important;
+        text-decoration: underline !important;
+    }
+
+    /* Стили для мобильных категорий */
+    .mobile-categories {
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+        .mobile-categories::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .mobile-categories::-webkit-scrollbar-thumb {
+            background-color: #28a745;
+            border-radius: 4px;
+        }
+
+    /* Анимация для иконок */
+    .bi {
+        transition: transform 0.2s;
+    }
+
+    .dropdown-item-category:hover .bi-folder-fill {
+        transform: scale(1.1);
+    }
+
+    /* Стили для кнопок входа/регистрации */
+    .btn-outline-success:hover {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+
+    }
+</style>
+
+@functions {
+    private string GetMainCategoryName(string fullName)
+    {
+        // Группируем по первому слову или по общему признаку
+        if (fullName.Contains("Яблоня") || fullName.Contains("Груша") ||
+            fullName.Contains("Слива") || fullName.Contains("Вишня") ||
+            fullName.Contains("Смородина"))
+            return "Плодовые";
+
+        if (fullName.Contains("Клен") || fullName.Contains("Береза") ||
+            fullName.Contains("Ива") || fullName.Contains("Гортензия"))
+            return "Лиственные";
+
+        if (fullName.Contains("Ель") || fullName.Contains("Сосна") ||
+            fullName.Contains("Туя") || fullName.Contains("Можжевельник") ||
+            fullName.Contains("Пихта"))
+            return "Хвойные";
+
+        if (fullName.Contains("Петуния") || fullName.Contains("Бархатцы") ||
+            fullName.Contains("Цинния") || fullName.Contains("Сальвия") ||
+            fullName.Contains("Астра"))
+            return "Однолетники";
+
+        if (fullName.Contains("Пион") || fullName.Contains("Лилия") ||
+            fullName.Contains("Ирис") || fullName.Contains("Флокс") ||
+            fullName.Contains("Хоста"))
+            return "Многолетники";
+
+        if (fullName.Contains("Роза"))
+            return "Розы";
+
+        if (fullName.Contains("Грунт") || fullName.Contains("Удобрение") ||
+            fullName.Contains("Секатор"))
+            return "Сопутствующие товары";
+
+        return "Другие";
+    }
+}
+
+<script>
+    // Функция для переключения видимости пароля
+    function togglePassword(inputId, element) {
+        const input = document.getElementById(inputId);
+        const icon = element.querySelector('i');
+
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye');
+            icon.classList.add('bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash');
+            icon.classList.add('bi-eye');
+        }
+    }
+</script>

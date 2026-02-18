@@ -23,11 +23,19 @@ namespace OnlineShop.Db
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Product>().HasData(new List<Product>()
-            {
-               
-            });
+            modelBuilder.Entity<Product>()
+                .HasOne(p => p.Category)
+                .WithMany(p => p.Products)
+                .HasForeignKey(p => p.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Category>()
+                .HasIndex(c => c.IdentityUrl)
+                .IsUnique();
+
+            
         }
 
 

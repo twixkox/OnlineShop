@@ -45,19 +45,17 @@ namespace OnlineShop.Db.Storages
                 existingCategory.Id = category.Id;
                 existingCategory.Name = category.Name;
                 existingCategory.Description = category.Description;
+                existingCategory.IdentityUrl = category.IdentityUrl;
+
             }
 
             await databaseContext.SaveChangesAsync();
         }
 
-        public async Task<List<Product>> TryGetProductsByCategoryId(string categoryId)
+        public async Task<Category> TryGetById(Guid categoryId)
         {
-            return await databaseContext.Products.Where(p => p.CategoryId.Contains(categoryId)).ToListAsync();
+            return await databaseContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);
         }
 
-        public async Task<Category> TryGetById(string categoryId)
-        {
-            return await databaseContext.Categories.FirstOrDefaultAsync(x => x.Id == Guid.Parse(categoryId));
-        }
     }
 }

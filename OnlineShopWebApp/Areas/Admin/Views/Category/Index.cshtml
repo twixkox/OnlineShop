@@ -1,75 +1,186 @@
-﻿@model List<CategoryViewModel>
+﻿@using OnlineShopWebApp.Models.Category
+@model List<CategoryViewModel>
 @{
     ViewData["Title"] = "Управление категориями";
 }
 
-<div class="row mt-3">
+<!-- Шапка с заголовком и кнопкой -->
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-grid-3x3-gap-fill me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Управление категориями товаров</p>
+    </div>
+    <a asp-action="Add" class="btn btn-light">
+        <i class="bi bi-plus-circle me-1"></i>Создать
+    </a>
+</div>
 
-    <div class="col-9 mb-3">
-        <div class="text-center text-uppercase text-success mb-5 mt-5">
-            <h2 class="row-title">Заказы</h2>
+<div class="container-fluid px-4">
+    <!-- Уведомления -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-check-circle-fill me-2"></i>@TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
+    }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
 
-        <div class="container">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2>@ViewData["Title"]</h2>
-                <a asp-action="Add" class="btn btn-success">
-                    <i class="bi bi-plus-circle"></i> Создать категорию
-                </a>
-            </div>
-
-            @if (TempData["SuccessMessage"] != null)
-            {
-                <div class="alert alert-success">@TempData["SuccessMessage"]</div>
-            }
-
-            @if (TempData["ErrorMessage"] != null)
-            {
-                <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
-            }
-
-            <div class="card">
+    <!-- Краткая статистика -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card bg-light border-0">
                 <div class="card-body">
-                    @if (Model.Any())
-                    {
-                        <table class="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Название</th>
-                                    <th>Описание</th>
-                                    <th>Действия</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var category in Model)
-                                {
-                                    <tr>
-                                        <td>@category.Name</td>
-                                        <td>@category.Description</td>
-                                        <td>
-                                            <div class="btn-group" role="group">
-                                                <a asp-action="Edit" asp-route-id="@category.Id"
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-pencil"></i> Изменить
-                                                </a>
-                                                <a asp-action="Delete" asp-route-id="@category.Id"
-                                                   class="btn btn-sm btn-outline-primary">
-                                                    <i class="bi bi-pencil"></i> Удалить
-                                                </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    }
-                    else
-                    {
-                        <div class="text-center text-muted">
-                            <p>Категории еще не созданы</p>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-folder-fill fs-1 text-primary me-3"></i>
+                        <div>
+                            <h6 class="text-muted mb-1">Всего категорий</h6>
+                            <h3 class="mb-0">@Model.Count</h3>
                         </div>
-                    }
+                    </div>
                 </div>
             </div>
         </div>
+        <div class="col-md-4">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-diagram-3-fill fs-1 text-success me-3"></i>
+                        <div>
+                            <h6 class="text-muted mb-1">Родительские</h6>
+                            <h3 class="mb-0">@Model.Count(c => c.ParentCategoryId == null)</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-light border-0">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-diagram-2-fill fs-1 text-info me-3"></i>
+                        <div>
+                            <h6 class="text-muted mb-1">Подкатегории</h6>
+                            <h3 class="mb-0">@Model.Count(c => c.ParentCategoryId != null)</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Поиск (простой) -->
+    <div class="mb-4">
+        <div class="input-group">
+            <span class="input-group-text bg-white">
+                <i class="bi bi-search"></i>
+            </span>
+            <input type="text" class="form-control" placeholder="Поиск категорий..." id="searchInput">
+        </div>
+    </div>
+
+    <!-- Таблица категорий -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0" id="categoriesTable">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Название</th>
+                                <th>Описание</th>
+                                <th>Тип</th>
+                                <th class="text-end pe-4">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var category in Model)
+                            {
+                               
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            
+                                            <i class="bi @(category.ParentCategoryId == null ? "bi-folder-fill text-warning" : "bi-folder-symlink-fill text-success") me-2"></i>
+                                            @category.Name
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted small">
+                                            @(category.Description?.Length > 40 ? category.Description.Substring(0, 37) + "..." : category.Description)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        @if (category.ParentCategoryId == null)
+                                        {
+                                            <span class="badge bg-primary bg-opacity-10 text-primary">Основная</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-info bg-opacity-10 text-info">Подкатегория</span>
+                                        }
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a asp-action="Edit" asp-route-id="@category.Id"
+                                           class="btn btn-sm btn-outline-primary" title="Изменить">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@category.Id"
+                                           class="btn btn-sm btn-outline-danger" title="Удалить"
+                                           onclick="return confirm('Удалить категорию @category.Name?')">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-5">
+                    <i class="bi bi-folder-x display-1 text-muted"></i>
+                    <h5 class="text-muted mt-3">Категорий пока нет</h5>
+                    <a asp-action="Add" class="btn btn-success mt-2">
+                        <i class="bi bi-plus-circle me-1"></i>Создать первую
+                    </a>
+                </div>
+            }
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="card-footer bg-white text-muted small">
+                <i class="bi bi-info-circle me-1"></i>
+                Всего записей: @Model.Count
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Простой поиск по таблице
+        document.getElementById('searchInput').addEventListener('keyup', function() {
+            var searchText = this.value.toLowerCase();
+            var rows = document.querySelectorAll('#categoriesTable tbody tr');
+
+            rows.forEach(function(row) {
+                var text = row.textContent.toLowerCase();
+                row.style.display = text.includes(searchText) ? '' : 'none';
+            });
+        });
+    </script>
+    
+}

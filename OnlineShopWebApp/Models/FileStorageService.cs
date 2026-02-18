@@ -41,7 +41,7 @@ namespace OnlineShopWebApp.Models
 
                 var fileName = Guid.NewGuid() + extesnionsFile;
 
-                var relativePath = Path.Combine("uploads", "products", "original", fileName);
+                var relativePath = Path.Combine("uploads", "products", "original",$"{fileName}", fileName);
                 var physicalPath = Path.Combine(_appEnviroment.WebRootPath, relativePath);
 
                 var directory = Path.GetDirectoryName(physicalPath);
@@ -81,7 +81,7 @@ namespace OnlineShopWebApp.Models
 
             var fileName = $"{Path.GetFileNameWithoutExtension(relativePath)}-thumb{extensionFile}";// объединение пути + расширения
 
-            var thumbnailRelativePath = Path.Combine("uploads", "products", "thumbnails", fileName);
+            var thumbnailRelativePath = Path.Combine("uploads", "products", "thumbnails",$"{fileName}", fileName);
 
             var thumbnailPath = Path.Combine(_appEnviroment.WebRootPath, thumbnailRelativePath);
 

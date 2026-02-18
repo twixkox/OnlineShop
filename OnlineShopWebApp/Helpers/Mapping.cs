@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Models;
+using OnlineShopWebApp.Models.Category;
 using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Helpers
@@ -16,9 +17,10 @@ namespace OnlineShopWebApp.Helpers
             {
                 var existingCategory = new CategoryViewModel
                 {
+                    Id = category.Id,
                     Name = category.Name,
                     Description = category.Description,
-                    Id = category.Id,
+                    IdentityUrl = category.IdentityUrl,
                 };
                 return existingCategory;
             }
@@ -70,7 +72,7 @@ namespace OnlineShopWebApp.Helpers
         }
 
         #endregion
-            #region User
+        #region User
         public static UserViewModel ToUserViewModel(this User user)
         {
             if (user == null) { return null; }
@@ -86,7 +88,7 @@ namespace OnlineShopWebApp.Helpers
                     Password = user.PasswordHash,
                     Id = user.Id,
                     CreationDateTime = user.CreationDateTime,
-                    
+
                 };
                 return existingUser;
             }
@@ -97,23 +99,23 @@ namespace OnlineShopWebApp.Helpers
 
             else
             {
-               var result = new List<UserViewModel>();
+                var result = new List<UserViewModel>();
                 foreach (var item in user)
                 {
                     var existingUser = new UserViewModel
                     {
                         Id = item.Id,
                         Phone = item.PhoneNumber,
-                        
+
                         UserName = item.Email,
                         FirstName = item.FirstName,
-                        
+
                         Password = item.PasswordHash
 
                     };
                     result.Add(existingUser);
                 }
-                
+
                 return result;
             }
         }
@@ -133,11 +135,11 @@ namespace OnlineShopWebApp.Helpers
                 ThumbnailsPhotoPath = product.ThumbnailPath!,
                 CategoryId = product.CategoryId,
                 CurrentCategoryName = product.CategoryName,
-                 
+
             };
         }
 
-        public static Product ToProduct (this ProductViewModel productViewModel)
+        public static Product ToProduct(this ProductViewModel productViewModel)
         {
             return new Product
             {
@@ -149,8 +151,8 @@ namespace OnlineShopWebApp.Helpers
                 ThumbnailPath = productViewModel.ThumbnailsPhotoPath,
                 CategoryId = productViewModel.CategoryId,
                 CategoryName = productViewModel.CurrentCategoryName,
-                
-                
+
+
             };
         }
 
@@ -196,7 +198,7 @@ namespace OnlineShopWebApp.Helpers
             };
         }
 
-        public static List<CartItem> ToCartItems (this List<CartItemViewModel> cartItems)
+        public static List<CartItem> ToCartItems(this List<CartItemViewModel> cartItems)
         {
             if (cartItems == null) return null;
 
@@ -263,16 +265,16 @@ namespace OnlineShopWebApp.Helpers
         {
             if (order == null) return null;
 
-            var viewModel =  new OrderViewModel
+            var viewModel = new OrderViewModel
             {
                 Id = order.Id,
                 UserId = order.UserId,
                 DeliveryUserInfo = ToDeliveryUserInfoViewModel(order.DeliveryUserInfo),
-                
+
                 CreationDateOrder = order.CreationDateOrder,
                 Status = (OrderStatusViewModel)(int)order.Status,
                 Items = ToCartViewModels(order.Items),
-                
+
             };
             return viewModel;
         }
@@ -286,7 +288,7 @@ namespace OnlineShopWebApp.Helpers
 
             foreach (var order in DbOrders)
             {
-               var viewModel = order.ToOrderViewModel();
+                var viewModel = order.ToOrderViewModel();
                 viewModels.Add(viewModel);
             }
             return viewModels;
@@ -298,7 +300,7 @@ namespace OnlineShopWebApp.Helpers
 
             var existingOrder = new Order
             {
-                
+
                 UserId = order.UserId,
                 DeliveryUserInfo = ToDeliveryUserInfo(order.DeliveryUserInfo),
                 CreationDateOrder = order.CreationDateOrder,

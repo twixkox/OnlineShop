@@ -27,7 +27,7 @@ namespace OnlineShop.Db.Storages
         {
             var existingProduct = await databaseContext.Products.FirstOrDefaultAsync(product => product.Id == id);
 
-            if (existingProduct != null) {databaseContext.Products.Remove(existingProduct); }
+            if (existingProduct != null) { databaseContext.Products.Remove(existingProduct); }
 
             await databaseContext.SaveChangesAsync();
         }
@@ -47,7 +47,7 @@ namespace OnlineShop.Db.Storages
                 currentProduct.ThumbnailPath = product.ThumbnailPath;
                 currentProduct.CategoryId = product.CategoryId;
                 currentProduct.CategoryName = product.CategoryName;
-                
+
             }
 
             await databaseContext.SaveChangesAsync();
@@ -58,7 +58,15 @@ namespace OnlineShop.Db.Storages
 
             return await databaseContext.Products.Where(p => p.Name.Contains(query)).ToListAsync();
         }
-      
+
+        public async Task<List<Guid>> TryGetProductsByCategoryId(Guid categoryId)
+        {
+            return await databaseContext.Products
+                .Where(c => c.CategoryId == categoryId)
+                .Select(p => p.Id)
+                .ToListAsync();
+        }
+
     }
 }
 

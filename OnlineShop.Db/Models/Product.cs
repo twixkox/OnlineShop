@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OnlineShop.Db.Models
@@ -13,8 +14,9 @@ namespace OnlineShop.Db.Models
 
         public decimal Cost { get; set; }
 
-        public string CategoryId { get; set; }
+        public Guid CategoryId { get; set; }
 
+        [NotMapped]
         public string? CategoryName { get; set; }
 
         public string PhotoPath { get; set; }
