@@ -22,12 +22,17 @@ namespace OnlineShopWebApp.Models
         public required string Phone { get; set; }
 
 
-        [Display(Name = "Адрес доставки", Prompt = "Ваш адрес")]
+        [Display(Name = "Квартира", Prompt = "Квартира")]
+        [Required(ErrorMessage = "Не указан адрес доставки")]
+        [DataType(DataType.Text)]
+        [StringLength(200, MinimumLength = 1, ErrorMessage = "Адрес должен быть от {2} до {1} символов")]
+        public required string Apartment { get; set; }
+
+        [Display(Name = "Адрес доставки", Prompt = "Ленинградская область, Приозерский район, поселок Сосново, улица Вокзальная.")]
         [Required(ErrorMessage = "Не указан адрес доставки")]
         [DataType(DataType.Text)]
         [StringLength(200, MinimumLength = 5, ErrorMessage = "Адрес должен быть от {2} до {1} символов")]
         public required string Adress { get; set; }
-
 
         [Display(Name = "Дата доставки")]
         [Required(ErrorMessage = "Не выбрана дата доставки")]
@@ -36,7 +41,7 @@ namespace OnlineShopWebApp.Models
         public required DateOnly DeliveryDate { get; set; }
 
 
-        [Display(Name = "Комментарий", Prompt = "Ваш комментарий")]
+        [Display(Name = "Комментарий", Prompt = "Ваш комментарий к заказу")]
         [MaxLength(512, ErrorMessage = "Максимальная длина комментария {1} символов")]
         [DataType(DataType.MultilineText)]
         public string? Comment { get; set; }

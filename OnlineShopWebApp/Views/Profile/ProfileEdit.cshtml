@@ -1,0 +1,86 @@
+﻿@model UserViewModel
+@{
+    ViewData["Title"] = "Пользователь";
+}
+
+<div class="row mt-5">
+
+    <div class="col-5 mb-3">
+        <div class="text-center text-uppercase text-success mb-3 mt-3">
+            <h2 class="row-title">Пользователь</h2>
+        </div>
+        <form method="post">
+
+            @if (Model != null)
+            {
+                <input type="hidden" name="Id" value="@Model.Id" />
+
+                <div class="text-end mt-5">
+                    <button class="btn btn-outline-success dropdown-toggle" role="button" id="dropdownMenuButton" data-toggle="dropdown"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                        Действия
+                    </button>
+                    <ul class="dropdown-menu list-group-item-success" aria-labelledby="dropdownMenuButton">
+                        <li>
+                            <a class="dropdown-item"
+                               asp-area="Admin"
+                               asp-controller="User"
+                               asp-action="ChangePassword"
+                               asp-route-userId="@Model.Id">
+                                Смена пароля
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                               asp-area="Admin"
+                               asp-controller="User"
+                               asp-action="Update"
+                               asp-route-userId="@Model.Id">
+                                Редактирование данных
+                            </a>
+                        </li>
+
+
+                    </ul>
+                </div>
+
+
+
+
+                <form class="form-floating">
+                    <label for="floatingInputValue">Ваше имя</label>
+                    <input type="text" class="form-control" id="UserName" placeholder="Иван" value="@Model.FirstName">
+
+                    <label for="floatingInputValue">Ваша фамилия</label>
+                    <input type="text" class="form-control" id="LastName" placeholder="Иванов" value="@Model.LastName">
+
+                    <label for="floatingInputValue">Ваш телефон</label>
+                    <input type="tel" class="form-control" id="Phone" placeholder="+7-999-123-45-67" value="@Model.Phone">
+                </form>
+
+              
+
+
+
+                <table class="table table-hover">
+
+                    <tr>
+                        <td><span>Email (логин)</span></td>
+                        <td class="fw-bold">@Model.UserName</td>
+                    </tr>
+                   
+                    <tr>
+                        <td class="w-25"><span>Дата регистрации</span></td>
+                        <td class="w-auto">@Model.CreationDateTime</td>
+                    </tr>
+                </table>
+            }
+            else
+            {
+                <div class="text-center">
+                    <h2>Такого пользователя не существует!</h2>
+                </div>
+            }
+        </form>
+    </div>
+</div>

@@ -34,6 +34,12 @@
                                     <span asp-validation-for="DeliveryUserInfo.Adress"></span>
                                 </p>
                                 <p>
+                                    <label class="form-label" asp-for="DeliveryUserInfo.Apartment"></label>
+                                    <br />
+                                    <input class="form-control" asp-for="DeliveryUserInfo.Apartment" />
+                                    <span asp-validation-for="DeliveryUserInfo.Apartment"></span>
+                                </p>
+                                <p>
                                     <label class="form-label" asp-for="DeliveryUserInfo.Phone"></label>
                                     <br />
                                     <input class="form-control" asp-for="DeliveryUserInfo.Phone" />
@@ -55,7 +61,7 @@
 
                             <td class="w-50 p-4">
                                 <table class="table table-responsive
-                                         table-striped table-hover mb-5 caption-top">
+                                             table-striped table-hover mb-5 caption-top">
                                     <thead>
                                         <tr align="center">
                                             <th scope="col">#</th>
@@ -119,3 +125,51 @@
         Продолжить покупки
     </a>
 </div>
+
+@section Scripts {
+    <script>
+        function formatPhone(input) {
+            // Удаляем всё кроме цифр
+            let numbers = input.value.replace(/\D/g, '');
+
+            // Если первая цифра 7 или 8 — отбрасываем (заменим на +7)
+            if (numbers.startsWith('7') || numbers.startsWith('8')) {
+                numbers = numbers.substring(1);
+            }
+
+            // Оставляем не более 10 цифр (после кода страны)
+            numbers = numbers.slice(0, 10);
+
+            let formatted = '';
+            if (numbers.length > 0) {
+                formatted = '+7';
+                if (numbers.length > 0) {
+                    formatted += ' (' + numbers.substring(0, 3);
+                }
+                if (numbers.length >= 4) {
+                    formatted += ') ' + numbers.substring(3, 6);
+                }
+                if (numbers.length >= 7) {
+                    formatted += '-' + numbers.substring(6, 8);
+                }
+                if (numbers.length >= 9) {
+                    formatted += '-' + numbers.substring(8, 10);
+                }
+            }
+            input.value = formatted;
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const phoneInput = document.getElementById('phoneInput');
+            if (phoneInput) {
+                // Применить форматирование к уже загруженному значению
+                formatPhone(phoneInput);
+
+                // Отслеживать ввод
+                phoneInput.addEventListener('input', function() {
+                    formatPhone(this);
+                });
+            }
+        });
+    </script>
+    }

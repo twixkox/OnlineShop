@@ -238,6 +238,7 @@ namespace OnlineShopWebApp.Helpers
             return new DeliveryUserInfoViewModel
             {
                 Adress = deliveryUserInfo.Adress,
+                Apartment = deliveryUserInfo.Apartment,
                 Phone = deliveryUserInfo.Phone,
                 UserName = deliveryUserInfo.UserName,
                 DeliveryDate = deliveryUserInfo.DeliveryDate,
@@ -253,6 +254,7 @@ namespace OnlineShopWebApp.Helpers
             return new DeliveryUserInfo
             {
                 Adress = deliveryUserInfo.Adress,
+                Apartment = deliveryUserInfo.Apartment,
                 Phone = deliveryUserInfo.Phone,
                 UserName = deliveryUserInfo.UserName,
                 DeliveryDate = deliveryUserInfo.DeliveryDate,

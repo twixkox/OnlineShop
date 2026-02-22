@@ -36,7 +36,8 @@
                         <a class="btn btn-outline-danger mt-3"
                            asp-controller="Favorite"
                            asp-action="Delete"
-                           asp-route-productId="@product.Id">
+                           asp-route-productId="@product.Id"
+                           asp-route-userId="@Model.UserId">
                             Убрать из избранного
                         </a>
                     </div>
