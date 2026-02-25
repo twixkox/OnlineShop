@@ -2,6 +2,11 @@
 @{
     ViewData["Title"] = "Оформление заказа";
 }
+<head>
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=3e62edd6-687f-4cb4-990d-4710e34632a1&lang=ru_RU" type="text/javascript"></script>
+    <script src="~/js/index.js"></script>
+ 
+</head>
 
 <div class="text-center text-uppercase text-success mb-5 mt-5">
     <h2 class="row-title">Оформление заказа</h2>
@@ -30,7 +35,7 @@
                                 <p>
                                     <label class="form-label" asp-for="DeliveryUserInfo.Adress"></label>
                                     <br />
-                                    <input class="form-control" asp-for="DeliveryUserInfo.Adress" />
+                                    <input class="form-control" id="deliveryAddress" asp-for="DeliveryUserInfo.Adress" />
                                     <span asp-validation-for="DeliveryUserInfo.Adress"></span>
                                 </p>
                                 <p>
@@ -58,6 +63,11 @@
                                     <span asp-validation-for="DeliveryUserInfo.Comment"></span>
                                 </p>
                             </td>
+                            <body>
+                                ...
+                                <div id="map" style="width: 600px; height: 400px"></div>
+                                ...
+                            </body>
 
                             <td class="w-50 p-4">
                                 <table class="table table-responsive
@@ -172,4 +182,6 @@
             }
         });
     </script>
+
+  
     }
