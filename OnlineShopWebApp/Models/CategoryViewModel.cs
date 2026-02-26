@@ -2,7 +2,7 @@
 using OnlineShop.Db.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace OnlineShopWebApp.Models.Category
+namespace OnlineShopWebApp.Models
 {
     public class CategoryViewModel
     {

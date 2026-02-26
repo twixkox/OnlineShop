@@ -14,7 +14,7 @@
 
             <!-- Кнопка каталога (видна на всех разрешениях) -->
             <div class="dropdown d-none d-lg-block mx-3">
-                <button class="btn btn-success dropdown-toggle px-4 py-2" type="button"
+                <button class="btn btn dropdown-toggle px-4 py-2" type="button"
                         id="catalogDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                     <i class="bi bi-grid-3x3-gap-fill me-2"></i>Каталог товаров
                 </button>
@@ -43,7 +43,7 @@
                                     <div class="d-flex align-items-center mb-1">
                                         <i class="bi bi-arrow-return-right text-success me-2 small"></i>
                                         
-                                        <a asp-area="" asp-controller="Catalog" asp-action="Index"
+                                        <a asp-area="" asp-controller="Catalog" asp-action="CurrentCategory"
                                            asp-route-identityUrl="@sub.IdentityUrl"
                                            asp-route-categoryId="@sub.Id"
                                            class="text-decoration-none text-secondary active">
@@ -200,11 +200,11 @@
                     {
                         <li class="nav-item ms-3">
                             <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-outline-success btn-sm px-4 py-2"
+                                <button type="button" class="btn auth-buttons btn-sm px-4 py-2"
                                         data-bs-toggle="modal" data-bs-target="#loginModal">
                                     <i class="bi bi-box-arrow-in-right me-1"></i>Войти
                                 </button>
-                                <button type="button" class="btn btn-success btn-sm px-4 py-2"
+                                <button type="button" class="btn btn-register btn-sm px-4 py-2"
                                         data-bs-toggle="modal" data-bs-target="#registrationModal">
                                     <i class="bi bi-person-plus me-1"></i>Регистрация
                                 </button>

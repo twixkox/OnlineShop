@@ -4,7 +4,7 @@ using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
-using OnlineShopWebApp.Models.Category;
+
 using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers

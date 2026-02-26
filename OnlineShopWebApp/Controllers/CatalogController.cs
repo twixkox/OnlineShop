@@ -14,7 +14,7 @@ namespace OnlineShopWebApp.Controllers
             _products = products;
         }
 
-        public async Task<IActionResult> Index(string identityUrl, Guid categoryId)
+        public async Task<IActionResult> CurrentCategory(string identityUrl, Guid categoryId)
         {
             var productsId = await _products.TryGetProductsByCategoryId(categoryId);
 

@@ -2,7 +2,7 @@
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Helpers;
-using OnlineShopWebApp.Models.Category;
+using OnlineShopWebApp.Models;
 using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers

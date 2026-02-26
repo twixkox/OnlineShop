@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OnlineShop.Db.Models;
-using OnlineShopWebApp.Models.Category;
+using OnlineShopWebApp.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 

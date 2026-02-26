@@ -111,8 +111,8 @@ namespace OnlineShop.Db
             Description = "Классический сорт яблони с ароматными плодами. Срок созревания: сентябрь-октябрь.",
             Cost = 890.00m,
             CategoryId = categories["plodovye"].Id,  // Исправлено: родительская категория
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -121,8 +121,8 @@ namespace OnlineShop.Db
             Description = "Популярный сорт груши с сочными сладкими плодами. Устойчива к болезням.",
             Cost = 950.00m,
             CategoryId = categories["plodovye"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -131,8 +131,8 @@ namespace OnlineShop.Db
             Description = "Крупноплодный сорт черной смородины. Ягоды сладкие, ароматные.",
             Cost = 450.00m,
             CategoryId = categories["plodovye"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         
         // ===== ЛИСТВЕННЫЕ =====
@@ -143,8 +143,8 @@ namespace OnlineShop.Db
             Description = "Декоративный клен с шаровидной кроной. Высота до 5-6 м.",
             Cost = 3500.00m,
             CategoryId = categories["listvennye"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+           PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -153,8 +153,8 @@ namespace OnlineShop.Db
             Description = "Плакучая форма березы на штамбе. Очень декоративна.",
             Cost = 4200.00m,
             CategoryId = categories["listvennye"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -163,8 +163,8 @@ namespace OnlineShop.Db
             Description = "Роскошный кустарник с огромными белыми соцветиями.",
             Cost = 890.00m,
             CategoryId = categories["listvennye"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         
         // ===== ХВОЙНЫЕ =====
@@ -175,8 +175,8 @@ namespace OnlineShop.Db
             Description = "Эффектная ель с голубой хвоей. Высота до 10-15 м.",
             Cost = 5600.00m,
             CategoryId = categories["hvoinye"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+           PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -185,8 +185,8 @@ namespace OnlineShop.Db
             Description = "Неприхотливая сосна шаровидной формы. Высота до 2-3 м.",
             Cost = 2900.00m,
             CategoryId = categories["hvoinye"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+           PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -195,8 +195,8 @@ namespace OnlineShop.Db
             Description = "Популярный сорт туи с изумрудной хвоей. Идеальна для живой изгороди.",
             Cost = 1800.00m,
             CategoryId = categories["hvoinye"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         
         // ===== ОДНОЛЕТНИКИ =====
@@ -207,8 +207,8 @@ namespace OnlineShop.Db
             Description = "Обильноцветущая петуния для кашпо и балконных ящиков.",
             Cost = 150.00m,
             CategoryId = categories["odnoletniki"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -217,8 +217,8 @@ namespace OnlineShop.Db
             Description = "Низкорослые бархатцы с махровыми соцветиями.",
             Cost = 80.00m,
             CategoryId = categories["odnoletniki"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -227,8 +227,8 @@ namespace OnlineShop.Db
             Description = "Цинния с крупными махровыми соцветиями ярких расцветок.",
             Cost = 120.00m,
             CategoryId = categories["odnoletniki"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+           PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         
         // ===== МНОГОЛЕТНИКИ =====
@@ -239,8 +239,8 @@ namespace OnlineShop.Db
             Description = "Классический пион с розовыми махровыми цветами.",
             Cost = 890.00m,
             CategoryId = categories["mnogoletniki"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -249,8 +249,8 @@ namespace OnlineShop.Db
             Description = "Низкорослая лилия с ярко-желтыми цветами.",
             Cost = 320.00m,
             CategoryId = categories["mnogoletniki"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -259,8 +259,8 @@ namespace OnlineShop.Db
             Description = "Крупная хоста с голубоватыми листьями.",
             Cost = 650.00m,
             CategoryId = categories["mnogoletniki"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         
         // ===== РОЗЫ =====
@@ -271,8 +271,8 @@ namespace OnlineShop.Db
             Description = "Роза с бархатистыми темно-красными цветами.",
             Cost = 890.00m,
             CategoryId = categories["rozy"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -281,8 +281,8 @@ namespace OnlineShop.Db
             Description = "Обильноцветущая роза с розовыми махровыми цветами.",
             Cost = 950.00m,
             CategoryId = categories["rozy"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+           PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -291,8 +291,8 @@ namespace OnlineShop.Db
             Description = "Мощная плетистая роза с красными махровыми цветами.",
             Cost = 1200.00m,
             CategoryId = categories["rozy"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+           PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         
         // ===== СОПУТСТВУЮЩИЕ ТОВАРЫ =====
@@ -303,8 +303,8 @@ namespace OnlineShop.Db
             Description = "Питательный грунт для всех видов растений.",
             Cost = 250.00m,
             CategoryId = categories["soputstvuyushchie-tovary"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+            PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -313,8 +313,8 @@ namespace OnlineShop.Db
             Description = "Специализированное удобрение для роз пролонгированного действия.",
             Cost = 380.00m,
             CategoryId = categories["soputstvuyushchie-tovary"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+           PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
         new Product
         {
@@ -323,8 +323,8 @@ namespace OnlineShop.Db
             Description = "Острый секатор для обрезки растений.",
             Cost = 1200.00m,
             CategoryId = categories["soputstvuyushchie-tovary"].Id,
-            PhotoPath = "/uploads/products/original/anyProduct.png",
-            ThumbnailPath = "/uploads/products/original/anyProduct.png"
+           PhotoPath = "uploads/products/original/anyProduct.png",
+            ThumbnailPath = "uploads/products/original/anyProduct.png"
         }
     };
 

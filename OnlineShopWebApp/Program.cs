@@ -110,7 +110,7 @@ pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
 app.MapControllerRoute(
     name: "catalog",
     pattern: "catalog/{identityUrl}",
-    defaults: new { controller = "Catalog", action = "Index" });
+    defaults: new { controller = "Catalog", action = "AllProducts" });
 
 
 app.MapControllerRoute(

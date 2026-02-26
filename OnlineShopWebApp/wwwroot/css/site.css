@@ -18,7 +18,9 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+    background: #ADA996; /* fallback for old browsers */
+    background: -webkit-linear-gradient(to right, #EAEAEA, #DBDBDB, #F2F2F2, #ADA996); /* Chrome 10-25, Safari 5.1-6 */
+    background: linear-gradient(to right, #EAEAEA, #DBDBDB, #F2F2F2, #ADA996); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
@@ -30,14 +32,16 @@ body {
   text-align: start;
 }
 /* ===== ЕДИНЫЙ СТИЛЬ ДЛЯ АВТОРИЗАЦИИ ===== */
+/* Адаптирован под светлый градиентный фон body */
 
-/* Основной цвет (можно изменить) */
 :root {
-    --auth-primary-color: #4a6cf7;
-    --auth-primary-hover: #3a5ce5;
-    --auth-primary-light: rgba(74, 108, 247, 0.1);
+    /* Основная зелёная гамма */
+    --auth-primary-color: #2e8b57; /* тёмно-зелёный (морской) */
+    --auth-primary-hover: #1e6b3f; /* более тёмный для наведения */
+    --auth-primary-light: rgba(46, 139, 86, 0.1); /* полупрозрачный для фона */
     --auth-text-color: #333;
-    --auth-border-color: #e0e0e0;
+    --auth-border-color: #d0d0d0; /* светлая граница на сером фоне */
+    --auth-shadow: rgba(46, 139, 86, 0.2); /* тень с зелёным оттенком */
 }
 
 /* Кнопки в хедере */
@@ -73,7 +77,7 @@ body {
 
 .btn-auth:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(74, 108, 247, 0.2);
+    box-shadow: 0 4px 12px var(--auth-shadow);
 }
 
 .btn-login:hover {
@@ -95,8 +99,9 @@ body {
 .auth-modal {
     border-radius: 12px;
     border: none;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
     overflow: hidden;
+    background: white; /* модальное окно остаётся белым для контраста */
 }
 
 .modal-header-primary {
@@ -143,6 +148,7 @@ body {
         padding: 1rem 0.75rem;
         height: calc(3.5rem + 2px);
         transition: all 0.3s ease;
+        background-color: white; /* белый фон для полей */
     }
 
     .form-floating > label {
@@ -152,7 +158,7 @@ body {
 
     .form-floating > .form-control:focus {
         border-color: var(--auth-primary-color);
-        box-shadow: 0 0 0 3px rgba(74, 108, 247, 0.15);
+        box-shadow: 0 0 0 3px var(--auth-primary-light);
     }
 
         .form-floating > .form-control:focus ~ label {
@@ -178,33 +184,6 @@ body {
         background-color: var(--auth-primary-light);
     }
 
-/* Индикатор силы пароля */
-.password-strength {
-    margin-top: 0.5rem;
-}
-
-    .password-strength .progress {
-        background-color: #f0f0f0;
-        border-radius: 2px;
-        overflow: hidden;
-    }
-
-    .password-strength .progress-bar {
-        background-color: #ff4757;
-        transition: all 0.3s ease;
-    }
-
-.password-strength-text {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 0.25rem;
-    font-size: 0.8rem;
-}
-
-    .password-strength-text span {
-        font-weight: 600;
-    }
-
 /* Кнопка отправки */
 .auth-submit-btn {
     background-color: var(--auth-primary-color);
@@ -215,12 +194,13 @@ body {
     font-size: 1rem;
     transition: all 0.3s ease;
     position: relative;
+    color: white;
 }
 
     .auth-submit-btn:hover:not(:disabled) {
         background-color: var(--auth-primary-hover);
         transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(74, 108, 247, 0.3);
+        box-shadow: 0 4px 12px var(--auth-shadow);
     }
 
     .auth-submit-btn:active:not(:disabled) {
@@ -241,6 +221,7 @@ body {
 
     .btn-link.text-primary:hover {
         text-decoration: underline;
+        color: var(--auth-primary-hover) !important;
     }
 
 .text-primary {
@@ -255,12 +236,12 @@ body {
 
 .form-check-input:focus {
     border-color: var(--auth-primary-color);
-    box-shadow: 0 0 0 0.25rem rgba(74, 108, 247, 0.25);
+    box-shadow: 0 0 0 0.25rem var(--auth-primary-light);
 }
 
 /* Сообщения валидации */
 .invalid-feedback {
-    color: #ff4757;
+    color: #dc3545; /* красный для ошибок */
     font-size: 0.85rem;
     margin-top: 0.25rem;
 }

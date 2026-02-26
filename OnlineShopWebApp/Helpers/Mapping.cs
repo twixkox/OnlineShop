@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Models;
-using OnlineShopWebApp.Models.Category;
 using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Helpers
