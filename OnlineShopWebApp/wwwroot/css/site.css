@@ -12,6 +12,11 @@ html {
   box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
 }
 
+.bg-soft-green {
+    background: #009496;
+    background: linear-gradient(0deg,rgba(0, 148, 150, 0.43) 0%, rgba(29, 163, 101, 0.44) 100%);
+}
+
 html {
   position: relative;
   min-height: 100%;

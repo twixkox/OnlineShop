@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters.Xml;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Helpers;
@@ -12,6 +13,12 @@ namespace OnlineShopWebApp.Controllers
         public CatalogController(IProductStorages products)
         {
             _products = products;
+        }
+
+        public async Task<IActionResult> AllProducts()
+        {
+            var products = await _products.GetAllAsync();
+            return View(products.ToProductsViewModels());
         }
 
         public async Task<IActionResult> CurrentCategory(string identityUrl, Guid categoryId)

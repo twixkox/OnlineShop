@@ -5,36 +5,36 @@
 @inject DatabaseContext _context
 
 <header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-2">
+    <!-- Изменён фон на светло-зелёный, убрана белая заливка -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-soft-green shadow-sm py-2">
         <div class="container-fluid">
-            <!-- Логотип -->
+            <!-- Логотип (без изменений) -->
             <a class="navbar-brand fw-bold text-success fs-4" asp-area="" asp-controller="Home" asp-action="Index">
                 <i class="bi bi-flower1 me-2"></i>PlantShop
             </a>
 
-            <!-- Кнопка каталога (видна на всех разрешениях) -->
-            <div class="dropdown d-none d-lg-block mx-3">
-                <button class="btn btn dropdown-toggle px-4 py-2" type="button"
-                        id="catalogDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <!-- РАЗДЕЛЁННАЯ КНОПКА КАТАЛОГА (только на десктопе) -->
+            <div class="btn-group d-none d-lg-block mx-3">
+                <!-- Левая часть – ссылка на все товары -->
+                <a asp-controller="Catalog" asp-action="AllProducts" class="btn btn-success px-4 py-2">
                     <i class="bi bi-grid-3x3-gap-fill me-2"></i>Каталог товаров
+                </a>
+                <!-- Правая часть – кнопка для открытия списка категорий -->
+                <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split px-3 py-2"
+                        data-bs-toggle="dropdown" aria-expanded="false">
+                    <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
+                <!-- Выпадающее меню (содержимое без изменений) -->
                 <div class="dropdown-menu dropdown-menu-catalog p-3 shadow-lg border-0"
                      aria-labelledby="catalogDropdown" style="min-width: 300px;">
-
                     @{
-                        // Получаем все категории
                         var allCategories = _context.Categories.ToList();
-
-                        // Группируем по имени для отображения (так как нет ParentCategoryId)
                         var groupedCategories = allCategories
-                        .GroupBy(c => GetMainCategoryName(c.Name))
-                        .OrderBy(g => g.Key);
+                            .GroupBy(c => GetMainCategoryName(c.Name))
+                            .OrderBy(g => g.Key);
                     }
-
                     @foreach (var group in groupedCategories)
                     {
-
-
                         @if (group.Count() > 1)
                         {
                             <div class="subcategories ms-4 mt-2">
@@ -42,7 +42,6 @@
                                 {
                                     <div class="d-flex align-items-center mb-1">
                                         <i class="bi bi-arrow-return-right text-success me-2 small"></i>
-                                        
                                         <a asp-area="" asp-controller="Catalog" asp-action="CurrentCategory"
                                            asp-route-identityUrl="@sub.IdentityUrl"
                                            asp-route-categoryId="@sub.Id"
@@ -63,7 +62,6 @@
                                 </a>
                             </div>
                         }
-
                         @if (!groupedCategories.Last().Equals(group))
                         {
                             <hr class="dropdown-divider my-2">
@@ -72,32 +70,24 @@
                 </div>
             </div>
 
-            <!-- Кнопка для мобильных устройств -->
+            <!-- Кнопка для мобильных устройств (без изменений) -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- Основное меню -->
+            <!-- Основное меню (без изменений, только цвет кнопок стал зелёным) -->
             <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <!-- Каталог в мобильной версии -->
+                    <!-- Мобильная версия каталога (можно оставить как есть, либо тоже улучшить) -->
                     <li class="nav-item d-lg-none">
                         <div class="nav-link text-dark fw-bold">
                             <i class="bi bi-grid-3x3-gap-fill me-1"></i>Категории
                         </div>
                         <div class="mobile-categories ps-3">
-                            @{
-                                var mobileGroups = allCategories
-                                .GroupBy(c => GetMainCategoryName(c.Name))
-                                .OrderBy(g => g.Key);
-                            }
-
                             @foreach (var group in groupedCategories)
                             {
-
-
                                 @if (group.Count() > 1)
                                 {
                                     <div class="subcategories ms-4 mt-2">
@@ -125,7 +115,6 @@
                                         </a>
                                     </div>
                                 }
-
                                 @if (!groupedCategories.Last().Equals(group))
                                 {
                                     <hr class="dropdown-divider my-2">
@@ -134,27 +123,21 @@
                         </div>
                     </li>
 
-                    <!-- Поиск -->
+                    <!-- Поиск (без изменений) -->
                     <li class="nav-item">
                         @await Html.PartialAsync("SearchLine")
                     </li>
                 </ul>
 
-                <!-- Правая часть навигации -->
+                <!-- Правая часть навигации (кнопки уже зелёные через CSS-переменные) -->
                 <ul class="navbar-nav align-items-center">
-                    
-
-                    <!-- Авторизация/Пользователь -->
                     @if (User.Identity.IsAuthenticated)
                     {
-                        <!-- Корзина -->
                         <li class="nav-item me-2">
-                            @await Component.InvokeAsync("Cart", @User.FindFirstValue(ClaimTypes.NameIdentifier))
+                            @await Component.InvokeAsync("Cart", User.FindFirstValue(ClaimTypes.NameIdentifier))
                         </li>
-
-                        <!-- Избранное -->
                         <li class="nav-item me-2">
-                            @await Component.InvokeAsync("Favorite", @User.FindFirstValue(ClaimTypes.NameIdentifier))
+                            @await Component.InvokeAsync("Favorite", User.FindFirstValue(ClaimTypes.NameIdentifier))
                         </li>
                         <li class="nav-item dropdown ms-2">
                             <a class="nav-link dropdown-toggle p-0" href="#"
@@ -162,9 +145,7 @@
                                 <img src="/uploads/users/avatars/UserAvatar.png"
                                      alt="@User.Identity.Name"
                                      class="rounded-circle border border-2 border-success"
-                                     width="38"
-                                     height="38"
-                                     style="object-fit: cover;">
+                                     width="38" height="38" style="object-fit: cover;">
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 py-2">
                                 <li class="px-3 py-2 bg-light">
@@ -184,7 +165,7 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item py-2" asp-area="" asp-controller="Profile" asp-action="EditPassword">
-                                        <i class="bi bi-bag-check me-2 text-success"></i>Сменить пароль
+                                        <i class="bi bi-key me-2 text-success"></i>Сменить пароль
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider my-1"></li>
@@ -212,7 +193,6 @@
                         </li>
                     }
 
-                    <!-- Админ панель -->
                     @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
                     {
                         <li class="nav-item dropdown ms-3">
