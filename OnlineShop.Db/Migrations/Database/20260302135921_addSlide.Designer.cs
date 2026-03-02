@@ -12,8 +12,8 @@ using OnlineShop.Db;
 namespace OnlineShop.Db.Migrations.Database
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20260222181808_AddApartment")]
-    partial class AddApartment
+    [Migration("20260302135921_addSlide")]
+    partial class addSlide
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

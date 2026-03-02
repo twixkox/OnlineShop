@@ -4,13 +4,6 @@
     ViewData["Title"] = "Главная";
 }
 
-<!-- Простой Hero-блок с заголовком и кнопкой -->
-<div class="container my-5 text-center">
-    <h1 class="display-4">@Model.HeroTitle</h1>
-    <p class="lead">@Model.HeroSubtitle</p>
-    <a asp-controller="Catalog" asp-action="Index" class="btn btn-success btn-lg">В каталог</a>
-</div>
-
 <!-- Блок "О нас" — просто текст -->
 <div class="container my-5">
     <h2 class="text-center mb-4">О нашем питомнике</h2>
@@ -73,15 +66,15 @@
     <div class="row text-center">
         <div class="col-md-4">
             <h5><i class="bi bi-clock"></i> Режим работы</h5>
-            <p>@(Model.WorkHours ?? "ежедневно 10:00 — 19:00")</p>
+            <p>@("ежедневно 10:00 — 19:00")</p>
         </div>
         <div class="col-md-4">
             <h5><i class="bi bi-geo-alt"></i> Адрес</h5>
-            <p>@(Model.Address ?? "пос. Сосново, ул. Садовая, 1")<br>Есть парковка</p>
+            <p>@("пос. Сосново, ул. Садовая, 1")<br>Есть парковка</p>
         </div>
         <div class="col-md-4">
             <h5><i class="bi bi-telephone"></i> Контакты</h5>
-            <p>@(Model.ContactPhone ?? "+7 (999) 123-45-67")<br>@(Model.ContactEmail ?? "info@plantshop.ru")</p>
+            <p>@("+7 (999) 123-45-67")<br>@("info@plantshop.ru")</p>
         </div>
     </div>
 </div>
