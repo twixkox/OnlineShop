@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Diagnostics.HealthChecks;
 using OnlineShop.Db.Models;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OnlineShopWebApp.Models
 {
@@ -24,10 +25,10 @@ namespace OnlineShopWebApp.Models
 
         public string? IdentityUrl { get; set; }
 
-        public string? ParentCategoryName { get; set; }
+        [MaybeNull]
+        public string PhotoPath { get; set; }
 
-        // Подкатегории
-        public List<CategoryViewModel>? SubCategories { get; set; }
-
+        [MaybeNull]
+        public IFormFile UploadedFile { get; set; }
     }
 }

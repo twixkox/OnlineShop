@@ -205,7 +205,7 @@ namespace OnlineShopWebApi.Controllers.Admin
         }
 
         [HttpPost("ChangePasswordUser")]
-        public async Task<IActionResult> ChangePassword(ChangePassword user)
+        public async Task<IActionResult> ChangePassword(OnlineShopWebApp.Areas.Admin.Models.AdminChangePasswordViewModel user)
         {
             try
             {

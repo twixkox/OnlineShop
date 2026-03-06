@@ -25,6 +25,7 @@
                    asp-route-categoryId="@category.Id"
                    class="text-decoration-none text-dark">
                     <div class="p-3 border rounded bg-light h-100">
+                        <img src="/@category.PhotoPath" class="card-img-top" alt="@category.Name" style="height: 300px; object-fit: cover;">
                         <h5 class="text-success">@category.Name</h5>
                         <p class="small text-muted mb-0">@category.Description</p>
                     </div>

@@ -21,7 +21,7 @@ namespace OnlineShopWebApp.Models
             _logger = logger;
         }
 
-        public async Task<string> SaveImageAsync(IFormFile file)
+        public async Task<string> SaveImageAsync(IFormFile file, string type)
         {
             try
             {
@@ -40,8 +40,16 @@ namespace OnlineShopWebApp.Models
                 }
 
                 var fileName = Guid.NewGuid() + extesnionsFile;
-
-                var relativePath = Path.Combine("uploads", "products", "original",$"{fileName}", fileName);
+                var relativePath = "";
+                if (type == "product")
+                {
+                    relativePath = Path.Combine("uploads", "products", "original", $"{fileName}", fileName);
+                }
+                if (type == "category")
+                {
+                    relativePath = Path.Combine("uploads", "category", $"{fileName}", fileName);
+                }
+                
                 var physicalPath = Path.Combine(_appEnviroment.WebRootPath, relativePath);
 
                 var directory = Path.GetDirectoryName(physicalPath);

@@ -3,46 +3,104 @@
     ViewData["Title"] = "Редактирование данных пользователя";
 }
 
-<div class="text-center text-uppercase text-success mb-5 mt-5">
-    <h2 class="row-title">Редактирование данных пользователя</h2>
+<!-- Шапка с заголовком и навигацией -->
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Изменение персональной информации</p>
+    </div>
+    <a asp-area="Admin" asp-controller="User" asp-action="Detail" asp-route-userId="@Model.Id" class="btn btn-light">
+        <i class="bi bi-arrow-left me-1"></i>Назад к профилю
+    </a>
 </div>
 
-<form method="post">
-    <div class="row justify-content-center mt-3">
-        <div class="col-6 mb-3">
-            <div class="text-danger fw-bold text-uppercase" asp-validation-summary="All"></div>
-            <input type="hidden" name="Id" value="@Model.Id" />
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                        Форма редактирования
+                    </h5>
+                </div>
 
-            <p>
-                <label class="form-label" asp-for="FirstName"></label><br />
-                <input class="form-control" asp-for="FirstName" value="@Model.FirstName" />
-                <span asp-validation-for="FirstName"></span>
-            </p>
-            <p>
-                <label class="form-label" asp-for="LastName"></label><br />
-                <input class="form-control" asp-for="LastName" value="@Model.LastName" />
-                <span asp-validation-for="LastName"></span>
-            </p>
-            <p>
-                <label class="form-label" asp-for="Phone"></label><br />
-                <input class="form-control" asp-for="Phone" value="@Model.Phone" />
-                <span asp-validation-for="Phone"></span>
-            </p>
-            <p>
-                <label class="form-label" asp-for="UserName"></label><br />
-                <input class="form-control" asp-for="UserName" value="@Model.UserName" readonly="readonly" />
-                <span asp-validation-for="UserName"></span>
-            </p>
-            <p>
-                <label class="form-label" asp-for="Password"></label><br />
-                <input class="form-control" asp-for="Password" value="@Model.Password" readonly="readonly" />
-                <span asp-validation-for="Password"></span>
-            </p>
+                <div class="card-body">
+                    <form method="post">
+
+                        <!-- Скрытое поле для Id -->
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-medium" asp-for="FirstName">
+                                    <i class="bi bi-person text-success me-1"></i>Имя
+                                </label>
+                                <input class="form-control" asp-for="FirstName" placeholder="Введите имя" />
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-medium" asp-for="LastName">
+                                    <i class="bi bi-person text-success me-1"></i>Фамилия
+                                </label>
+                                <input class="form-control" asp-for="LastName" placeholder="Введите фамилию" />
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-medium" asp-for="Phone">
+                                <i class="bi bi-telephone text-success me-1"></i>Телефон
+                            </label>
+                            <input class="form-control" asp-for="Phone" placeholder="+7 (999) 999-99-99" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-medium" asp-for="UserName">
+                                <i class="bi bi-envelope text-success me-1"></i>Email (логин)
+                            </label>
+                            <input class="form-control" asp-for="UserName" readonly class="bg-light" />
+                            <span asp-validation-for="UserName" class="text-danger small"></span>
+                            <div class="form-text text-muted">
+                                Логин нельзя изменить
+                            </div>
+                        </div>
+
+                        <!-- Поле пароля скрыто, можно вывести подсказку о смене пароля -->
+                        <div class="mb-3">
+                            <label class="form-label fw-medium">
+                                <i class="bi bi-lock text-success me-1"></i>Пароль
+                            </label>
+                            <div class="bg-light p-2 rounded border">
+                                <span class="text-muted">Для смены пароля используйте</span>
+                                <a asp-area="Admin" asp-controller="User" asp-action="ChangePassword" asp-route-userId="@Model.Id" class="text-success">
+                                    отдельную форму
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="d-flex justify-content-between align-items-center mt-4">
+                            <a asp-area="Admin" asp-controller="User" asp-action="Detail" asp-route-userId="@Model.Id" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Отмена
+                            </a>
+                            <button type="submit" class="btn btn-success px-5">
+                                <i class="bi bi-check-circle me-2"></i>Обновить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
-    <div class="text-center m-3">
-        <button class="btn btn-outline-success" type="submit">
-            Обновить
-        </button>
-    </div>
-</form>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -32,6 +32,7 @@ namespace OnlineShopWebApp
         [MaybeNull]
         public string ThumbnailsPhotoPath { get; set; }
 
+        [Required]
         public string CurrentCategoryName { get; set; }
 
         public Guid CategoryId { get; set; }

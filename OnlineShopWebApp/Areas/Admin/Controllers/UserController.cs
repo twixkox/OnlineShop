@@ -97,16 +97,22 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         public async Task<IActionResult> Update(string userId)
         {
             var existingUser = await _userManager.FindByIdAsync(userId);
-
+           
             return View(existingUser.ToUserViewModel());
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update(User user)
+        [HttpPost]
+        public async Task<IActionResult> Update(UserViewModel user)
         {
-            if (!ModelState.IsValid) return View(user);
+            
 
-            await _userManager.UpdateAsync(user);
+            var existingUser = await _userManager.FindByIdAsync(user.Id);
+
+            existingUser.FirstName = user.FirstName;
+            existingUser.LastName = user.LastName;
+            existingUser.PhoneNumber = user.Phone;
+
+            await _userManager.UpdateAsync(existingUser);
 
             return RedirectToAction("Index");
         }
@@ -141,7 +147,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         {
             var existingUser = await _userManager.FindByIdAsync(userId);
 
-            var result = new ChangePassword
+            var result = new AdminChangePasswordViewModel
             {
                 UserId = userId,
                 Email = existingUser.Email
@@ -152,7 +158,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ChangePassword(ChangePassword user)
+        public async Task<IActionResult> ChangePassword(AdminChangePasswordViewModel user)
         {
             var existingUser = await _userManager.FindByIdAsync(user.UserId);
 
@@ -166,7 +172,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 return RedirectToAction("DetailAsync", new { userId = user.UserId });
             }
 
-            return View(result);
+            return RedirectToAction("Index");
         }
 
 

@@ -62,7 +62,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             {
                 if (product.UploadedFile != null)
                 {
-                    var path = await _fileProvider.SaveImageAsync(product.UploadedFile);
+                    var path = await _fileProvider.SaveImageAsync(product.UploadedFile,"product");
                     var thumbnailImage = await _fileProvider.GenerateThumbnailImageAsync(path);
                     var category = await _categories.TryGetById(product.CategoryId);
 
@@ -109,6 +109,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
+                    
 
                 }).ToList();
 
@@ -137,7 +138,7 @@ public async Task<IActionResult> Edit(ProductViewModel product)
     {
         if (product.UploadedFile != null)
         {
-            var path = await _fileProvider.SaveImageAsync(product.UploadedFile);
+            var path = await _fileProvider.SaveImageAsync(product.UploadedFile,"product");
             var thumbnailImage = await _fileProvider.GenerateThumbnailImageAsync(path);
             var existingCategory = await _categories.TryGetById(product.CategoryId);
                     var productDb = new Product

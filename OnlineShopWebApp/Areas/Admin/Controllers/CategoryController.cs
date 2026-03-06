@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.FileProviders;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
 using System.Threading.Tasks;
@@ -12,12 +14,14 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
     {
         private readonly ICategoryStorages _category;
         private readonly IProductStorages _products;
+        private readonly IFileStorageService _fileProvider;
         //private readonly ILogger _logger;
 
-        public CategoryController(ICategoryStorages category, IProductStorages products)
+        public CategoryController(ICategoryStorages category, IProductStorages products, IFileStorageService fileProvider)
         {
             _category = category;
             _products = products;
+            _fileProvider = fileProvider;
         }
 
         public async Task<IActionResult> Index()
@@ -32,7 +36,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             var category = await _category.GetAll();
 
             ViewBag.Categories = category;
-
+           
             return View();
         }
 
@@ -43,17 +47,22 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             {
                 return View(category);
             }
-
-
-            var existingCategory = new Category
+            if(category.UploadedFile != null)
             {
-                Name = category.Name,
-                Description = category.Description,
-                IdentityUrl = category.IdentityUrl,
-            };
+                var path = await _fileProvider.SaveImageAsync(category.UploadedFile, "category");
+                var existingCategory = new Category
+                {
+                    Name = category.Name,
+                    Description = category.Description,
+                    IdentityUrl = category.IdentityUrl,
+                    PhotoPath = path
+                };
 
-            await _category.Add(existingCategory);
+                await _category.Add(existingCategory);
 
+                return RedirectToAction("Index");
+            }
+           
             return RedirectToAction("Index");
         }
         [HttpGet]
@@ -69,10 +78,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(CategoryViewModel category)
         {
-            //if (!ModelState.IsValid)
-            //{
-            //    return View(category);
-            //}
+            if (!ModelState.IsValid)
+            {
+                return View(category);
+            }
 
             var categoryDb = new Category
             {
@@ -94,9 +103,6 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
             return RedirectToAction("Index");
         }
-
-       
-        
     }
 }
 //добавление категории

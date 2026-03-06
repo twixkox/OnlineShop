@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace OnlineShopWebApp.Areas.Admin.Models
 {
-    public class ChangePassword
+    public class AdminChangePasswordViewModel
     {
         [Required]
         public string UserId { get; set; }

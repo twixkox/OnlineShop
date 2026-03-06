@@ -29,7 +29,8 @@
                 </div>
 
                 <div class="card-body">
-                    <form method="post" asp-action="Add">
+                    <form method="post" enctype="multipart/form-data"
+                        asp-action="Add">
                         <div class="text-danger fw-bold" asp-validation-summary="ModelOnly"></div>
 
                         <!-- Название категории -->
@@ -72,8 +73,15 @@
                             <div class="form-text text-muted">
                                 Только латиница, цифры и дефисы. Оставьте пустым для автогенерации
                             </div>
+                           
                         </div>
-
+                        <div>
+                            <p>
+                                <label>Загрузить изображение</label>
+                                <input type="file" name="UploadedFile" class="form-control" />
+                            </p>
+                        </div>
+                       
                         <!-- Кнопки -->
                         <div class="d-flex justify-content-between align-items-center mt-5">
                             <a asp-action="Index" class="btn btn-outline-secondary">

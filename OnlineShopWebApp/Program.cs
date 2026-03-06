@@ -19,6 +19,8 @@ string connection = builder.Configuration.GetConnectionString("OnlineShop");
 var webRootPath = builder.Environment.WebRootPath;
 var uploadPaths = new[]
 {
+    Path.Combine(webRootPath, "uploads", "homePage"),
+    Path.Combine(webRootPath, "uploads", "category"),
     Path.Combine(webRootPath, "uploads", "products", "original"),
     Path.Combine(webRootPath, "uploads", "products", "thumbnails"),
     Path.Combine(webRootPath, "uploads", "products", "optimized"),

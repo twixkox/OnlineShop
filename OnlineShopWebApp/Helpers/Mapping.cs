@@ -20,6 +20,7 @@ namespace OnlineShopWebApp.Helpers
                     Name = category.Name,
                     Description = category.Description,
                     IdentityUrl = category.IdentityUrl,
+                    PhotoPath = category.PhotoPath,
                 };
                 return existingCategory;
             }
@@ -118,6 +119,8 @@ namespace OnlineShopWebApp.Helpers
                 return result;
             }
         }
+
+        
 
         #endregion
         #region Product

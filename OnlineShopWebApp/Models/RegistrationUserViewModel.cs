@@ -6,7 +6,7 @@ namespace OnlineShopWebApp.Models
     {
         [Display(Name = "Логин", Prompt = "Введите логин")]
         [Required(ErrorMessage = "Не указан логин")]
-        [StringLength(20, MinimumLength = 2, ErrorMessage = "Длина логина от {2} до {1} символов!")]
+        [StringLength(35, MinimumLength = 2, ErrorMessage = "Длина логина от {2} до {1} символов!")]
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage ="Введите корректный e-mail")]
         public required string UserName { get; set; }

@@ -1,8 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OnlineShop.Db
 {
@@ -40,49 +37,57 @@ namespace OnlineShop.Db
                 Id = Guid.NewGuid(),
                 Name = "Плодовые",
                 IdentityUrl = "plodovye",
-                Description = "Плодовые деревья и кустарники для сада"
+                Description = "Плодовые деревья и кустарники для сада",
+                PhotoPath = "uploads/category/anyCategory.png"
+
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Лиственные",
                 IdentityUrl = "listvennye",
-                Description = "Декоративно-лиственные деревья и кустарники"
+                Description = "Декоративно-лиственные деревья и кустарники",
+                PhotoPath = "uploads/category/anyCategory.png"
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Хвойные",
                 IdentityUrl = "hvoinye",
-                Description = "Вечнозелёные хвойные растения"
+                Description = "Вечнозелёные хвойные растения",
+                PhotoPath = "uploads/category/anyCategory.png"
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Однолетники",
                 IdentityUrl = "odnoletniki",
-                Description = "Цветущие однолетние растения"
+                Description = "Цветущие однолетние растения",
+                PhotoPath = "uploads/category/anyCategory.png"
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Многолетники",
                 IdentityUrl = "mnogoletniki",
-                Description = "Многолетние цветы и декоративные растения"
+                Description = "Многолетние цветы и декоративные растения",
+                PhotoPath = "uploads/category/anyCategory.png"
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Розы",
                 IdentityUrl = "rozy",
-                Description = "Садовые розы всех сортов"
+                Description = "Садовые розы всех сортов",
+                PhotoPath = "uploads/category/anyCategory.png"
             },
             new Category
             {
                 Id = Guid.NewGuid(),
                 Name = "Сопутствующие товары",
                 IdentityUrl = "soputstvuyushchie-tovary",
-                Description = "Всё для ухода за растениями"
+                Description = "Всё для ухода за растениями",
+                PhotoPath = "uploads/category/anyCategory.png"
             }
         };
 

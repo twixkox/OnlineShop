@@ -9,11 +9,11 @@ using OnlineShop.Db;
 
 #nullable disable
 
-namespace OnlineShop.Db.Migrations
+namespace OnlineShop.Db.Migrations.Identity
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20260302135914_addSlide")]
-    partial class addSlide
+    [Migration("20260302161538_addCategoryPhoto")]
+    partial class addCategoryPhoto
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
