@@ -18,7 +18,7 @@ namespace OnlineShopWebApp.Models
         [Required(ErrorMessage = "Не указан номер телефона")]
         [DataType(DataType.PhoneNumber)]
         [Phone(ErrorMessage = "Телефон не может содержать буквы")]
-        [StringLength(16, MinimumLength = 5, ErrorMessage = "Телефон может содержать от {2} до {1} символов")]
+        [StringLength(18,MinimumLength = 5, ErrorMessage = "Телефон может содержать от {2} до {1} символов")]
         public required string Phone { get; set; }
 
 

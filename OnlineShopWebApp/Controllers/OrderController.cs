@@ -34,6 +34,7 @@ namespace OnlineShopWebApp.Controllers
 
             return View(existingOrder);
         }
+
         [HttpPost]
         public async Task<IActionResult> Buy(OrderViewModel orders)
         {

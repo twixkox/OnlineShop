@@ -4,78 +4,135 @@
     ViewData["Title"] = "Главная";
 }
 
-<!-- Блок "О нас" — просто текст -->
-<div class="container my-5">
-    <h2 class="text-center mb-4">О нашем питомнике</h2>
-    <p class="text-muted" style="line-height: 1.8;">
-        Здесь будет подробный рассказ о вашем магазине: опыт, преимущества, ассортимент,
-        дополнительные услуги (ландшафтный дизайн, консультации, доставка).
-        Вставьте сюда текст, аналогичный тому, что на сайте rus.garden.
-    </p>
-</div>
 
-<!-- Список категорий (простые карточки) -->
-<div class="container my-5">
-    <h2 class="text-center mb-4">Наши растения</h2>
-    <div class="row g-3">
-        @foreach (var category in Model.MainCategories)
-        {
-            <div class="col-md-3 col-6">
-                <a asp-controller="Catalog" asp-action="CurrentCategory" asp-route-identityUrl="@category.IdentityUrl"
-                   asp-route-categoryId="@category.Id"
-                   class="text-decoration-none text-dark">
-                    <div class="p-3 border rounded bg-light h-100">
-                        <img src="/@category.PhotoPath" class="card-img-top" alt="@category.Name" style="height: 300px; object-fit: cover;">
-                        <h5 class="text-success">@category.Name</h5>
-                        <p class="small text-muted mb-0">@category.Description</p>
-                    </div>
-                </a>
+<div class="container">
+    <!-- Блок "О нас" в виде карточки -->
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle text-success me-2"></i>
+                        О нашем питомнике
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted" style="line-height: 1.8;">
+                        Здесь будет подробный рассказ о вашем магазине: опыт, преимущества, ассортимент,
+                        дополнительные услуги (ландшафтный дизайн, консультации, доставка).
+                        Вставьте сюда текст, аналогичный тому, что на сайте rus.garden.
+                    </p>
+                </div>
             </div>
-        }
+        </div>
     </div>
-</div>
 
-<!-- Блок с товарами (простая сетка) -->
-@if (Model.FeaturedProducts.Any())
-{
-    <div class="container my-5">
-        <h2 class="text-center mb-4">Популярные товары</h2>
-        <div class="row g-4">
-            @foreach (var product in Model.FeaturedProducts.Take(4))
-            {
-                <div class="col-md-3 col-6">
-                    <div class="card h-100 shadow-sm">
-                        <img src="@product.ThumbnailPath" class="card-img-top" alt="@product.Name" style="height: 300px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title">@product.Name</h5>
-                            <p class="card-text text-success fw-bold">@product.Cost.ToString("C")</p>
-                        </div>
-                        <div class="card-footer bg-white border-0">
-                            <a asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
-                               class="btn btn-outline-success w-100">Подробнее</a>
+    <!-- Список категорий -->
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                        Наши растения
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        @foreach (var category in Model.MainCategories)
+                        {
+                            <div class="col-md-3 col-6">
+                                <a asp-controller="Catalog" asp-action="CurrentCategory"
+                                   asp-route-identityUrl="@category.IdentityUrl"
+                                   asp-route-categoryId="@category.Id"
+                                   class="text-decoration-none text-dark">
+                                    <div class="card h-100 shadow-sm">
+                                        <img src="/@category.PhotoPath" class="card-img-top" alt="@category.Name"
+                                             style="height: 300px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-success">@category.Name</h5>
+                                            <p class="card-text small text-muted">@category.Description</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Популярные товары -->
+    @if (Model.FeaturedProducts.Any())
+    {
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card shadow-sm mb-5">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-star-fill text-success me-2"></i>
+                            Популярные товары
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            @foreach (var product in Model.FeaturedProducts.Take(4))
+                            {
+                                <div class="col-md-3 col-6">
+                                    <div class="card h-100 shadow-sm">
+                                        <img src="@product.ThumbnailPath" class="card-img-top" alt="@product.Name"
+                                             style="height: 300px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@product.Name</h5>
+                                            <p class="card-text text-success fw-bold">@product.Cost.ToString("C")</p>
+                                        </div>
+                                        <div class="card-footer bg-white border-0">
+                                            <a asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
+                                               class="btn btn-outline-success w-100">
+                                                <i class="bi bi-eye me-1"></i>Подробнее
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
-            }
+            </div>
         </div>
-    </div>
-}
+    }
 
-<!-- Контактный блок -->
-<div class="container my-5">
-    <h2 class="text-center mb-4">Как нас найти</h2>
-    <div class="row text-center">
-        <div class="col-md-4">
-            <h5><i class="bi bi-clock"></i> Режим работы</h5>
-            <p>@("ежедневно 10:00 — 19:00")</p>
-        </div>
-        <div class="col-md-4">
-            <h5><i class="bi bi-geo-alt"></i> Адрес</h5>
-            <p>@("пос. Сосново, ул. Садовая, 1")<br>Есть парковка</p>
-        </div>
-        <div class="col-md-4">
-            <h5><i class="bi bi-telephone"></i> Контакты</h5>
-            <p>@("+7 (999) 123-45-67")<br>@("info@plantshop.ru")</p>
+    <!-- Контактный блок -->
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-geo-alt-fill text-success me-2"></i>
+                        Как нас найти
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <i class="bi bi-clock fs-2 text-success"></i>
+                            <h5 class="mt-2">Режим работы</h5>
+                            <p class="text-muted">ежедневно 10:00 — 19:00</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-geo-alt fs-2 text-success"></i>
+                            <h5 class="mt-2">Адрес</h5>
+                            <p class="text-muted">пос. Сосново, ул. Садовая, 1<br>Есть парковка</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-telephone fs-2 text-success"></i>
+                            <h5 class="mt-2">Контакты</h5>
+                            <p class="text-muted">+7 (999) 123-45-67<br>info@plantshop.ru</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

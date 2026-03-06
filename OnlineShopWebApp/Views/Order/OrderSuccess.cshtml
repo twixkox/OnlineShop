@@ -2,18 +2,38 @@
     ViewData["Title"] = "Оплата заказа";
 }
 
-<div class="text-center text-uppercase text-success mb-5 mt-5">
-    <h2 class="row-title">Оплата заказа</h2>
-</div>
-
-<div class="text-center">
-    <h2 class="row-title">Заказ успешно оплачен! Благодарим за покупку!</h2>
-</div>
-
-<div class="text-center m-5">
-    <a class="btn btn-outline-success"
-       asp-controller="Home"
-       asp-action="Index">
-        Продолжить покупки
+<!-- Шапка с заголовком -->
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-credit-card me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Результат оплаты</p>
+    </div>
+    <a asp-controller="Home" asp-action="Index" class="btn btn-light">
+        <i class="bi bi-house-door me-1"></i>На главную
     </a>
+</div>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                        Статус оплаты
+                    </h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
+                    <h2 class="mt-4 mb-3">Заказ успешно оплачен!</h2>
+                    <p class="text-muted">Благодарим за покупку!</p>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg mt-3">
+                        <i class="bi bi-arrow-left me-1"></i>Продолжить покупки
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
