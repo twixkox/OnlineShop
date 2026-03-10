@@ -5,6 +5,7 @@ using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
+using SixLabors.ImageSharp.Drawing;
 using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
@@ -17,7 +18,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         private readonly IFileStorageService _fileProvider;
         private readonly ILogger<CategoryController> _logger;
 
-        public CategoryController(ICategoryStorages category, IProductStorages products, IFileStorageService fileProvider,ILogger<CategoryController> logger)
+        public CategoryController(ICategoryStorages category, IProductStorages products, IFileStorageService fileProvider, ILogger<CategoryController> logger)
         {
             _category = category;
             _products = products;
@@ -36,19 +37,29 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка получения списка категорий в методе Index");
+                _logger.LogError(ex, "Ошибка получения списка категорий. Category/Index");
                 return RedirectToAction("Error");
             }
-           
         }
 
+        [HttpGet]
         public async Task<IActionResult> Add()
         {
-            var category = await _category.GetAll();
+            try
+            {
+                _logger.LogInformation("Запрос списка всех категорий для метода Add");
+                var category = await _category.GetAll();
+                _logger.LogInformation("Получено {Count} категорий для метода Add", category.Count);
+                ViewBag.Categories = category;
 
-            ViewBag.Categories = category;
-           
-            return View();
+                return View();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка получения списка категорий. Category/Add");
+
+                return RedirectToAction("Error");
+            }
         }
 
         [HttpPost]
@@ -56,66 +67,123 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Попытка передачи невалидной модели в метод Add");
+
                 return View(category);
             }
-            if(category.UploadedFile != null)
+            try
             {
-                var path = await _fileProvider.SaveImageAsync(category.UploadedFile, "category");
-                var existingCategory = new Category
+                if (category.UploadedFile != null)
                 {
-                    Name = category.Name,
-                    Description = category.Description,
-                    IdentityUrl = category.IdentityUrl,
-                    PhotoPath = path
-                };
+                    _logger.LogInformation("Сохранение изображения для категории {Name} для метода Add", category.Name);
+                    var path = await _fileProvider.SaveImageAsync(category.UploadedFile, "category");
+                    var existingCategory = new Category
+                    {
+                        Name = category.Name,
+                        Description = category.Description,
+                        IdentityUrl = category.IdentityUrl,
+                        PhotoPath = path
+                    };
 
-                await _category.Add(existingCategory);
+                    await _category.Add(existingCategory);
+                    _logger.LogInformation("Категория {Name} успешно добавлена", existingCategory.Name);
 
-                return RedirectToAction("Index");
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    var existingCategory = new Category
+                    {
+                        Name = category.Name,
+                        Description = category.Description,
+                        IdentityUrl = category.IdentityUrl,
+                    };
+
+                    await _category.Add(existingCategory);
+                    _logger.LogInformation("Категория {Name} успешно добавлена", existingCategory.Name);
+
+                    return RedirectToAction("Index");
+                }
             }
-           
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при добавлении категории {Name}. Category/Add", category.Name);
+
+                return View("Error");
+            }
         }
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            var existingCategory = await _category.TryGetById(id);
-            var category = await _category.GetAll();
+            try
+            {
+                _logger.LogInformation("Получение категории с Id - {Id}", id);
+                var existingCategory = await _category.TryGetById(id);
+                if (existingCategory == null)
+                {
+                    _logger.LogError("Категория с Id - {Id} не найдена", id);
+                    return View("Error");
+                }
 
-            ViewBag.ParrentCategories = category;
+                _logger.LogInformation("Получение списка всех категорий");
+                var category = await _category.GetAll();
 
-            return View(existingCategory.ToCategoryViewModel());
+                ViewBag.ParrentCategories = category;
+
+                return View(existingCategory.ToCategoryViewModel());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при загрузке категории для редактирования Id - {Id}. Category/Edit", id);
+
+                return View("Error");
+            }
         }
         [HttpPost]
         public async Task<IActionResult> Edit(CategoryViewModel category)
         {
             if (!ModelState.IsValid)
             {
+                _logger.LogError("Передана невалидная модель. Category/Edit");
                 return View(category);
             }
 
-            var categoryDb = new Category
+            try
             {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                IdentityUrl = category.IdentityUrl,
-            };
-            await _category.Edit(categoryDb);
+                var categoryDb = new Category
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Description = category.Description,
+                    IdentityUrl = category.IdentityUrl,
+                };
+                await _category.Edit(categoryDb);
+                _logger.LogInformation("Категория с Id - {Id} успешно изменена", category.Id);
 
-            return RedirectToAction("Index");
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при обновлении категории с Id = {Id}. Category/Edit", category.Id);
+                return View("Error");
+            }
         }
 
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
-
-            await _category.Delete(id);
-
-            return RedirectToAction("Index");
+            try
+            {
+                _logger.LogInformation("Удаление категории с Id = {Id}", id);
+                await _category.Delete(id);
+                _logger.LogInformation("Категория с Id = {Id} успешно удалена", id);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при удалении категории с Id = {Id}. Category/Delete", id);
+                return View("Error");
+            }
         }
     }
 }
-//добавление категории
-//редактирование
-//удаление

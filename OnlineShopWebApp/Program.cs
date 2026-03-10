@@ -8,7 +8,7 @@ using OnlineShop.Db.Storages;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Models;
 using Serilog;
-using SixLabors.ImageSharp.Drawing.Processing;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,9 +67,12 @@ builder.Services.AddSingleton<ICookieManager, ChunkingCookieManager>();
 #endregion
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
+    .MinimumLevel.Information()  // глобальный уровень
+    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
+    .MinimumLevel.Override("Microsoft.AspNetCore.StaticFiles", Serilog.Events.LogEventLevel.Error) // если хотите ещё тише для статики
     .WriteTo.Console()
-    .WriteTo.File(path:"Logs/log.json")
+    .WriteTo.File("Logs/log.json")
     .CreateLogger();
 
 builder.Host.UseSerilog();
@@ -96,8 +99,9 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.UseSerilogRequestLogging();
+
 app.UseHttpsRedirection();
+app.UseSerilogRequestLogging();
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

@@ -9,30 +9,61 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
     public class OrderController : Controller
     {
         private readonly IOrderStorages _orders;
-        public OrderController(IOrderStorages orders)
+        private readonly ILogger<OrderController> _logger;
+        public OrderController(IOrderStorages orders, ILogger<OrderController> logger)
         {
             _orders = orders;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
-            var orders = await _orders.GetAllAsync();
+            try
+            {
+                var orders = await _orders.GetAllAsync();
+                _logger.LogInformation("Получение списка заказов. Всего {Count} заказов.", orders.Count);
 
-            return View(orders.ToOrdersViewModels());
+                return View(orders.ToOrdersViewModels());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка получения всех заказов. Order/Index");
+                return View("Error");
+            }
         }
 
+        [HttpGet]
         public async Task<IActionResult> DetailAsync(Guid orderId)
         {
-            var order = await _orders.TryGetByIdAsync(orderId);
+            try
+            {
+                _logger.LogInformation("Получение заказа с Id - {Id}", orderId);
+                var order = await _orders.TryGetByIdAsync(orderId);
 
-            return View(order.ToOrderViewModel());
+                return View(order.ToOrderViewModel());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Произошла ошибка при получении заказа с Id - {Id}. Order/DetailAsync", orderId);
+                return View("Error");
+            }
+
         }
         [HttpPost]
         public async Task<IActionResult> UpdateOrderStatus(Guid orderId, OrderStatus status)
         {
-            await _orders.UpdateStatusAsync(orderId, status);
+            try
+            {
 
-            return RedirectToAction(nameof(Index));
+                await _orders.UpdateStatusAsync(orderId, status);
+                _logger.LogInformation("Обновление статуса заказа Id - {Id} выполнено", orderId);
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка обновления статуса заказа Id - {Id}. Order/UpdateOrderStatus", orderId);
+                return View("Error");
+            }
         }
     }
 }
