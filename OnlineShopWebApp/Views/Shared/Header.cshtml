@@ -82,44 +82,54 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <!-- Мобильная версия каталога (можно оставить как есть, либо тоже улучшить) -->
                     <li class="nav-item d-lg-none">
-                        <div class="nav-link text-dark fw-bold">
-                            <i class="bi bi-grid-3x3-gap-fill me-1"></i>Категории
-                        </div>
-                        <div class="mobile-categories ps-3">
-                            @foreach (var group in groupedCategories)
-                            {
-                                @if (group.Count() > 1)
-                                {
-                                    <div class="subcategories ms-4 mt-2">
-                                        @foreach (var sub in group.OrderBy(s => s.Name))
+                        <div class="d-grid gap-2 mt-2">
+                            <!-- Кнопка "Все товары" (аналог левой части десктопной кнопки) -->
+                            <a asp-controller="Catalog" asp-action="AllProducts" class="btn btn-success w-100">
+                                <i class="bi bi-grid-3x3-gap-fill me-2"></i>Все товары
+                            </a>
+
+                            <!-- Выпадающий список категорий (аналог правой части) -->
+                            <div class="dropdown">
+                                <button class="btn btn-outline-success w-100 dropdown-toggle" type="button" id="mobileCatalogDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-list me-2"></i>Категории
+                                </button>
+                                <ul class="dropdown-menu w-100" aria-labelledby="mobileCatalogDropdown" style="max-height: 300px; overflow-y: auto;">
+                                   
+                                    @foreach (var group in groupedCategories)
+                                    {
+                                        if (group.Count() > 1)
                                         {
-                                            <div class="d-flex align-items-center mb-1">
-                                                <i class="bi bi-arrow-return-right text-success me-2 small"></i>
-                                                <a asp-area="" asp-controller="Catalog" asp-action="Index"
-                                                   asp-route-identityUrl="@sub.IdentityUrl"
-                                                   asp-route-categoryId="@sub.Id"
-                                                   class="text-decoration-none text-secondary active">
-                                                    @sub.Name
-                                                </a>
-                                            </div>
+                                            <li class="dropdown-header text-success fw-bold">@group.Key</li>
+                                            @foreach (var sub in group.OrderBy(s => s.Name))
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item" asp-area="" asp-controller="Catalog" asp-action="CurrentCategory"
+                                                       asp-route-identityUrl="@sub.IdentityUrl" asp-route-categoryId="@sub.Id">
+                                                        @sub.Name
+                                                    </a>
+                                                </li>
+                                            }
+                                            if (!groupedCategories.Last().Equals(group))
+                                            {
+                                                <li><hr class="dropdown-divider"></li>
+                                            }
                                         }
-                                    </div>
-                                }
-                                else
-                                {
-                                    <div class="ms-4 mt-1">
-                                        <a asp-controller="Catalog" asp-action="Category"
-                                           asp-route-identityUrl="@group.First().IdentityUrl"
-                                           class="text-decoration-none text-success small">
-                                            <i class="bi bi-box-arrow-up-right me-1"></i>Перейти
-                                        </a>
-                                    </div>
-                                }
-                                @if (!groupedCategories.Last().Equals(group))
-                                {
-                                    <hr class="dropdown-divider my-2">
-                                }
-                            }
+                                        else
+                                        {
+                                            <li>
+                                                <a class="dropdown-item" asp-area="" asp-controller="Catalog" asp-action="CurrentCategory"
+                                                   asp-route-identityUrl="@group.First().IdentityUrl" asp-route-categoryId="@group.First().Id">
+                                                    @group.First().Name
+                                                </a>
+                                            </li>
+                                            if (!groupedCategories.Last().Equals(group))
+                                            {
+                                                <li><hr class="dropdown-divider"></li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
                         </div>
                     </li>
 
@@ -346,8 +356,7 @@
                             <label for="regUsername">Имя пользователя *</label>
                         </div>
                         <div class="form-floating mb-3">
-                            <input type="tel" class="form-control" id="regPhone"
-                                   name="Phone" placeholder=" ">
+                            <input class="form-control phone-input" type="tel" id="regPhone" name="Phone" placeholder="+7 (999) 999-99-99" />
                             <label for="regPhone">Телефон</label>
                         </div>
                         <div class="row g-3 mb-3">
@@ -394,6 +403,18 @@
     </div>
 }
 
+@section Scripts {
+    <script src="~/js/phoneFormatter.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var phoneInput = document.getElementById('regPhone');
+            if (phoneInput) {
+                formatPhone(phoneInput);
+                phoneInput.addEventListener('input', function() { formatPhone(this); });
+            }
+        });
+    </script>
+}
 
 @functions {
     private string GetMainCategoryName(string fullName)
@@ -435,7 +456,8 @@
 }
 
 <script>
-    // Функция для переключения видимости пароля
+
+    
     function togglePassword(inputId, element) {
         const input = document.getElementById(inputId);
         const icon = element.querySelector('i');

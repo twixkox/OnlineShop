@@ -32,19 +32,18 @@ namespace OnlineShopWebApp.Controllers
             return View("ProfileEdit",currentUser.ToUserViewModel());
         }
 
-        [HttpPatch]
+        [HttpPost]
         public async Task<IActionResult> ProfileEdit(UserViewModel userViewModel)
         {
-            var user = new User
-            {
-                FirstName = userViewModel.FirstName,
-                LastName = userViewModel.LastName,
-                PhoneNumber = userViewModel.Phone
-            };
+            var user = await _user.FindByIdAsync(userViewModel.Id);
+
+            user.PhoneNumber = userViewModel.Phone;
+            user.FirstName = userViewModel.FirstName;
+            user.LastName = userViewModel.LastName;
 
             await _user.UpdateAsync(user);
 
-            return View(nameof(ProfileEdit));
+            return View("ProfileEdit",user.ToUserViewModel());
         }
 
         public async Task<IActionResult> UserOrder()
@@ -55,6 +54,13 @@ namespace OnlineShopWebApp.Controllers
 
             var ordersViewModel = orders.ToOrdersViewModels();
             return View(ordersViewModel);
+        }
+
+        public async Task<IActionResult> DetailOrder(Guid orderId)
+        {
+            var order = await _orderStorages.TryGetByIdAsync(orderId);
+            
+            return View(order.ToOrderViewModel());
         }
 
         [HttpGet]

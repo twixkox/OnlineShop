@@ -40,7 +40,7 @@
                     </div>
 
                     <div class="form-floating mb-3">
-                        <input type="tel" class="form-control" id="regPhone"
+                        <input type="tel" class="form-control phone-input" asp-for"Phone" id="regPhone"
                                name="Phone" placeholder=" ">
                         <label for="regPhone">Телефон</label>
                     </div>
@@ -89,3 +89,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/phoneFormatter.js"></script>
+}

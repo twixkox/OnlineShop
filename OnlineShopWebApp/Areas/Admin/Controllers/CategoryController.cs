@@ -15,20 +15,31 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         private readonly ICategoryStorages _category;
         private readonly IProductStorages _products;
         private readonly IFileStorageService _fileProvider;
-        //private readonly ILogger _logger;
+        private readonly ILogger<CategoryController> _logger;
 
-        public CategoryController(ICategoryStorages category, IProductStorages products, IFileStorageService fileProvider)
+        public CategoryController(ICategoryStorages category, IProductStorages products, IFileStorageService fileProvider,ILogger<CategoryController> logger)
         {
             _category = category;
             _products = products;
             _fileProvider = fileProvider;
+            _logger = logger;
         }
 
         public async Task<IActionResult> Index()
         {
-            var category = await _category.GetAll();
-
-            return View(category.ToListCategoryViewModels());
+            try
+            {
+                _logger.LogInformation("Запрос списка всех категорий");
+                var category = await _category.GetAll();
+                _logger.LogInformation("Получено {Count} категорий", category.Count);
+                return View(category.ToListCategoryViewModels());
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка получения списка категорий в методе Index");
+                return RedirectToAction("Error");
+            }
+           
         }
 
         public async Task<IActionResult> Add()

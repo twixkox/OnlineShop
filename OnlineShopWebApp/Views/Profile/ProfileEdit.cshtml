@@ -1,86 +1,130 @@
 ﻿@model UserViewModel
 @{
-    ViewData["Title"] = "Пользователь";
+    ViewData["Title"] = "Редактирование профиля";
 }
 
-<div class="row mt-5">
+<!-- Шапка с заголовком и навигацией -->
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-pencil-square me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Изменение персональной информации</p>
+    </div>
+</div>
 
-    <div class="col-5 mb-3">
-        <div class="text-center text-uppercase text-success mb-3 mt-3">
-            <h2 class="row-title">Пользователь</h2>
-        </div>
-        <form method="post">
-
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
             @if (Model != null)
             {
-                <input type="hidden" name="Id" value="@Model.Id" />
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                            Редактирование данных
+                        </h5>
+                    </div>
 
-                <div class="text-end mt-5">
-                    <button class="btn btn-outline-success dropdown-toggle" role="button" id="dropdownMenuButton" data-toggle="dropdown"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                        Действия
-                    </button>
-                    <ul class="dropdown-menu list-group-item-success" aria-labelledby="dropdownMenuButton">
-                        <li>
-                            <a class="dropdown-item"
-                               asp-area="Admin"
-                               asp-controller="User"
-                               asp-action="ChangePassword"
-                               asp-route-userId="@Model.Id">
-                                Смена пароля
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item"
-                               asp-area="Admin"
-                               asp-controller="User"
-                               asp-action="Update"
-                               asp-route-userId="@Model.Id">
-                                Редактирование данных
-                            </a>
-                        </li>
+                    <div class="card-body">
+                        <form asp-controller="Profile" asp-action="ProfileEdit" method="post">
+                            <!-- Скрытое поле для Id -->
+                            <input type="hidden" asp-for="Id" />
 
 
-                    </ul>
+                            <!-- Информация только для чтения (ID, Email, дата регистрации) -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">ID</label>
+                                        <input class="form-control bg-light" value="@Model.Id" readonly />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-medium">Email (логин)</label>
+                                        <input class="form-control bg-light" value="@Model.UserName" readonly />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Редактируемые поля -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-medium" asp-for="FirstName">
+                                        <i class="bi bi-person text-success me-1"></i>Имя
+                                    </label>
+                                    <input class="form-control" asp-for="FirstName" placeholder="Введите имя" />
+                                    <span asp-validation-for="FirstName" class="text-danger small"></span>
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-medium" asp-for="LastName">
+                                        <i class="bi bi-person text-success me-1"></i>Фамилия
+                                    </label>
+                                    <input class="form-control" asp-for="LastName" placeholder="Введите фамилию" />
+                                    <span asp-validation-for="LastName" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-medium" asp-for="Phone">
+                                    <i class="bi bi-telephone text-success me-1"></i>Телефон
+                                </label>
+                                <input class="form-control phone-input" asp-for="Phone" placeholder="+7 (999) 999-99-99" />
+                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            </div>
+
+                            <!-- Дата регистрации (только для чтения) -->
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">Дата регистрации</label>
+                                <input class="form-control bg-light" value="@Model.CreationDateTime.ToString("dd.MM.yyyy HH:mm")" readonly />
+                            </div>
+
+                            <!-- Кнопки -->
+                            <div class="d-flex justify-content-between align-items-center mt-4">
+                                <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>Отмена
+                                </a>
+                                <button type="submit" class="btn btn-success px-5" id="submitBtn">
+                                    <i class="bi bi-check-circle me-2"></i>Сохранить
+                                    
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-
-
-
-
-                <form class="form-floating">
-                    <label for="floatingInputValue">Ваше имя</label>
-                    <input type="text" class="form-control" id="UserName" placeholder="Иван" value="@Model.FirstName">
-
-                    <label for="floatingInputValue">Ваша фамилия</label>
-                    <input type="text" class="form-control" id="LastName" placeholder="Иванов" value="@Model.LastName">
-
-                    <label for="floatingInputValue">Ваш телефон</label>
-                    <input type="tel" class="form-control" id="Phone" placeholder="+7-999-123-45-67" value="@Model.Phone">
-                </form>
-
-              
-
-
-
-                <table class="table table-hover">
-
-                    <tr>
-                        <td><span>Email (логин)</span></td>
-                        <td class="fw-bold">@Model.UserName</td>
-                    </tr>
-                   
-                    <tr>
-                        <td class="w-25"><span>Дата регистрации</span></td>
-                        <td class="w-auto">@Model.CreationDateTime</td>
-                    </tr>
-                </table>
             }
             else
             {
-                <div class="text-center">
-                    <h2>Такого пользователя не существует!</h2>
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Пользователь не найден</p>
+                   
                 </div>
             }
-        </form>
+        </div>
     </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        
+    }
+   
+    <script>
+            // Блокировка повторной отправки формы
+            const form = document.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    const submitBtn = document.getElementById('submitBtn');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Сохранение...';
+                    }
+                });
+            }
+        
+    </script>
+}

@@ -55,7 +55,7 @@
                             <label class="form-label fw-medium" asp-for="Phone">
                                 <i class="bi bi-telephone text-success me-1"></i>Телефон
                             </label>
-                            <input class="form-control" asp-for="Phone" placeholder="+7 (999) 999-99-99" />
+                            <input class="form-control phone-input" asp-for="Phone" placeholder="+7 (999) 999-99-99" />
                             <span asp-validation-for="Phone" class="text-danger small"></span>
                         </div>
 
@@ -102,5 +102,6 @@
 @section Scripts {
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        <script src="~/js/PhoneFormatter.js"></script>
     }
 }
