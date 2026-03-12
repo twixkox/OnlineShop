@@ -23,6 +23,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         public async Task<IActionResult> Index()
         {
             var roles = await _roleManager.Roles.ToListAsync();
+            _logger.LogInformation($"Получение списка ролей");
             var roleViewModels = roles.Select(r => new RoleViewModel
             {
                 Id = r.Id,
@@ -48,45 +49,44 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(RoleViewModel role)
-
-
         {
-
-            //if (!ModelState.IsValid) { return View(role); }
-
+            if (!ModelState.IsValid) 
+            {
+                _logger.LogWarning($"Передана невалидная роль. Role/Add");
+                return View(role); 
+            }
+            _logger.LogInformation($"Поиск роли по имени - {role.Name}");
             var roleName = await _roleManager.RoleExistsAsync(role.Name);
 
-            if (roleName) ModelState.AddModelError("", "Данная роль уже существует");
-
-
+            if (roleName)
+            {
+                _logger.LogWarning($"Попытка создания существующей роли. Role/Add");
+                ModelState.AddModelError("", "Данная роль уже существует"); 
+            }
 
             var existingRole = new IdentityRole(role.Name);
-
+            _logger.LogInformation("Создание роли {RoleName}", role.Name);
             var result = await _roleManager.CreateAsync(existingRole);
-
             if (result.Succeeded)
             {
-                _logger.LogInformation("Создание роли {RoleName}", role.Name);
                 TempData["SuccessMessage"] = $"Роль {role.Name} успешно создана.";
                 return RedirectToAction("Index");
             }
 
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-
             return RedirectToAction(nameof(Index));
         }
-        [HttpPost] [ValidateAntiForgeryToken]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string roleId)
         {
+            _logger.LogInformation($"Поиск роли с Id - {roleId}");
             var existingRole = await _roleManager.FindByIdAsync(roleId);
 
             if (existingRole == null)
             {
+                _logger.LogWarning($"Роль с Id - {roleId}, не найдена");    
                 TempData["ErrorMessage"] = $"Роль не найдена";
-                return RedirectToAction("Index");
+                return RedirectToAction("Error");
             }
 
             var usersInRole = await _userManager.GetUsersInRoleAsync(existingRole.Name);
@@ -113,18 +113,20 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> AssignRole(string userId)
         {
+            _logger.LogInformation($"Получение пользователя Id - {userId}");
             var existingUser = await _userManager.FindByIdAsync(userId);
             if (existingUser == null)
             {
                 ModelState.AddModelError("", "Не удалось найти пользователя с таким ID");
-                _logger.LogError($"Не удалось назначить роль пользователю {existingUser}");
+                _logger.LogError($"Не удалось найти пользователя с Id - {userId}");
                 TempData["WarningMessage"] = $"Не удалось назначить роль пользователю {existingUser}";
                 return RedirectToAction("Index", "User");
             }
-
+            _logger.LogInformation($"Получение роли пользователя");
             var userRole = await _userManager.GetRolesAsync(existingUser);
             var currentRole = userRole.FirstOrDefault();
 
+            _logger.LogInformation($"Получение списка всех ролей");
             var roles = await _roleManager.Roles.ToListAsync();
             var availableRoles = roles.Select(r => new RoleViewModel
             {
@@ -153,53 +155,64 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignRole(AssignRoleViewModel model)
         {
-            if (ModelState.IsValid) { return View(model); }
-
-            var user = await _userManager.FindByIdAsync(model.UserId);
-
-            if (user == null)
+            if (ModelState.IsValid) 
             {
-                ModelState.AddModelError("", "Пользователь с таким Id не найден");
-                return View(model);
+                _logger.LogWarning($"Передана невалидная роль. Role/AssignRole");
+                return View(model); 
             }
-
-            var selectionRole = await _roleManager.FindByIdAsync(model.SelectedRoleId);
-            if (selectionRole == null)
+            try
             {
-                ModelState.AddModelError("", "Роль не найдена");
-                return View(model);
-            }
+                _logger.LogInformation($"Поиск пользователя с Id - {model.UserId}");
+                var user = await _userManager.FindByIdAsync(model.UserId);
 
-            var currentRoles = await _userManager.GetRolesAsync(user);
-
-            if (currentRoles.Any())
-            {
-                var removeRole = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                if (!removeRole.Succeeded)
+                if (user == null)
                 {
-                    foreach (var error in removeRole.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
+                    _logger.LogError($"Пользователь с Id - {model.UserId} не найден.Role/AssignRole");
+                    ModelState.AddModelError("", "Пользователь с таким Id не найден");
                     return View(model);
                 }
+                _logger.LogInformation($"Получение роли для назначения");
+                var selectionRole = await _roleManager.FindByIdAsync(model.SelectedRoleId);
+                if (selectionRole == null)
+                {
+                    _logger.LogError($"Выбранная роль не найдена. Role/AssignRole");
+                    ModelState.AddModelError("", "Роль не найдена");
+                    return View(model);
+                }
+                _logger.LogInformation($"Получение роли пользователя Id - {user.Id}");
+                var currentRoles = await _userManager.GetRolesAsync(user);
 
+                if (currentRoles.Any())
+                {
+                    _logger.LogInformation($"Удаление текущей роли у пользователя Id - {user.Id}");
+                    var removeRole = await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                    if (!removeRole.Succeeded)
+                    {
+                        _logger.LogError($"Ошибка удаления роли у пользователя Id - {user.Id}. Role/AssignRole");
+                        foreach (var error in removeRole.Errors)
+                        {
+                            ModelState.AddModelError("", error.Description);
+                        }
+                        return View(model);
+                    }
+                }
+                _logger.LogInformation($"Назначение пользователю с Id - {user.Id} роли - {selectionRole.Name}");
+                var addRole = await _userManager.AddToRoleAsync(user, selectionRole.Name);
+
+                if (addRole.Succeeded)
+                {
+                    _logger.LogInformation($"Роль пользователя Id - {user.Id} успешно изменена на {selectionRole.Name}");
+                    TempData["SuccesMessage"] = $"Пользователю {user.UserName} назначена роль - {selectionRole.Name}";
+
+                    return RedirectToAction("Index", "User");
+                }
             }
-            var addRole = await _userManager.AddToRoleAsync(user, selectionRole.Name);
-
-            if (addRole.Succeeded)
+            catch (Exception ex)
             {
-                TempData["SuccesMessage"] = $"Пользователю {user.UserName} назначена роль - {selectionRole.Name}";
-
-                return RedirectToAction("Index", "User");
+                _logger.LogError(ex,$"Произошла ошибка назначения роли пользователя Id - {user.Id}. Имя роли {selectionRole.Name}");
+                return View("Error");
             }
-
-            foreach (var error in addRole.Errors)
-            {
-                ModelState.AddModelError("", error.Description);
-            }
-
-            return View(model);
+            
         }
     }
 }

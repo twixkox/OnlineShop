@@ -21,7 +21,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             try
             {
                 var orders = await _orders.GetAllAsync();
-                _logger.LogInformation("Получение списка заказов. Всего {Count} заказов.", orders.Count);
+                _logger.LogInformation($"Получение списка заказов. Всего {orders.Count} заказов.");
 
                 return View(orders.ToOrdersViewModels());
             }
@@ -37,14 +37,14 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         {
             try
             {
-                _logger.LogInformation("Получение заказа с Id - {Id}", orderId);
+                _logger.LogInformation($"Получение заказа с Id - {orderId}");
                 var order = await _orders.TryGetByIdAsync(orderId);
 
                 return View(order.ToOrderViewModel());
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Произошла ошибка при получении заказа с Id - {Id}. Order/DetailAsync", orderId);
+                _logger.LogError(ex, $"Произошла ошибка при получении заказа с Id - {orderId}. Order/DetailAsync");
                 return View("Error");
             }
 
@@ -61,7 +61,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Ошибка обновления статуса заказа Id - {Id}. Order/UpdateOrderStatus", orderId);
+                _logger.LogError(ex, $"Ошибка обновления статуса заказа Id - {orderId}. Order/UpdateOrderStatus");
                 return View("Error");
             }
         }

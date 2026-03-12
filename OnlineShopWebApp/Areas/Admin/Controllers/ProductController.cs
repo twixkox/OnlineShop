@@ -114,13 +114,31 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
                     _logger.LogInformation($"Выполнено добавление продукта {product.Id}");
                 }
+                else
+                {
+                    var category = await _categories.TryGetById(product.CategoryId);
+                    _logger.LogInformation($"Получена категория для присвоения {category.Name}");
+
+                    var productDb = new Product
+                    {
+                        Name = product.Name,
+                        Description = product.Description,
+                        Cost = product.Cost,
+                        CategoryId = product.CategoryId,
+                        CategoryName = category.Name,
+                    };
+
+                    await _products.AddAsync(productDb);
+
+                    _logger.LogInformation($"Выполнено добавление продукта {product.Id}");
+                }
                 return RedirectToAction("Index");
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, $"Ошибка добавления продукта {product.Id}");
-                return RedirectToAction("Index");
+                _logger.LogError(ex.Message, $"Ошибка добавления продукта {product.Id}. Product/Add");
+                return RedirectToAction("Error");
             }
         }
 
@@ -129,14 +147,16 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         {
             try
             {
+                _logger.LogInformation($"Получение товара с Id - {id}");
                 var product = await _products.TryGetProductByIdAsync(id);
-
+                _logger.LogInformation($"Получение категории товара Id - {id}");
                 var category = await _categories.TryGetById(product.CategoryId);
                 product.CategoryName = category.Name;
 
                 var productViewModel = product.ToProductViewModel();
 
                 var allCategories = await _categories.GetAll();
+                _logger.LogInformation($"Получение списка всех категории");
                 productViewModel.AvailableCategory = allCategories.Select(c => new CategoryViewModel
                 {
                     Id = c.Id,
@@ -151,10 +171,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 return View(productViewModel);
             }
             catch (Exception ex)
-            {
-                _logger.LogError(ex.Message, $"Ошибка получения продукта для редактирования id - {id}.");
+             {
+                _logger.LogError(ex, $"Ошибка получения продукта для редактирования id - {id}. Product/Edit");
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Error");
             }
         }
 
@@ -163,8 +183,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning($"Передана невалидная модель");
-
+                _logger.LogWarning($"Передана невалидная модель. Product/Edit");
                 return View(product);
             }
             try
@@ -172,7 +191,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 if (product.UploadedFile != null)
                 {
                     var path = await _fileProvider.SaveImageAsync(product.UploadedFile, "product");
+                    _logger.LogInformation($"Сохранение фото товара. Путь - {path}");
                     var thumbnailImage = await _fileProvider.GenerateThumbnailImageAsync(path);
+                    _logger.LogInformation($"Сохранение уменьшенного фото товара. Путь - {thumbnailImage}");
+                    _logger.LogInformation($"Получение категории товара с Id - {product.CategoryId}");
                     var existingCategory = await _categories.TryGetById(product.CategoryId);
                     var productDb = new Product
                     {
@@ -187,17 +209,32 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     };
 
                     await _products.EditProductAsync(productDb);
-
                     _logger.LogInformation($"Выполнено изменение продукта id - {product.Id}.");
                 }
+                else
+                {
+                    _logger.LogInformation($"Получение категории товара с Id - {product.CategoryId}");
+                    var existingCategory = await _categories.TryGetById(product.CategoryId);
+                    var productDb = new Product
+                    {
+                        Id = product.Id,
+                        Name = product.Name,
+                        Description = product.Description,
+                        Cost = product.Cost,
+                        CategoryId = product.CategoryId,
+                        CategoryName = existingCategory.Name,
+                    };
 
+                    await _products.EditProductAsync(productDb);
+                    _logger.LogInformation($"Выполнено изменение продукта id - {product.Id}.");
+                }
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, $"Произошла ошибка редактирования товара id - {product.Id}");
+                _logger.LogError(ex, $"Произошла ошибка редактирования товара id - {product.Id}");
 
-                return RedirectToAction("Index");
+                return RedirectToAction("Error");
             }
 
         }
