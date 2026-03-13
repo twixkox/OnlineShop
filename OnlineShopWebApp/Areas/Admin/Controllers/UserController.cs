@@ -235,30 +235,33 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 _logger.LogError(ex, $"Произошла ошибка получения пользователя. User/ChangePassword");
                 return RedirectToAction("Error");
             }
-
-
-
         }
 
         [HttpPost]
         public async Task<IActionResult> ChangePassword(AdminChangePasswordViewModel user)
         {
-            var existingUser = await _userManager.FindByIdAsync(user.UserId);
-
-            var token = await _userManager.RemovePasswordAsync(existingUser);
-
-            var result = await _userManager.AddPasswordAsync(existingUser, user.Password);
-
-            if (result.Succeeded)
+            try
             {
-                TempData["SuccessMessage"] = "Пароль успешно изменен";
-                return RedirectToAction("DetailAsync", new { userId = user.UserId });
+                _logger.LogInformation($"Получение пользователя с Id - {user.UserId}");
+                var existingUser = await _userManager.FindByIdAsync(user.UserId);
+                _logger.LogInformation($"Удаление текущего пароля у пользователя");
+                var token = await _userManager.RemovePasswordAsync(existingUser);
+                _logger.LogInformation($"Установка нового пароля");
+                var result = await _userManager.AddPasswordAsync(existingUser, user.Password);
+
+                if (result.Succeeded)
+                {
+                    TempData["SuccessMessage"] = "Пароль успешно изменен";
+                    return RedirectToAction("DetailAsync", new { userId = user.UserId });
+                }
+
+                return RedirectToAction("Index");
             }
-
-            return RedirectToAction("Index");
+            catch (Exception ex)
+            {
+                _logger.LogError($"Ошибка при смене пароля у пользователя {user.UserId}. User/ChangePassword");
+                return RedirectToAction("Error");
+            }
         }
-
-
-
     }
 }

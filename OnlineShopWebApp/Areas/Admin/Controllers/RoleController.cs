@@ -204,12 +204,13 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     _logger.LogInformation($"Роль пользователя Id - {user.Id} успешно изменена на {selectionRole.Name}");
                     TempData["SuccesMessage"] = $"Пользователю {user.UserName} назначена роль - {selectionRole.Name}";
 
-                    return RedirectToAction("Index", "User");
+                   
                 }
+                return RedirectToAction("Index", "User");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,$"Произошла ошибка назначения роли пользователя Id - {user.Id}. Имя роли {selectionRole.Name}");
+                _logger.LogError(ex,$"Произошла ошибка назначения роли пользователя Id - {model.UserId}.");
                 return View("Error");
             }
             
