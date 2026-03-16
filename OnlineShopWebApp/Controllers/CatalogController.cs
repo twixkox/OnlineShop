@@ -9,48 +9,51 @@ namespace OnlineShopWebApp.Controllers
     public class CatalogController : Controller
     {
         private readonly IProductStorages _products;
+        private readonly ILogger<CatalogController> _logger;
 
-        public CatalogController(IProductStorages products)
+        public CatalogController(IProductStorages products, ILogger<CatalogController> logger)
         {
+            _logger = logger;
             _products = products;
         }
 
         public async Task<IActionResult> AllProducts()
         {
+            _logger.LogInformation($"Получение списка всех товаров");
             var products = await _products.GetAllAsync();
-            return View(products.ToProductsViewModels());
+            try
+            {
+                return View(products.ToProductsViewModels());
+            }
+           catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Произошла ошибка получения всех товаров");
+                return View("Error");
+            }            
         }
 
         public async Task<IActionResult> CurrentCategory(string identityUrl, Guid categoryId)
         {
+            _logger.LogInformation($"Получение списка товаров с категорией Id - {categoryId}");
             var productsId = await _products.TryGetProductsByCategoryId(categoryId);
-
-            var productsList = new List<Product>();
-
-            foreach (var product in productsId)
+            try
             {
-                var currentProduct = await _products.TryGetProductByIdAsync(product);
+                var productsList = new List<Product>();
 
-                productsList.Add(currentProduct);
+                foreach (var product in productsId)
+                {
+                    var currentProduct = await _products.TryGetProductByIdAsync(product);
+
+                    productsList.Add(currentProduct);
+                }
+
+                return View(productsList.ToProductsViewModels());
             }
-
-            return View(productsList.ToProductsViewModels());
-        }
-
-        public async Task<IActionResult> ShowProductsInCurrentCategory(Guid categoryId)
-        {
-            var productsId = await _products.TryGetProductsByCategoryId(categoryId);
-
-            var productsList = new List<Product>();
-
-            foreach (var product in productsId)
+            catch (Exception ex)
             {
-                var currentProduct = await _products.TryGetProductByIdAsync(product);
-
-                productsList.Add(currentProduct);
+                _logger.LogError(ex, $"Произошла ошибка получения списка товаров категории Id - {categoryId}. Category/CurrentCategory");
+                return View("Error");
             }
-
-            return View(productsList.ToProductsViewModels());
         }
     }
 }

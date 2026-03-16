@@ -12,16 +12,14 @@ namespace OnlineShopWebApp.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        private readonly IWebHostEnvironment _appEnviroment;
         private readonly ILogger<RegistrationController> _logger;
         private readonly IFileStorageService _fileStorageService;
-        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager, IWebHostEnvironment appEnviroment, ILogger<RegistrationController> logger, IFileStorageService fileStorageService)
+        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager,ILogger<RegistrationController> logger, IFileStorageService fileStorageService)
         {
             _fileStorageService = fileStorageService;
             _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
-            _appEnviroment = appEnviroment;
         }
 
         public IActionResult Index()
@@ -35,7 +33,8 @@ namespace OnlineShopWebApp.Controllers
                        
             if (!ModelState.IsValid)
             {
-                return BadRequest();
+                _logger.LogWarning($"Попытка передачи невалидной модели для регистрации");
+                return View(user);
             }
 
 
@@ -49,14 +48,21 @@ namespace OnlineShopWebApp.Controllers
                 UserName = user.UserName,
                 ProfileImage = _fileStorageService.GetUserPhotoPath()
             };
-
+            _logger.LogInformation($"Создание нового пользователя");
             await _userManager.CreateAsync(currentUser,user.Password);
-
+            _logger.LogInformation($"Присвоение роли пользователю");
             var addRole = await _userManager.AddToRoleAsync(currentUser, "User");
+            try
+            {
+                await _signInManager.SignInAsync(currentUser, true);
 
-            await _signInManager.SignInAsync(currentUser,true);
-
-            return RedirectToAction("Index","Home");
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Произошла ошибка при регистрации нового пользователя. Registration/Registration");
+                return View("Error");
+            }
         }
 
         public IActionResult Success()
