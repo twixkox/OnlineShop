@@ -18,9 +18,9 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            var orders = await _orders.GetAllAsync();
             try
             {
-                var orders = await _orders.GetAllAsync();
                 _logger.LogInformation($"Получение списка заказов. Всего {orders.Count} заказов.");
 
                 return View(orders.ToOrdersViewModels());
@@ -35,11 +35,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> DetailAsync(Guid orderId)
         {
+            _logger.LogInformation($"Получение заказа с Id - {orderId}");
+            var order = await _orders.TryGetByIdAsync(orderId);
             try
             {
-                _logger.LogInformation($"Получение заказа с Id - {orderId}");
-                var order = await _orders.TryGetByIdAsync(orderId);
-
                 return View(order.ToOrderViewModel());
             }
             catch (Exception ex)
@@ -47,15 +46,13 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 _logger.LogError(ex, $"Произошла ошибка при получении заказа с Id - {orderId}. Order/DetailAsync");
                 return View("Error");
             }
-
         }
         [HttpPost]
         public async Task<IActionResult> UpdateOrderStatus(Guid orderId, OrderStatus status)
         {
+            await _orders.UpdateStatusAsync(orderId, status);
             try
             {
-
-                await _orders.UpdateStatusAsync(orderId, status);
                 _logger.LogInformation("Обновление статуса заказа Id - {Id} выполнено", orderId);
                 return RedirectToAction(nameof(Index));
             }

@@ -1,12 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.FileProviders;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
-using SixLabors.ImageSharp.Drawing;
-using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
 {
@@ -28,10 +25,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            _logger.LogInformation("Запрос списка всех категорий");
+            var category = await _category.GetAll();
             try
             {
-                _logger.LogInformation("Запрос списка всех категорий");
-                var category = await _category.GetAll();
                 _logger.LogInformation($"Получено {category.Count} категорий");
                 return View(category.ToListCategoryViewModels());
             }

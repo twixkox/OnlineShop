@@ -34,9 +34,8 @@ namespace OnlineShopWebApp.Controllers
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning($"Попытка передачи невалидной модели для регистрации");
-                return View(user);
+                return View("Index",user);
             }
-
 
             var currentUser = new User()
             {

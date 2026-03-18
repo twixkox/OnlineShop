@@ -23,11 +23,10 @@ namespace OnlineShopWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Authorization(AuthorizationUserViewModel user)
         {
+            _logger.LogInformation($"Проверка авторизации пользователя {user.UserName}");
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, user.Password, user.RememberMe, false);
             try
             {
-                _logger.LogInformation($"Проверка авторизации пользователя {user.UserName}");
-                var result = await _signInManager.PasswordSignInAsync(user.UserName, user.Password, user.RememberMe, false);
-
                 if (result.Succeeded)
                 {
                     _logger.LogInformation($"Авторизация успешна");

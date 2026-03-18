@@ -5,8 +5,6 @@ using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
 
-using System.Threading.Tasks;
-
 namespace OnlineShopWebApp.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -26,10 +24,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            _logger.LogInformation("Получение списка всех товаров");
+            var products = await _products.GetAllAsync();
             try
             {
-                _logger.LogInformation("Получение списка всех товаров");
-                var products = await _products.GetAllAsync();
                 _logger.LogInformation("Получено {Count} товаров", products.Count);
 
                 return View(products.ToProductsViewModels());
@@ -41,19 +39,19 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
         }
 
-        [HttpDelete]
-        public async Task<IActionResult> Remove(Guid id)
+        [HttpGet]
+        public async Task<IActionResult> Remove(Guid Id)
         {
+            await _products.DeleteAsync(Id);
             try
             {
-                await _products.DeleteAsync(id);
-                _logger.LogInformation("Выполнено удаление товара с Id - {Id}", id);
+                _logger.LogInformation("Выполнено удаление товара с Id - {Id}", Id);
 
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Произошла ошибка при удалении товара в методе Product/Remove. Id - {id}");
+                _logger.LogError($"Произошла ошибка при удалении товара в методе Product/Remove. Id - {Id}");
                 return View("Error");
             }
         }
@@ -61,10 +59,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
+            _logger.LogInformation("Получение списка всех категорий");
+            var category = await _categories.GetAll();
             try
             {
-                _logger.LogInformation("Получение списка всех категорий");
-                var category = await _categories.GetAll();
                 var productViewModel = new ProductViewModel
                 {
                     AvailableCategory = category.ToListCategoryViewModels(),
@@ -133,7 +131,6 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     _logger.LogInformation($"Выполнено добавление продукта {product.Id}");
                 }
                 return RedirectToAction("Index");
-
             }
             catch (Exception ex)
             {
@@ -145,12 +142,12 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
+            _logger.LogInformation($"Получение товара с Id - {id}");
+            var product = await _products.TryGetProductByIdAsync(id);
+            _logger.LogInformation($"Получение категории товара Id - {id}");
+            var category = await _categories.TryGetById(product.CategoryId);
             try
             {
-                _logger.LogInformation($"Получение товара с Id - {id}");
-                var product = await _products.TryGetProductByIdAsync(id);
-                _logger.LogInformation($"Получение категории товара Id - {id}");
-                var category = await _categories.TryGetById(product.CategoryId);
                 product.CategoryName = category.Name;
 
                 var productViewModel = product.ToProductViewModel();
@@ -171,7 +168,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 return View(productViewModel);
             }
             catch (Exception ex)
-             {
+            {
                 _logger.LogError(ex, $"Ошибка получения продукта для редактирования id - {id}. Product/Edit");
 
                 return RedirectToAction("Error");
@@ -232,7 +229,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Произошла ошибка редактирования товара id - {product.Id}");
+                _logger.LogError(ex, $"Произошла ошибка редактирования товара id - {product.Id}. Product/Edit");
 
                 return RedirectToAction("Error");
             }

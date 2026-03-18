@@ -30,13 +30,12 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
+            _logger.LogInformation($"Получение списка пользователей");
+            var users = await _userManager.Users.ToListAsync();
+            _logger.LogInformation($"Получено {users.Count} пользователей");
+            var result = users.ToListUserViewModels();
             try
             {
-                _logger.LogInformation($"Получение списка пользователей");
-                var users = await _userManager.Users.ToListAsync();
-                _logger.LogInformation($"Получено {users.Count} пользователей");
-                var result = users.ToListUserViewModels();
-
                 foreach (var user in users)
                 {
                     var role = await _userManager.GetRolesAsync(user);
@@ -59,13 +58,12 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Detail(string userId)
         {
+            _logger.LogInformation($"Получение пользователя с Id - {userId}");
+            var user = await _userManager.FindByIdAsync(userId);
+            _logger.LogInformation($"Получение роли пользователя");
+            var role = await _userManager.GetRolesAsync(user);
             try
             {
-                _logger.LogInformation($"Получение пользователя с Id - {userId}");
-                var user = await _userManager.FindByIdAsync(userId);
-                _logger.LogInformation($"Получение роли пользователя");
-                var role = await _userManager.GetRolesAsync(user);
-
                 var result = user.ToUserViewModel();
                 result.Role = role.First();
 
@@ -92,17 +90,16 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 _logger.LogWarning($"Передана невалидная модель. User/Add");
                 return View(user);
             }
+            _logger.LogInformation($"Проверка пользователя по UserName - {user.UserName}");
+            var checkLogin = await _userManager.FindByEmailAsync(user.UserName);
+
+            if (checkLogin != null)
+            {
+                _logger.LogWarning($"Пользователь с логином {user.UserName} уже существует");
+                ModelState.AddModelError("", "Пользователь с таким логином уже существует");
+            }
             try
             {
-                _logger.LogInformation($"Проверка пользователя по UserName - {user.UserName}");
-                var checkLogin = await _userManager.FindByEmailAsync(user.UserName);
-
-                if (checkLogin != null)
-                {
-                    _logger.LogWarning($"Пользователь с логином {user.UserName} уже существует");
-                    ModelState.AddModelError("", "Пользователь с таким логином уже существует");
-                }
-
                 var existingUser = new User()
                 {
                     Email = user.UserName,
@@ -130,11 +127,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Update(string userId)
         {
+            _logger.LogInformation($"Получение пользователя с Id - {userId} для редактирования");
+            var existingUser = await _userManager.FindByIdAsync(userId);
             try
             {
-                _logger.LogInformation($"Получение пользователя с Id - {userId} для редактирования");
-                var existingUser = await _userManager.FindByIdAsync(userId);
-
                 return View(existingUser.ToUserViewModel());
             }
             catch (Exception ex)
@@ -148,11 +144,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> Update(UserViewModel user)
         {
+            _logger.LogInformation($"Получение пользователя с Id - {user.Id}");
+            var existingUser = await _userManager.FindByIdAsync(user.Id);
             try
             {
-                _logger.LogInformation($"Получение пользователя с Id - {user.Id}");
-                var existingUser = await _userManager.FindByIdAsync(user.Id);
-
                 existingUser.FirstName = user.FirstName;
                 existingUser.LastName = user.LastName;
                 existingUser.PhoneNumber = user.Phone;
@@ -172,12 +167,12 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete(string userId)
         {
+            _logger.LogInformation($"Получение пользователя с Id - {userId}");
+            var existingUser = await _userManager.FindByIdAsync(userId);
+            _logger.LogInformation($"Удаление пользователя с Id - {userId}");
+            await _userManager.DeleteAsync(existingUser);
             try
             {
-                _logger.LogInformation($"Получение пользователя с Id - {userId}");
-                var existingUser = await _userManager.FindByIdAsync(userId);
-                _logger.LogInformation($"Удаление пользователя с Id - {userId}");
-                await _userManager.DeleteAsync(existingUser);
                 _logger.LogInformation($"Удаление выполнено");
 
                 return RedirectToAction("Index");
@@ -191,10 +186,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Roles(string userId)
         {
+            _logger.LogInformation($"Получение пользователя Id - {userId}");
+            var user = await _userManager.FindByIdAsync(userId);
             try
             {
-                _logger.LogInformation($"Получение пользователя Id - {userId}");
-                var user = await _userManager.FindByIdAsync(userId);
                 if (user == null)
                 {
                     _logger.LogWarning($"Пользователь с Id - {userId} не найден");
@@ -218,10 +213,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> ChangePassword(string userId)
         {
+            _logger.LogInformation($"Получение пользователя Id - {userId}");
+            var existingUser = await _userManager.FindByIdAsync(userId);
             try
             {
-                _logger.LogInformation($"Получение пользователя Id - {userId}");
-                var existingUser = await _userManager.FindByIdAsync(userId);
                 var result = new AdminChangePasswordViewModel
                 {
                     UserId = userId,
@@ -230,7 +225,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
                 return View(result);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, $"Произошла ошибка получения пользователя. User/ChangePassword");
                 return RedirectToAction("Error");
@@ -240,22 +235,16 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> ChangePassword(AdminChangePasswordViewModel user)
         {
+            _logger.LogInformation($"Получение пользователя с Id - {user.UserId}");
+            var existingUser = await _userManager.FindByIdAsync(user.UserId);
+            _logger.LogInformation($"Удаление текущего пароля у пользователя");
+            var token = await _userManager.RemovePasswordAsync(existingUser);
+            _logger.LogInformation($"Установка нового пароля");
+            var result = await _userManager.AddPasswordAsync(existingUser, user.Password);
             try
             {
-                _logger.LogInformation($"Получение пользователя с Id - {user.UserId}");
-                var existingUser = await _userManager.FindByIdAsync(user.UserId);
-                _logger.LogInformation($"Удаление текущего пароля у пользователя");
-                var token = await _userManager.RemovePasswordAsync(existingUser);
-                _logger.LogInformation($"Установка нового пароля");
-                var result = await _userManager.AddPasswordAsync(existingUser, user.Password);
-
-                if (result.Succeeded)
-                {
                     TempData["SuccessMessage"] = "Пароль успешно изменен";
                     return RedirectToAction("DetailAsync", new { userId = user.UserId });
-                }
-
-                return RedirectToAction("Index");
             }
             catch (Exception ex)
             {

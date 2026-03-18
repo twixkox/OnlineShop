@@ -18,7 +18,6 @@ namespace OnlineShopWebApp.Controllers
             _orderStorages = orderStorages;
             _logger = logger;
         }
-
         public async Task<IActionResult> Index()
         {
             _logger.LogInformation($"Получение Id пользователя");
@@ -28,9 +27,7 @@ namespace OnlineShopWebApp.Controllers
             try
             {
                 var cartViewModel = cartDb.ToCartViewModel();
-
                 var productCounts = cartViewModel?.Items.Count ?? 0;
-
                 var existingOrder = new OrderViewModel
                 {
                     Items = cartViewModel.Items,

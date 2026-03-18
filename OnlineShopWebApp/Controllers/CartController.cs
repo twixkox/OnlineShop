@@ -64,7 +64,6 @@ namespace OnlineShopWebApp.Controllers
                     $"Id Пользователя - {userId}");
                 return View("Error");
             }
-
         }
 
         public async Task<IActionResult> Clear(string userId)
@@ -97,7 +96,6 @@ namespace OnlineShopWebApp.Controllers
                 _logger.LogError($"Произошла ошибка при изменении кол-ва товаров. Cart/Subtract");
                 return View("Error");
             }
-            
         }
     }
 }
