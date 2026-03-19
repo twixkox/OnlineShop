@@ -65,7 +65,7 @@ namespace OnlineShopWebApp.Models
 
                 _logger.LogInformation($"Файл сохранен. Путь к файлу - {physicalPath}");
 
-                return relativePath;
+                return relativePath.Replace('\\','/');
             }
             catch (Exception ex)
             {
@@ -109,7 +109,7 @@ namespace OnlineShopWebApp.Models
 
                 await image.SaveAsync(thumbnailPath);
             }
-            return thumbnailRelativePath;
+            return thumbnailRelativePath.Replace('\\', '/');
         }
 
         public string GetUserPhotoPath()

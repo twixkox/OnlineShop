@@ -42,6 +42,7 @@ namespace OnlineShopWebApp.Controllers
 
             if (userId == null)
             {
+                TempData["InfoMessage"] = "Для продолжения необходимо авторизоваться";
                 return RedirectToAction("Authorization", "Authorization");
             }
             _logger.LogInformation($"Получение товара с Id - {productId}");

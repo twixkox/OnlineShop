@@ -67,10 +67,10 @@ builder.Services.AddSingleton<ICookieManager, ChunkingCookieManager>();
 #endregion
 
 Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()  // глобальный уровень
+    .MinimumLevel.Information()
     .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
     .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.AspNetCore.StaticFiles", Serilog.Events.LogEventLevel.Error) // если хотите ещё тише для статики
+    .MinimumLevel.Override("Microsoft.AspNetCore.StaticFiles", Serilog.Events.LogEventLevel.Error)
     .WriteTo.Console()
     .WriteTo.File("Logs/log.json")
     .CreateLogger();
@@ -98,7 +98,6 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, ex.Message);
     }
 }
-
 
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();

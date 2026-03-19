@@ -17,6 +17,10 @@ html {
     background: linear-gradient(0deg,rgba(0, 148, 150, 0.43) 0%, rgba(29, 163, 101, 0.44) 100%);
 }
 
+main.pb-3 {
+    padding-bottom: 80px !important; /* Увеличьте отступ */
+}
+
 html {
   position: relative;
   min-height: 100%;

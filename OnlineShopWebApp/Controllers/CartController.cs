@@ -48,6 +48,7 @@ namespace OnlineShopWebApp.Controllers
                 if (userId == null)
                 {
                     _logger.LogInformation($"Пользователь не авторизован. Перенаправление на авторизацию");
+                    TempData["InfoMessage"] = "Для продолжения необходимо авторизоваться";
                     return RedirectToAction("Authorization", "Authorization");
                 }
                 _logger.LogInformation($"Добавление товара в корзину пользователя");
