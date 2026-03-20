@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
-using OnlineShopWebApp.Models;
+using OnlineShopWebApp.Areas.Client.Models;
+
+
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
 {

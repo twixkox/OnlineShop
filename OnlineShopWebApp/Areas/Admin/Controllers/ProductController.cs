@@ -2,8 +2,8 @@
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
+using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
-using OnlineShopWebApp.Models;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
 {
@@ -135,7 +135,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex.Message, $"Ошибка добавления продукта {product.Id}. Product/Add");
-                return RedirectToAction("Error");
+                return View("Error");
             }
         }
 
@@ -170,8 +170,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Ошибка получения продукта для редактирования id - {id}. Product/Edit");
-
-                return RedirectToAction("Error");
+                return View("Error");
             }
         }
 
@@ -231,7 +230,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             {
                 _logger.LogError(ex, $"Произошла ошибка редактирования товара id - {product.Id}. Product/Edit");
 
-                return RedirectToAction("Error");
+                return View("Error");
             }
 
         }

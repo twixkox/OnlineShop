@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Helpers;
 
-namespace ProductController
+namespace OnlineShopWebApp.Controllers
 {
     public class ProductController : Controller
     {

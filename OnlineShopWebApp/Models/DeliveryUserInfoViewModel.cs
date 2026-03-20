@@ -1,7 +1,7 @@
 ﻿using OnlineShopWebApp.Helpers;
 using System.ComponentModel.DataAnnotations;
 
-namespace OnlineShopWebApp.Models
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class DeliveryUserInfoViewModel
     {

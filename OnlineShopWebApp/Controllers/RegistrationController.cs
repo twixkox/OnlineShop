@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
-using OnlineShopWebApp.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Controllers

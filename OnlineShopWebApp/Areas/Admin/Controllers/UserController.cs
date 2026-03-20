@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Areas.Admin.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
-using OnlineShopWebApp.Models;
 
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers

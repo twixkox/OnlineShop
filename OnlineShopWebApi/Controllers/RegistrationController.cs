@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using OnlineShopWebApp.Models;
 using OnlineShop.Db.Models;
 using Microsoft.AspNetCore.Authorization;
+using OnlineShopWebApp.Areas.Client.Models;
 namespace OnlineShopWebApi.Controllers
 {
     [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]

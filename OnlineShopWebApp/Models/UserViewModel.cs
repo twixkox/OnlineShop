@@ -3,7 +3,7 @@ using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Models;
 using System.ComponentModel.DataAnnotations;
 
-namespace OnlineShopWebApp.Models
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class UserViewModel
     {

@@ -2,7 +2,7 @@
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Helpers;
 
-namespace OnlineShopWebApp.Views.Shared.ViewComponents.CartViewComponents
+namespace OnlineShopWebApp.Areas.Client.Views.Shared.Components.Cart
 {
     public class CartViewComponent (ICartsStorages cartsStorages) : ViewComponent
     {

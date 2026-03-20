@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using OnlineShop.Db.Models;
-using OnlineShopWebApp.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OnlineShopWebApp
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class ProductViewModel
     {
@@ -32,7 +31,7 @@ namespace OnlineShopWebApp
         [MaybeNull]
         public string ThumbnailsPhotoPath { get; set; }
 
-        [Required]
+        [MaybeNull]
         public string CurrentCategoryName { get; set; }
 
         public Guid CategoryId { get; set; }

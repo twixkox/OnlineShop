@@ -6,7 +6,7 @@ using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShop.Db.Storages;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
-using OnlineShopWebApp.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 using Serilog;
 
 

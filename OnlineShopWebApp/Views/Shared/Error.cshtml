@@ -1,5 +1,4 @@
-﻿@model ErrorViewModel
-@{
+﻿@{
     ViewData["Title"] = "Ошибка сервера";
 }
 
@@ -11,7 +10,7 @@
         </h1>
         <p class="mb-0 small opacity-75">Произошла внутренняя ошибка сервера</p>
     </div>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-light">
+    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">
         <i class="bi bi-house-door me-1"></i>На главную
     </a>
 </div>
@@ -32,16 +31,8 @@
                         <h4 class="mt-3">Мы уже работаем над исправлением</h4>
                         <p class="text-muted">Попробуйте обновить страницу или вернуться позже.</p>
 
-                        <!-- Отображение идентификатора запроса для поддержки (если доступен) -->
-                        @if (Model != null && !string.IsNullOrEmpty(Model.RequestId))
-                        {
-                            <p class="small text-muted">
-                                <strong>Request ID:</strong> @Model.RequestId
-                            </p>
-                        }
-
                         <!-- Кнопка для возврата на главную -->
-                        <a asp-controller="Home" asp-action="Index" class="btn btn-danger mt-3">
+                        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-danger mt-3">
                             <i class="bi bi-arrow-left me-1"></i>Вернуться на главную
                         </a>
                     </div>

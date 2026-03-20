@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Client.Models;
+using OnlineShopWebApp.Areas.Models;
+using OnlineShopWebApp.Areas.User.Models;
 using OnlineShopWebApp.Models;
 using System.Threading.Tasks;
 

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using OnlineShop.Db.Models; // Подключаем пространство имён с моделями Category и Product
+using OnlineShop.Db.Models;
 
-namespace OnlineShopWebApp.Models.ViewModels
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     /// <summary>
     /// Модель представления для главной страницы (Home/Index)

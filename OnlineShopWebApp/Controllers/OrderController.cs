@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
-using OnlineShopWebApp.Models;
 using System.Security.Claims;
 
 namespace OnlineShopWebApp.Controllers

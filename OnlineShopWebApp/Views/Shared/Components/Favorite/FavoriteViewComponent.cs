@@ -2,7 +2,7 @@
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Helpers;
 
-namespace OnlineShopWebApp.Views.Shared.Components.Favorite
+namespace OnlineShopWebApp.Areas.Client.Views.Shared.Components.Favorite
 {
     public class FavoriteViewComponent(IFavoritesStorages favoriteStorages) : ViewComponent
     {

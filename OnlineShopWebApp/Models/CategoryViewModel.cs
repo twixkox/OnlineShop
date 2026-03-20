@@ -3,7 +3,7 @@ using OnlineShop.Db.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 
-namespace OnlineShopWebApp.Models
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class CategoryViewModel
     {

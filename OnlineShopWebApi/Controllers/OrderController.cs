@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp;
+using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
-using OnlineShopWebApp.Models;
 
 namespace OnlineShopWebApi.Controllers
 {

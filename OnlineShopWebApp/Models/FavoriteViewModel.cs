@@ -1,6 +1,6 @@
 ﻿using OnlineShop.Db.Models;
 
-namespace OnlineShopWebApp.Models
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class FavoriteViewModel
     {

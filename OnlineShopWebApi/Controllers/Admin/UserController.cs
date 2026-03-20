@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Models;
-using OnlineShopWebApp.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 
 namespace OnlineShopWebApi.Controllers.Admin
 {
