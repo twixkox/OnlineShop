@@ -16,10 +16,7 @@
         }
     </div>
     <div class="d-flex align-items-center gap-2">
-        <span class="badge bg-light text-success fs-6 p-2">
-            <i class="bi bi-box-seam me-1"></i>@Model?.Count товаров
-        </span>
-        <a asp-controller="Home" asp-action="Index" class="btn btn-light">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">
             <i class="bi bi-arrow-left me-1"></i>На главную
         </a>
     </div>
@@ -76,8 +73,8 @@
 
                         <!-- Информация о товаре -->
                         <div class="card-body d-flex flex-column text-center">
-                            <a asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
-                               class="text-success text-decoration-none fw-bold fs-5 mb-2">
+                            <a asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
+                                   class="text-success text-decoration-none fw-bold fs-5 mb-2">
                                 @product.Name
                             </a>
 
@@ -93,12 +90,12 @@
                             <h4 class="text-success fw-bold mb-3 mt-auto">@product.Cost.ToString("C")</h4>
 
                             <div class="d-grid gap-2">
-                                <a asp-controller="Cart" asp-action="Add" asp-route-productId="@product.Id"
-                                   class="btn btn-success add-to-cart-btn">
+                                <a asp-area="" asp-controller="Cart" asp-action="Add" asp-route-productId="@product.Id"
+                                       class="btn btn-success add-to-cart-btn">
                                     <i class="bi bi-cart-plus me-1"></i>В корзину
                                 </a>
-                                <a asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
-                                   class="btn btn-outline-secondary">
+                                <a asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
+                                       class="btn btn-outline-secondary">
                                     <i class="bi bi-eye me-1"></i>Подробнее
                                 </a>
                             </div>
@@ -108,72 +105,46 @@
             }
         </div>
 
-        <!-- Пагинация (если есть) -->
-        @if (ViewBag.TotalPages != null && ViewBag.TotalPages > 1)
-        {
-            <nav class="mt-5" aria-label="Пагинация">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
-                        <a class="page-link" href="#" data-page="@(ViewBag.CurrentPage - 1)">
-                            <i class="bi bi-chevron-left"></i>
-                        </a>
-                    </li>
-
-                    @for (int i = 1; i <= ViewBag.TotalPages; i++)
-                    {
-                        <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
-                            <a class="page-link" href="#" data-page="@i">@i</a>
-                        </li>
-                    }
-
-                    <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
-                        <a class="page-link" href="#" data-page="@(ViewBag.CurrentPage + 1)">
-                            <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
-        }
-
-        <!-- Модальное окно добавления в корзину -->
-        <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header bg-success text-white">
-                        <h5 class="modal-title">
-                            <i class="bi bi-check-circle me-2"></i>
-                            Товар добавлен
-                        </h5>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body text-center py-4">
-                        <i class="bi bi-cart-check text-success" style="font-size: 4rem;"></i>
-                        <p class="lead mb-0 mt-3">Товар успешно добавлен в корзину!</p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                            Продолжить покупки
-                        </button>
-                        <a asp-controller="Cart" asp-action="Index" class="btn btn-success">
-                            <i class="bi bi-bag me-1"></i>Перейти в корзину
-                        </a>
-                    </div>
+      
+    }
+    <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="bi bi-check-circle me-2"></i>
+                        Товар добавлен
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <i class="bi bi-cart-check text-success" style="font-size: 4rem;"></i>
+                    <p class="lead mb-0 mt-3">Товар успешно добавлен в корзину!</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Продолжить покупки
+                    </button>
+                    <a asp-area="" asp-controller="Cart" asp-action="Index" class="btn btn-success">
+                        <i class="bi bi-bag me-1"></i>Перейти в корзину
+                    </a>
                 </div>
             </div>
         </div>
+    </div>
     }
     else
     {
-        <div class="text-center py-5 my-5">
-            <div class="mb-4">
-                <i class="bi bi-box-seam display-1 text-muted"></i>
-            </div>
-            <h2 class="text-muted mb-3">Нет товаров для отображения!</h2>
-            <p class="text-muted mb-4">В этой категории пока нет товаров или они появятся позже</p>
-            <a asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg">
-                <i class="bi bi-grid-3x3-gap-fill me-2"></i>На главную
-            </a>
+    <div class="text-center py-5 my-5">
+        <div class="mb-4">
+            <i class="bi bi-box-seam display-1 text-muted"></i>
         </div>
+        <h2 class="text-muted mb-3">Нет товаров для отображения!</h2>
+        <p class="text-muted mb-4">В этой категории пока нет товаров или они появятся позже</p>
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg">
+            <i class="bi bi-grid-3x3-gap-fill me-2"></i>На главную
+        </a>
+    </div>
     }
 </div>
 
@@ -243,14 +214,18 @@
         }
     });
 
-    // Пагинация
-    document.querySelectorAll('.page-link[data-page]').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            const page = this.dataset.page;
-            const url = new URL(window.location.href);
-            url.searchParams.set('page', page);
-            window.location.href = url.toString();
-        });
-    });
+    // Показ модального окна после добавления в корзину
+         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+             btn.addEventListener('click', function(e) {
+                 e.preventDefault();
+                 const url = this.href;
+                 fetch(url, { method: 'GET' })
+                     .then(response => {
+                         if (response.ok) {
+                             const modal = new bootstrap.Modal(document.getElementById('cartModal'));
+                             modal.show();
+                         }
+                     });
+             });
+         });
 </script>

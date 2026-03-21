@@ -58,7 +58,7 @@ namespace OnlineShopWebApp.Controllers
 
                 return RedirectToAction("Index");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError($"Ошибка при добавлении товара в корзину." +
                     $"Id Товара -{productId}" +

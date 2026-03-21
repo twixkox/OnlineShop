@@ -29,9 +29,9 @@
                 </div>
 
                 <div class="card-body">
-                    <!-- Исправлено: правильный контроллер и действие -->
+
                     <form asp-controller="Registration" asp-action="Registration" method="post">
-                        <!-- Сводка ошибок -->
+
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <!-- Email (логин) -->
@@ -93,11 +93,11 @@
                         </div>
 
                         <!-- Телефон -->
-                        <div class="mb-4">
+                        <div class="mb-3">
                             <label class="form-label fw-medium" asp-for="Phone">
                                 <i class="bi bi-telephone text-success me-1"></i>Телефон
                             </label>
-                            <input class="form-control" asp-for="Phone" id="phoneInput" placeholder="+7 (999) 999-99-99" />
+                            <input class="form-control phone-input" asp-for="Phone" placeholder="+7 (999) 999-99-99" />
                             <span asp-validation-for="Phone" class="text-danger small"></span>
                         </div>
 
@@ -132,22 +132,4 @@
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
-    <script src="~/js/phoneFormatter.js"></script>
-    <script>
-        // Функция показа/скрытия пароля
-        function togglePassword(fieldId, button) {
-            const field = document.getElementById(fieldId);
-            const icon = button.querySelector('i');
-            
-            if (field.type === 'password') {
-                field.type = 'text';
-                icon.classList.remove('bi-eye');
-                icon.classList.add('bi-eye-slash');
-            } else {
-                field.type = 'password';
-                icon.classList.remove('bi-eye-slash');
-                icon.classList.add('bi-eye');
-            }
-        }
-    </script>
 }

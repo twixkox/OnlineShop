@@ -5,6 +5,7 @@ using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
+using OnlineShopWebApp.Models;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -32,7 +33,7 @@ namespace OnlineShopWebApp.Controllers
             var currentUser = await _user.FindByIdAsync(userId);
             try
             {
-                return View("ProfileEdit", currentUser.ToUserViewModel());
+                return View("ProfileEdit", currentUser.ToEditUserInfoViewModel());
             }
             catch (Exception ex)
             {
@@ -42,16 +43,16 @@ namespace OnlineShopWebApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ProfileEdit(UserViewModel userViewModel)
+        public async Task<IActionResult> ProfileEdit(EditUserInfoViewModel userViewModel)
         {
+            _logger.LogInformation($"Поиск пользователя с Id - {userViewModel.Id}");
+            var user = await _user.FindByIdAsync(userViewModel.Id); 
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning($"Передана невалидная модель. Profile/EditPassword");
                 return View(userViewModel);
             }
 
-            _logger.LogInformation($"Поиск пользователя с Id - {userViewModel.Id}");
-            var user = await _user.FindByIdAsync(userViewModel.Id);
             try
             {
                 user.PhoneNumber = userViewModel.Phone;
@@ -60,7 +61,7 @@ namespace OnlineShopWebApp.Controllers
 
                 await _user.UpdateAsync(user);
 
-                return View("ProfileEdit", user.ToUserViewModel());
+                return View("Success");
             }
             catch (Exception ex)
             {

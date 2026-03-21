@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Client.Models;
+using OnlineShopWebApp.Models;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Helpers
@@ -73,6 +75,23 @@ namespace OnlineShopWebApp.Helpers
 
         #endregion
         #region User
+        public static EditUserInfoViewModel ToEditUserInfoViewModel(this User user)
+        {
+            if (user == null) { return null; }
+            else
+            {
+                var existingUser = new EditUserInfoViewModel
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Phone = user.PhoneNumber,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                };
+                return existingUser;
+            }
+        }
+
         public static UserViewModel ToUserViewModel(this User user)
         {
             if (user == null) { return null; }

@@ -1,5 +1,5 @@
-﻿@using OnlineShopWebApp.Areas.Client.Models
-@model UserViewModel
+﻿@using OnlineShopWebApp.Models
+@model EditUserInfoViewModel
 @{
     ViewData["Title"] = "Редактирование профиля";
 }
@@ -44,7 +44,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label fw-medium">Email (логин)</label>
-                                        <input class="form-control bg-light" value="@Model.UserName" readonly />
+                                        <input class="form-control" asp-for="UserName" placeholder=@Model.UserName readonly  />
+                                        
                                     </div>
                                 </div>
                             </div>
@@ -74,12 +75,6 @@
                                 </label>
                                 <input class="form-control phone-input" asp-for="Phone" placeholder="+7 (999) 999-99-99" />
                                 <span asp-validation-for="Phone" class="text-danger small"></span>
-                            </div>
-
-                            <!-- Дата регистрации (только для чтения) -->
-                            <div class="mb-4">
-                                <label class="form-label fw-medium">Дата регистрации</label>
-                                <input class="form-control bg-light" value="@Model.CreationDateTime.ToString("dd.MM.yyyy HH:mm")" readonly />
                             </div>
 
                             <!-- Кнопки -->
