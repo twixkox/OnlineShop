@@ -27,33 +27,50 @@
                         Форма редактирования
                     </h5>
                 </div>
-                
+
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
                         <!-- Скрытое поле для ID -->
                         <input type="hidden" asp-for="Id" />
-                        
+
+                        <!-- Сводка ошибок -->
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Текущее изображение (если есть) -->
+                        @if (!string.IsNullOrEmpty(Model.PhotoPath))
+                        {
+                            <div class="mb-4">
+                                <label class="form-label fw-medium">
+                                    <i class="bi bi-image text-success me-1"></i>Текущее изображение
+                                </label>
+                                <div class="text-center p-3 border rounded bg-light">
+                                    <img src="/@Model.PhotoPath" alt="Текущее изображение категории"
+                                         class="img-fluid rounded shadow-sm" style="max-height: 200px; object-fit: contain;">
+                                    <p class="small text-muted mt-2 mb-0">Текущее изображение</p>
+                                </div>
+                            </div>
+                        }
+
                         <!-- Название категории -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Name">
                                 <i class="bi bi-tag text-success me-1"></i>Название категории
                             </label>
-                            <input class="form-control form-control-lg" asp-for="Name" 
-                                   placeholder="Введите название категории" />
+                            <input class="form-control form-control-lg" asp-for="Name"
+                                   placeholder="Введите название категории" id="categoryName" />
                             <span asp-validation-for="Name" class="text-danger small"></span>
                             <div class="form-text text-muted">
                                 Название должно быть от 2 до 25 символов
                             </div>
                         </div>
 
-                      
                         <!-- Описание -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Description">
                                 <i class="bi bi-text-paragraph text-success me-1"></i>Описание
                             </label>
-                            <textarea class="form-control" asp-for="Description" 
-                                      rows="4" placeholder="Введите описание категории"></textarea>
+                            <textarea class="form-control" asp-for="Description"
+                                      rows="4" placeholder="Введите описание категории">@Model.Description</textarea>
                             <span asp-validation-for="Description" class="text-danger small"></span>
                             <div class="form-text text-muted">
                                 Краткое описание категории (не более 200 символов)
@@ -67,19 +84,29 @@
                             </label>
                             <div class="input-group">
                                 <span class="input-group-text bg-light">/catalog/</span>
-                                <input class="form-control" asp-for="IdentityUrl" 
+                                <input class="form-control" asp-for="IdentityUrl" id="identityUrl"
                                        placeholder="nazvanie-kategorii" />
                             </div>
                             <span asp-validation-for="IdentityUrl" class="text-danger small"></span>
                             <div class="form-text text-muted">
-                                Только латиница, цифры и дефисы. Например: "plodovye-derevya"
+                                Только латиница, цифры и дефисы. Оставьте пустым для автогенерации
                             </div>
                         </div>
 
-                        <p>
-                            <label>Загрузить изображение</label>
-                            <input type="file" name="UploadedFile" class="form-control" />
-                        </p>
+                        <!-- Загрузка нового изображения -->
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">
+                                <i class="bi bi-cloud-upload text-success me-1"></i>Заменить изображение (необязательно)
+                            </label>
+                            <input type="file" name="UploadedFile" class="form-control" accept="image/*" id="imageInput" />
+                            <div class="form-text text-muted">
+                                Поддерживаемые форматы: .jpg, .jpeg, .png. Не более 2 МБ.
+                            </div>
+                            <div class="mt-3 text-center" id="imagePreview" style="display: none;">
+                                <img src="#" alt="Предпросмотр" class="img-thumbnail" style="max-height: 200px;">
+                                <p class="small text-muted mt-1">Новое изображение</p>
+                            </div>
+                        </div>
 
                         <!-- Кнопки -->
                         <div class="d-flex justify-content-between align-items-center mt-5">
@@ -92,8 +119,8 @@
                         </div>
                     </form>
                 </div>
-                
-                <!-- Информация о категории (дополнительно) -->
+
+                <!-- Информация о категории -->
                 @if (Model.Id != Guid.Empty)
                 {
                     <div class="card-footer bg-white py-3">
@@ -103,7 +130,7 @@
                                     <i class="bi bi-hash me-1"></i> ID: @Model.Id
                                 </div>
                                 <div class="col-md-6 text-md-end">
-                                    <i class="bi bi-folder me-1"></i> 
+                                    <i class="bi bi-folder me-1"></i>
                                     @if (Model.ParentCategoryId == null)
                                     {
                                         <span>Корневая категория</span>
@@ -123,30 +150,70 @@
 </div>
 
 @section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
     <script>
-        // Автоматическая генерация IdentityUrl из названия (опционально)
-        document.getElementById('Name')?.addEventListener('input', function() {
-            var identityUrl = document.getElementById('IdentityUrl');
+        // Предварительный просмотр нового изображения
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const preview = document.getElementById('imagePreview');
             
-            // Генерируем только если поле пустое или не было изменено вручную
-            if (identityUrl && !identityUrl.value) {
-                var name = this.value.toLowerCase()
-                    .replace(/[^a-zа-яё0-9\s]/gi, '') // удаляем спецсимволы
-                    .replace(/\s+/g, '-')            // пробелы на дефисы
-                    .replace(/[а-яё]/g, function(c) { // простая транслитерация
-                        var map = {
-                            'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
-                            'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i',
-                            'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
-                            'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
-                            'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch',
-                            'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
-                            'э': 'e', 'ю': 'yu', 'я': 'ya'
-                        };
-                        return map[c] || c;
-                    });
-                identityUrl.value = name;
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    preview.style.display = 'block';
+                    preview.querySelector('img').src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none';
             }
         });
+
+        // Автоматическая генерация IdentityUrl из названия
+        const nameInput = document.getElementById('categoryName');
+        const identityUrlInput = document.getElementById('identityUrl');
+        
+        if (nameInput && identityUrlInput) {
+            nameInput.addEventListener('input', function() {
+                // Генерируем только если поле пустое или не было изменено вручную
+                if (!identityUrlInput.value || identityUrlInput.getAttribute('data-auto-generated') === 'true') {
+                    var name = this.value.toLowerCase()
+                        .replace(/[^a-zа-яё0-9\s]/gi, '') // удаляем спецсимволы
+                        .replace(/\s+/g, '-')            // пробелы на дефисы
+                        .replace(/[а-яё]/g, function(c) { // простая транслитерация
+                            const map = {
+                                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
+                                'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i',
+                                'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
+                                'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
+                                'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch',
+                                'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
+                                'э': 'e', 'ю': 'yu', 'я': 'ya'
+                            };
+                            return map[c] || c;
+                        });
+                    
+                    identityUrlInput.value = name;
+                    identityUrlInput.setAttribute('data-auto-generated', 'true');
+                }
+            });
+            
+            // Если пользователь вручную редактирует IdentityUrl
+            identityUrlInput.addEventListener('input', function() {
+                if (this.value) {
+                    this.setAttribute('data-auto-generated', 'false');
+                } else {
+                    this.setAttribute('data-auto-generated', 'true');
+                }
+            });
+            
+            // Устанавливаем флаг для существующего значения
+            if (identityUrlInput.value) {
+                identityUrlInput.setAttribute('data-auto-generated', 'false');
+            } else {
+                identityUrlInput.setAttribute('data-auto-generated', 'true');
+            }
+        }
     </script>
 }

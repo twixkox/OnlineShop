@@ -46,7 +46,7 @@ namespace OnlineShop.Db.Storages
                 existingCategory.Name = category.Name;
                 existingCategory.Description = category.Description;
                 existingCategory.IdentityUrl = category.IdentityUrl;
-
+                existingCategory.PhotoPath = category.PhotoPath;
             }
 
             await databaseContext.SaveChangesAsync();

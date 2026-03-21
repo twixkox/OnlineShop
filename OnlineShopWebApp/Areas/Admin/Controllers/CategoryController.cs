@@ -4,6 +4,7 @@ using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
+using SixLabors.ImageSharp.Drawing;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
 {
@@ -42,11 +43,11 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            _logger.LogInformation("Запрос списка всех категорий для метода Add");
+            _logger.LogInformation("Запрос списка всех категорий");
             var category = await _category.GetAll();
             try
             {
-                _logger.LogInformation($"Получено {category.Count} категорий для метода Add");
+                _logger.LogInformation($"Получено {category.Count} категорий");
                 ViewBag.Categories = category;
 
                 return View();
@@ -140,44 +141,57 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 _logger.LogError("Передана невалидная модель. Category/Edit");
                 return View(category);
             }
-
-            var categoryDb = new Category
+            try { 
+            if (category.UploadedFile != null)
             {
-                Id = category.Id,
-                Name = category.Name,
-                Description = category.Description,
-                IdentityUrl = category.IdentityUrl,
-            };
-            await _category.Edit(categoryDb);
-
-            try
-            {
-                _logger.LogInformation($"Категория с Id - {category.Id} успешно изменена");
-
-                return RedirectToAction("Index");
+                var path = await _fileProvider.SaveImageAsync(category.UploadedFile, "category");
+                var categoryDb = new Category
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Description = category.Description,
+                    IdentityUrl = category.IdentityUrl,
+                    PhotoPath = path,
+                };
+                await _category.Edit(categoryDb);
             }
+            else
+            {
+                var categoryDb = new Category
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Description = category.Description,
+                    IdentityUrl = category.IdentityUrl,
+                };
+                await _category.Edit(categoryDb);
+            }
+            _logger.LogInformation($"Категория с Id - {category.Id} успешно изменена");
+
+            return RedirectToAction("Index");
+        }
             catch (Exception ex)
             {
                 _logger.LogError(ex, $"Ошибка при обновлении категории с Id = {category.Id}. Category/Edit");
                 return View("Error");
-            }
-        }
+    }
+}
 
-        [HttpGet]
-        public async Task<IActionResult> Delete(string id)
-        {
-            _logger.LogInformation($"Удаление категории с Id = {id}");
-            await _category.Delete(id);
-            try
-            {
-                _logger.LogInformation($"Категория с Id = {id} успешно удалена");
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Ошибка при удалении категории с Id = {id}. Category/Delete");
-                return View("Error");
-            }
-        }
+[HttpGet]
+public async Task<IActionResult> Delete(string id)
+{
+    _logger.LogInformation($"Удаление категории с Id = {id}");
+    await _category.Delete(id);
+    try
+    {
+        _logger.LogInformation($"Категория с Id = {id} успешно удалена");
+        return RedirectToAction(nameof(Index));
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, $"Ошибка при удалении категории с Id = {id}. Category/Delete");
+        return View("Error");
+    }
+}
     }
 }

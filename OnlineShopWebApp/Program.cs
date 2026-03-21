@@ -98,7 +98,7 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, ex.Message);
     }
 }
-
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 app.UseRouting();

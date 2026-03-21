@@ -89,11 +89,11 @@ namespace OnlineShopWebApp.Areas.Client.Models
             var fileFolder = Path.GetFileNameWithoutExtension(relativePath);
             var fileName = $"{fileFolder}-thumb{extensionFile}";// объединение пути + расширения
 
-            var thumbnailRelativePath = Path.Combine("uploads", "products", "thumbnails", $"{fileFolder}", fileName);
+            var thumbnailRelativePath = Path.Combine("uploads", "products", "thumbnails", $"{fileFolder}", fileName).Replace('\\', '/');
 
-            var thumbnailPath = Path.Combine(_appEnviroment.WebRootPath, thumbnailRelativePath);
+            var thumbnailPath = Path.Combine(_appEnviroment.WebRootPath, thumbnailRelativePath).Replace('\\', '/');
 
-            var directory = Path.GetDirectoryName(thumbnailPath);
+            var directory = Path.GetDirectoryName(thumbnailPath).Replace('\\', '/');
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
@@ -110,7 +110,7 @@ namespace OnlineShopWebApp.Areas.Client.Models
 
                     await image.SaveAsync(thumbnailPath);
                 }
-                return thumbnailRelativePath.Replace('\\', '/');
+                return thumbnailRelativePath;
             }
             catch (Exception ex)
             {
