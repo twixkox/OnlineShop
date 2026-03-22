@@ -30,6 +30,13 @@ namespace OnlineShopWebApp.Controllers
         public async Task<IActionResult> Registration(RegistrationUser user)
         {
             if (user.UserName == user.Password) ModelState.AddModelError("", "Логин и пароль должны отличаться");
+
+            var existingUser = _userManager.FindByNameAsync(user.UserName);
+
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("", "Пользователь с таким Email уже существует");
+            }
                        
             if (!ModelState.IsValid)
             {
