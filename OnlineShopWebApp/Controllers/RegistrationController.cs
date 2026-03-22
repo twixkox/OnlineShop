@@ -39,6 +39,7 @@ namespace OnlineShopWebApp.Controllers
 
             var currentUser = new User()
             {
+                
                 Email = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,

@@ -13,7 +13,7 @@ namespace OnlineShopWebApp.Areas.Client.Models
 
         [Display(Name = "Пароль", Prompt ="Введите пароль")]
         [Required(ErrorMessage ="Не задан пароль")]
-        [StringLength(25, MinimumLength = 8, ErrorMessage = "Длина пароля от {2} до {1} символов!")]
+        [StringLength(25, MinimumLength = 5, ErrorMessage = "Длина пароля от {2} до {1} символов!")]
         [DataType(DataType.Password)]
         public required string Password { get; set; }
 

@@ -8,12 +8,12 @@
     <!-- Изменён фон на светло-зелёный, убрана белая заливка -->
     <nav class="navbar navbar-expand-lg navbar-light bg-soft-green shadow-sm py-2">
         <div class="container-fluid">
-            <!-- Логотип (без изменений) -->
+           
             <a class="navbar-brand fw-bold text-success fs-4" asp-area="" asp-controller="Home" asp-action="Index">
                 <i class="bi bi-flower1 me-2"></i>PlantShop
             </a>
 
-            <!-- РАЗДЕЛЁННАЯ КНОПКА КАТАЛОГА (только на десктопе) -->
+        
             <div class="btn-group d-none d-lg-block mx-3">
                 <!-- Левая часть – ссылка на все товары -->
                 <a asp-area="" asp-controller="Catalog" asp-action="AllProducts" class="btn btn-success px-4 py-2">
@@ -352,7 +352,7 @@
                         <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="regUsername"
                                    name="UserName" placeholder=" " required>
-                            <label for="regUsername">Имя пользователя *</label>
+                            <label for="regUsername">Email *</label>
                         </div>
                         <div class="form-floating mb-3">
                             <input class="form-control phone-input" type="tel" id="regPhone" name="Phone" placeholder="+7 (999) 999-99-99" />

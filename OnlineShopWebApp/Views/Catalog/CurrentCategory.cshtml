@@ -104,47 +104,6 @@
                 </div>
             }
         </div>
-
-      
-    }
-    <div class="modal fade" id="cartModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title">
-                        <i class="bi bi-check-circle me-2"></i>
-                        Товар добавлен
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body text-center py-4">
-                    <i class="bi bi-cart-check text-success" style="font-size: 4rem;"></i>
-                    <p class="lead mb-0 mt-3">Товар успешно добавлен в корзину!</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                        Продолжить покупки
-                    </button>
-                    <a asp-area="" asp-controller="Cart" asp-action="Index" class="btn btn-success">
-                        <i class="bi bi-bag me-1"></i>Перейти в корзину
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-    }
-    else
-    {
-    <div class="text-center py-5 my-5">
-        <div class="mb-4">
-            <i class="bi bi-box-seam display-1 text-muted"></i>
-        </div>
-        <h2 class="text-muted mb-3">Нет товаров для отображения!</h2>
-        <p class="text-muted mb-4">В этой категории пока нет товаров или они появятся позже</p>
-        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg">
-            <i class="bi bi-grid-3x3-gap-fill me-2"></i>На главную
-        </a>
-    </div>
     }
 </div>
 
