@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OnlineShop.Db.Storages
 {
@@ -56,6 +53,5 @@ namespace OnlineShop.Db.Storages
         {
             return await databaseContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);
         }
-
     }
 }

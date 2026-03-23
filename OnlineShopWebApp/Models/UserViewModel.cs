@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-using OnlineShop.Db.Models;
-using OnlineShopWebApp.Areas.Admin.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace OnlineShopWebApp.Areas.Client.Models
 {
@@ -19,14 +16,12 @@ namespace OnlineShopWebApp.Areas.Client.Models
         [StringLength(20, MinimumLength = 2, ErrorMessage = "Фамилия должна быть от {2} до {1} символов")]
         public string LastName { get; set; }
 
-
         [Display(Name = "Логин", Prompt = "Логин")]
         [Required(ErrorMessage = "Не указан логин пользователя")]
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage = "Введите существующий e-mail")]
         [StringLength(30, MinimumLength = 5, ErrorMessage = "Логин должен быть от {2} до {1} символов")]
         public string UserName { get; set; }
-
 
         [Display(Name = "Пароль", Prompt = "Введите ваш пароль")]
         [Required(ErrorMessage = "Не указан пароль")]

@@ -15,9 +15,8 @@ namespace OnlineShop.Db.Storages
 
         public async Task AddAsync(Order order)
         {
-           await databaseContext.Order.AddAsync(order);
-
-           await databaseContext.SaveChangesAsync();
+            await databaseContext.Order.AddAsync(order);
+            await databaseContext.SaveChangesAsync();
         }
 
         public async Task<List<Order>> GetAllAsync()
@@ -35,7 +34,7 @@ namespace OnlineShop.Db.Storages
                 .Where(x => x.UserId == userId)
                 .Include(x => x.DeliveryUserInfo)
                 .Include(x => x.Items)
-                .ThenInclude(x => x.Product) 
+                .ThenInclude(x => x.Product)
                 .ToListAsync();
         }
 
@@ -46,7 +45,7 @@ namespace OnlineShop.Db.Storages
                 .Include(x => x.DeliveryUserInfo)
                 .FirstOrDefaultAsync(order => order.Id == orderId);
         }
-            
+
         public async Task UpdateStatusAsync(Guid orderId, OrderStatus newStatus)
         {
             var existingOrder = await TryGetByIdAsync(orderId);
@@ -54,7 +53,7 @@ namespace OnlineShop.Db.Storages
             {
                 existingOrder.Status = newStatus;
             }
-           await databaseContext.SaveChangesAsync();
+            await databaseContext.SaveChangesAsync();
         }
     }
 }

@@ -4,7 +4,6 @@
     ViewData["Title"] = "Пользователи";
 }
 
-<!-- Шапка с заголовком и действиями -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -48,22 +47,21 @@
                                     @for (var i = 0; i < Model.Count; i++)
                                     {
                                         var user = Model[i];
-                                        // Определяем класс бейджа для роли (пример: разные цвета)
                                         string roleClass = user.Role?.ToLower() switch
                                         {
-                                                        "администратор" => "bg-danger",
-                                                        "модератор" => "bg-warning text-dark",
-                                                        "пользователь" => "bg-info",
+                                            "администратор" => "bg-danger",
+                                            "модератор" => "bg-warning text-dark",
+                                            "пользователь" => "bg-info",
                                             _ => "bg-secondary"
                                         };
                                         <tr>
                                             <td class="fw-bold">@(i + 1)</td>
                                             <td>
                                                 <a class="text-success fw-medium text-decoration-none"
-                                                   asp-area="Admin"
-                                                   asp-controller="User"
-                                                   asp-action="Detail"
-                                                   asp-route-userId="@user.Id">
+                                                       asp-area="Admin"
+                                                       asp-controller="User"
+                                                       asp-action="Detail"
+                                                       asp-route-userId="@user.Id">
                                                     @user.UserName
                                                 </a>
                                             </td>
@@ -75,10 +73,10 @@
                                             </td>
                                             <td class="text-end">
                                                 <a class="btn btn-sm btn-outline-success"
-                                                   asp-area="Admin"
-                                                   asp-controller="User"
-                                                   asp-action="Detail"
-                                                   asp-route-userId="@user.Id">
+                                                       asp-area="Admin"
+                                                       asp-controller="User"
+                                                       asp-action="Detail"
+                                                       asp-route-userId="@user.Id">
                                                     <i class="bi bi-eye"></i> Подробнее
                                                 </a>
                                             </td>

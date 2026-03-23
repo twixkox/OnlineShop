@@ -4,7 +4,6 @@
     ViewData["Title"] = ViewBag.CategoryName ?? "Каталог товаров";
 }
 
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -25,7 +24,6 @@
 <div class="container">
     @if (Model != null && Model.Count != 0)
     {
-        <!-- Поиск и сортировка -->
         <div class="row mb-4 g-3">
             <div class="col-md-7">
                 <div class="btn-group flex-wrap" role="group" aria-label="Сортировка">
@@ -53,7 +51,6 @@
             </div>
         </div>
 
-        <!-- Сетка товаров (карточки по образцу ProductsCatalog) -->
         <div class="row g-4" id="productsContainer">
             @foreach (var product in Model)
             {
@@ -61,7 +58,6 @@
                      data-name="@product.Name.ToLower()"
                      data-price="@product.Cost">
                     <div class="card h-100 shadow-sm border-0 hover-card">
-                        <!-- Изображение товара -->
                         <div class="position-relative">
                             @if (!string.IsNullOrEmpty(product.ThumbnailsPhotoPath))
                             {
@@ -71,7 +67,6 @@
                                                      
                         </div>
 
-                        <!-- Информация о товаре -->
                         <div class="card-body d-flex flex-column text-center">
                             <a asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
                                    class="text-success text-decoration-none fw-bold fs-5 mb-2">
@@ -109,7 +104,6 @@
 
 
 <script>
-    // Сортировка товаров
     document.querySelectorAll('[data-sort]').forEach(button => {
         button.addEventListener('click', function() {
             document.querySelectorAll('[data-sort]').forEach(btn => btn.classList.remove('active'));
@@ -138,7 +132,6 @@
         });
     });
 
-    // Поиск по товарам
     document.getElementById('searchInput')?.addEventListener('keyup', function() {
         const searchText = this.value.toLowerCase();
         const products = document.querySelectorAll('.product-item');
@@ -173,7 +166,6 @@
         }
     });
 
-    // Показ модального окна после добавления в корзину
          document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
              btn.addEventListener('click', function(e) {
                  e.preventDefault();

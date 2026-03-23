@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using OnlineShop.Db.Models;
+﻿using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Models;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Helpers
 {
@@ -134,18 +131,16 @@ namespace OnlineShopWebApp.Helpers
                     };
                     result.Add(existingUser);
                 }
-
                 return result;
             }
         }
 
-        
+
 
         #endregion
         #region Product
         public static ProductViewModel ToProductViewModel(this Product product)
         {
-
             return new ProductViewModel
             {
                 Id = product.Id,
@@ -156,7 +151,6 @@ namespace OnlineShopWebApp.Helpers
                 ThumbnailsPhotoPath = product.ThumbnailPath!,
                 CategoryId = product.CategoryId,
                 CurrentCategoryName = product.CategoryName,
-
             };
         }
 
@@ -172,8 +166,6 @@ namespace OnlineShopWebApp.Helpers
                 ThumbnailPath = productViewModel.ThumbnailsPhotoPath,
                 CategoryId = productViewModel.CategoryId,
                 CategoryName = productViewModel.CurrentCategoryName,
-
-
             };
         }
 
@@ -297,7 +289,6 @@ namespace OnlineShopWebApp.Helpers
                 CreationDateOrder = order.CreationDateOrder,
                 Status = (OrderStatusViewModel)(int)order.Status,
                 Items = ToCartViewModels(order.Items),
-
             };
             return viewModel;
         }
@@ -328,7 +319,6 @@ namespace OnlineShopWebApp.Helpers
                 DeliveryUserInfo = ToDeliveryUserInfo(order.DeliveryUserInfo),
                 CreationDateOrder = order.CreationDateOrder,
                 Items = ToCartItems(order.Items),
-
             };
             return existingOrder;
         }

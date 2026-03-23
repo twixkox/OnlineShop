@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using OnlineShop.Db.Models;
 
 namespace OnlineShop.Db
@@ -34,10 +33,6 @@ namespace OnlineShop.Db
             modelBuilder.Entity<Category>()
                 .HasIndex(c => c.IdentityUrl)
                 .IsUnique();
-
-            
         }
-
-
     }
 }

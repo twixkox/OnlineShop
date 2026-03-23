@@ -138,7 +138,6 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 _logger.LogError(ex, $"Произошла ошибка при получении пользователя с Id - {userId} для редактирования. User/Update");
                 return RedirectToAction("Error");
             }
-
         }
 
         [HttpPost]
@@ -164,7 +163,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
         }
 
-        [HttpDelete]
+        [HttpGet]
         public async Task<IActionResult> Delete(string userId)
         {
             _logger.LogInformation($"Получение пользователя с Id - {userId}");

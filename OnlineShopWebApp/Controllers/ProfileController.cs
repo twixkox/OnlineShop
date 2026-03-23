@@ -1,14 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
 using System.Security.Claims;
-using System.Threading.Tasks;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -46,7 +43,7 @@ namespace OnlineShopWebApp.Controllers
         public async Task<IActionResult> ProfileEdit(EditUserInfoViewModel userViewModel)
         {
             _logger.LogInformation($"Поиск пользователя с Id - {userViewModel.Id}");
-            var user = await _user.FindByIdAsync(userViewModel.Id); 
+            var user = await _user.FindByIdAsync(userViewModel.Id);
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning($"Передана невалидная модель. Profile/EditPassword");
@@ -92,7 +89,6 @@ namespace OnlineShopWebApp.Controllers
         {
             _logger.LogInformation($"Получение заказов пользователя");
             var order = await _orderStorages.TryGetByIdAsync(orderId);
-
             try
             {
                 return View(order.ToOrderViewModel());

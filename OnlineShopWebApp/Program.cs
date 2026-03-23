@@ -12,8 +12,6 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
-// получаем строку подключения из файла конфигурации
 string connection = builder.Configuration.GetConnectionString("OnlineShop");
 #region PathToFiles
 var webRootPath = builder.Environment.WebRootPath;
@@ -37,8 +35,6 @@ foreach (var path  in uploadPaths)
 }
 #endregion
 
-
-// добавляем контекст DatabaseContext в качестве сервиса в приложение
 builder.Services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(connection));
 
 builder.Services.AddDbContext<IdentityContext>(options => options.UseSqlServer(connection));
@@ -72,7 +68,6 @@ builder.Services.AddTransient<IOrderStorages, OrdersDbStorages>();
 builder.Services.AddTransient<ICategoryStorages, CategoryDbStorages>();
 builder.Services.AddTransient<IFavoritesStorages, FavoritesDbStorages>();
 builder.Services.AddSingleton<ICookieManager, ChunkingCookieManager>();
-
 #endregion
 
 Log.Logger = new LoggerConfiguration()
@@ -87,7 +82,6 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
-
 
 using (var scope = app.Services.CreateScope())
 {

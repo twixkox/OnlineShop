@@ -1,10 +1,4 @@
-﻿// phoneFormatter.js
-
-/**
- * Форматирует ввод телефона в формате +7 (999) 999-99-99
- * @param {HTMLInputElement} input - поле ввода
- */
-function formatPhone(input) {
+﻿function formatPhone(input) {
     let numbers = input.value.replace(/\D/g, '');
     if (numbers.startsWith('7') || numbers.startsWith('8')) {
         numbers = numbers.substring(1);
@@ -29,20 +23,13 @@ function formatPhone(input) {
     input.value = formatted;
 }
 
-/**
- * Инициализирует форматирование для всех полей с классом 'phone-input'
- * (можно также передать другой селектор)
- */
 function initPhoneFormatting(selector = '.phone-input') {
     document.querySelectorAll(selector).forEach(input => {
-        // Форматируем текущее значение
         formatPhone(input);
-        // Добавляем обработчик
         input.addEventListener('input', function () {
             formatPhone(this);
         });
     });
 }
 
-// Автоматически запускаем после полной загрузки DOM
 document.addEventListener('DOMContentLoaded', () => initPhoneFormatting());

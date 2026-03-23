@@ -29,7 +29,6 @@ namespace OnlineShopWebApp.Controllers
                 MainCategories = category,
                 HeroTitle = "Добро пожаловать в PlantShop!",
                 HeroSubtitle = "Свежие растения прямо из питомника",
-
             };
             try
             {

@@ -7,8 +7,6 @@
     ViewData["Title"] = "Добавление роли";
 }
 
-
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -35,8 +33,6 @@
                 <div class="card-body">
                     <form method="post">
                         <div class="text-danger fw-bold" asp-validation-summary="ModelOnly"></div>
-
-                        <!-- Название роли -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Name">
                                 <i class="bi bi-tag text-success me-1"></i>Название роли
@@ -49,7 +45,6 @@
                             </div>
                         </div>
 
-                        <!-- Описание -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Description">
                                 <i class="bi bi-text-paragraph text-success me-1"></i>Описание
@@ -62,7 +57,6 @@
                             </div>
                         </div>
 
-                        <!-- Кнопки -->
                         <div class="d-flex justify-content-between align-items-center mt-5">
                             <a asp-action="Index" class="btn btn-outline-secondary">
                                 <i class="bi bi-x-circle me-1"></i>Отмена

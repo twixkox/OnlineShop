@@ -5,7 +5,6 @@
 @inject DatabaseContext _context
 
 <header>
-    <!-- Изменён фон на светло-зелёный, убрана белая заливка -->
     <nav class="navbar navbar-expand-lg navbar-light bg-soft-green shadow-sm py-2">
         <div class="container-fluid">
            
@@ -15,16 +14,13 @@
 
         
             <div class="btn-group d-none d-lg-block mx-3">
-                <!-- Левая часть – ссылка на все товары -->
                 <a asp-area="" asp-controller="Catalog" asp-action="AllProducts" class="btn btn-success px-4 py-2">
                     <i class="bi bi-grid-3x3-gap-fill me-2"></i>Каталог товаров
                 </a>
-                <!-- Правая часть – кнопка для открытия списка категорий -->
                 <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split px-3 py-2"
                         data-bs-toggle="dropdown" aria-expanded="false">
                     <span class="visually-hidden">Toggle Dropdown</span>
                 </button>
-                <!-- Выпадающее меню (содержимое без изменений) -->
                 <div class="dropdown-menu dropdown-menu-catalog p-3 shadow-lg border-0"
                      aria-labelledby="catalogDropdown" style="min-width: 300px;">
                     @{
@@ -70,24 +66,19 @@
                 </div>
             </div>
 
-            <!-- Кнопка для мобильных устройств (без изменений) -->
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                     aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
-            <!-- Основное меню (без изменений, только цвет кнопок стал зелёным) -->
             <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                                         <li class="nav-item d-lg-none">
                         <div class="d-grid gap-2 mt-2">
-                            <!-- Кнопка "Все товары" (аналог левой части десктопной кнопки) -->
                             <a asp-controller="Catalog" asp-action="AllProducts" class="btn btn-success w-100">
                                 <i class="bi bi-grid-3x3-gap-fill me-2"></i>Все товары
                             </a>
-
-                            <!-- Выпадающий список категорий (аналог правой части) -->
                             <div class="dropdown">
                                 <button class="btn btn-outline-success w-100 dropdown-toggle" type="button" id="mobileCatalogDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="bi bi-list me-2"></i>Категории
@@ -132,13 +123,11 @@
                         </div>
                     </li>
 
-                    <!-- Поиск (без изменений) -->
                     <li class="nav-item">
                         @await Html.PartialAsync("SearchLine")
                     </li>
                 </ul>
 
-                <!-- Правая часть навигации (кнопки уже зелёные через CSS-переменные) -->
                 <ul class="navbar-nav align-items-center">
                     @if (User.Identity.IsAuthenticated)
                     {
@@ -250,10 +239,8 @@
     </nav>
 </header>
 
-<!-- Модальные окна (без изменений) -->
 @if (!User.Identity.IsAuthenticated)
 {
-    <!-- Модальное окно авторизации -->
     <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-sm">
             <div class="modal-content auth-modal">
@@ -317,7 +304,6 @@
         </div>
     </div>
 
-    <!-- Модальное окно регистрации -->
     <div class="modal fade" id="registrationModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content auth-modal">
@@ -418,7 +404,6 @@
 @functions {
     private string GetMainCategoryName(string fullName)
     {
-        // Группируем по первому слову или по общему признаку
         if (fullName.Contains("Яблоня") || fullName.Contains("Груша") ||
             fullName.Contains("Слива") || fullName.Contains("Вишня") ||
             fullName.Contains("Смородина"))
@@ -455,8 +440,6 @@
 }
 
 <script>
-
-    
     function togglePassword(inputId, element) {
         const input = document.getElementById(inputId);
         const icon = element.querySelector('i');

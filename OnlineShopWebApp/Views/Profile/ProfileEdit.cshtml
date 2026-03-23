@@ -4,7 +4,6 @@
     ViewData["Title"] = "Редактирование профиля";
 }
 
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -29,11 +28,8 @@
 
                     <div class="card-body">
                         <form asp-controller="Profile" asp-action="ProfileEdit" method="post">
-                            <!-- Скрытое поле для Id -->
                             <input type="hidden" asp-for="Id" />
 
-
-                            <!-- Информация только для чтения (ID, Email, дата регистрации) -->
                             <div class="row mb-4">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -50,7 +46,6 @@
                                 </div>
                             </div>
 
-                            <!-- Редактируемые поля -->
                             <div class="row">
                                 <div class="col-md-6 mb-3">
                                     <label class="form-label fw-medium" asp-for="FirstName">
@@ -77,7 +72,6 @@
                                 <span asp-validation-for="Phone" class="text-danger small"></span>
                             </div>
 
-                            <!-- Кнопки -->
                             <div class="d-flex justify-content-between align-items-center mt-4">
                                 <a asp-controller="Profile" asp-action="Index" class="btn btn-outline-secondary">
                                     <i class="bi bi-x-circle me-1"></i>Отмена
@@ -110,7 +104,6 @@
     }
    
     <script>
-            // Блокировка повторной отправки формы
             const form = document.querySelector('form');
             if (form) {
                 form.addEventListener('submit', function() {

@@ -1,5 +1,4 @@
 ﻿using OnlineShop.Db.Models;
-using System.Globalization;
 
 namespace OnlineShop.Db.Interfaces
 {
@@ -9,7 +8,6 @@ namespace OnlineShop.Db.Interfaces
         Task Delete(string categoryId);
         Task Edit(Category category);
         Task<List<Category>> GetAll();
-        //Task<List<Product>> TryGetProductsByCategoryId(string categoryId);
         Task<Category> TryGetById(Guid categoryId);
     }
 }

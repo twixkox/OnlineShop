@@ -4,7 +4,6 @@
     ViewData["Title"] = "Редактирование категории";
 }
 
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -27,16 +26,10 @@
                         Форма редактирования
                     </h5>
                 </div>
-
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
-                        <!-- Скрытое поле для ID -->
                         <input type="hidden" asp-for="Id" />
-
-                        <!-- Сводка ошибок -->
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
-                        <!-- Текущее изображение (если есть) -->
                         @if (!string.IsNullOrEmpty(Model.PhotoPath))
                         {
                             <div class="mb-4">
@@ -50,8 +43,6 @@
                                 </div>
                             </div>
                         }
-
-                        <!-- Название категории -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Name">
                                 <i class="bi bi-tag text-success me-1"></i>Название категории
@@ -63,8 +54,6 @@
                                 Название должно быть от 2 до 25 символов
                             </div>
                         </div>
-
-                        <!-- Описание -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Description">
                                 <i class="bi bi-text-paragraph text-success me-1"></i>Описание
@@ -76,8 +65,6 @@
                                 Краткое описание категории (не более 200 символов)
                             </div>
                         </div>
-
-                        <!-- IdentityUrl (slug) - если нужно редактировать -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="IdentityUrl">
                                 <i class="bi bi-link-45deg text-success me-1"></i>URL идентификатор (slug)
@@ -92,8 +79,6 @@
                                 Только латиница, цифры и дефисы. Оставьте пустым для автогенерации
                             </div>
                         </div>
-
-                        <!-- Загрузка нового изображения -->
                         <div class="mb-4">
                             <label class="form-label fw-medium">
                                 <i class="bi bi-cloud-upload text-success me-1"></i>Заменить изображение (необязательно)
@@ -107,8 +92,6 @@
                                 <p class="small text-muted mt-1">Новое изображение</p>
                             </div>
                         </div>
-
-                        <!-- Кнопки -->
                         <div class="d-flex justify-content-between align-items-center mt-5">
                             <a asp-action="Index" class="btn btn-outline-secondary">
                                 <i class="bi bi-x-circle me-1"></i>Отмена
@@ -119,8 +102,6 @@
                         </div>
                     </form>
                 </div>
-
-                <!-- Информация о категории -->
                 @if (Model.Id != Guid.Empty)
                 {
                     <div class="card-footer bg-white py-3">
@@ -151,9 +132,7 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
-
     <script>
-        // Предварительный просмотр нового изображения
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             const preview = document.getElementById('imagePreview');
@@ -169,51 +148,7 @@
                 preview.style.display = 'none';
             }
         });
-
-        // Автоматическая генерация IdentityUrl из названия
         const nameInput = document.getElementById('categoryName');
         const identityUrlInput = document.getElementById('identityUrl');
-        
-        if (nameInput && identityUrlInput) {
-            nameInput.addEventListener('input', function() {
-                // Генерируем только если поле пустое или не было изменено вручную
-                if (!identityUrlInput.value || identityUrlInput.getAttribute('data-auto-generated') === 'true') {
-                    var name = this.value.toLowerCase()
-                        .replace(/[^a-zа-яё0-9\s]/gi, '') // удаляем спецсимволы
-                        .replace(/\s+/g, '-')            // пробелы на дефисы
-                        .replace(/[а-яё]/g, function(c) { // простая транслитерация
-                            const map = {
-                                'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd',
-                                'е': 'e', 'ё': 'e', 'ж': 'zh', 'з': 'z', 'и': 'i',
-                                'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n',
-                                'о': 'o', 'п': 'p', 'р': 'r', 'с': 's', 'т': 't',
-                                'у': 'u', 'ф': 'f', 'х': 'h', 'ц': 'ts', 'ч': 'ch',
-                                'ш': 'sh', 'щ': 'sch', 'ъ': '', 'ы': 'y', 'ь': '',
-                                'э': 'e', 'ю': 'yu', 'я': 'ya'
-                            };
-                            return map[c] || c;
-                        });
-                    
-                    identityUrlInput.value = name;
-                    identityUrlInput.setAttribute('data-auto-generated', 'true');
-                }
-            });
-            
-            // Если пользователь вручную редактирует IdentityUrl
-            identityUrlInput.addEventListener('input', function() {
-                if (this.value) {
-                    this.setAttribute('data-auto-generated', 'false');
-                } else {
-                    this.setAttribute('data-auto-generated', 'true');
-                }
-            });
-            
-            // Устанавливаем флаг для существующего значения
-            if (identityUrlInput.value) {
-                identityUrlInput.setAttribute('data-auto-generated', 'false');
-            } else {
-                identityUrlInput.setAttribute('data-auto-generated', 'true');
-            }
-        }
     </script>
 }

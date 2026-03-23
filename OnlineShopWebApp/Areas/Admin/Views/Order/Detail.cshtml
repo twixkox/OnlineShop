@@ -4,8 +4,6 @@
     ViewData["Title"] = "Детали заказа";
 }
 
-
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -35,7 +33,6 @@
                             <input type="hidden" name="orderId" value="@Model.Id" />
                             <input type="hidden" asp-for="Id" />
 
-                            <!-- Блок информации о заказе -->
                             <div class="mb-4">
                                 <h6 class="fw-bold text-success mb-3">
                                     <i class="bi bi-info-circle me-2"></i>Основные данные
@@ -80,7 +77,6 @@
                                 </div>
                             </div>
 
-                            <!-- Информация о пользователе (владелец заказа) -->
                             <div class="mb-4">
                                 <h6 class="fw-bold text-success mb-3">
                                     <i class="bi bi-person-circle me-2"></i>Пользователь
@@ -93,7 +89,6 @@
                                 </table>
                             </div>
 
-                            <!-- Информация о покупателе (доставка) -->
                             <div class="mb-4">
                                 <h6 class="fw-bold text-success mb-3">
                                     <i class="bi bi-truck me-2"></i>Данные доставки
@@ -130,7 +125,6 @@
                                 </div>
                             </div>
 
-                            <!-- Состав заказа -->
                             <div class="mb-4">
                                 <h6 class="fw-bold text-success mb-3">
                                     <i class="bi bi-basket me-2"></i>Состав заказа
@@ -163,7 +157,6 @@
                                 </div>
                             </div>
 
-                            <!-- Кнопки действий -->
                             <div class="d-flex justify-content-between align-items-center mt-5">
                                 <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="btn btn-outline-secondary">
                                     <i class="bi bi-x-circle me-1"></i>Отмена

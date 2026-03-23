@@ -125,9 +125,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                         CategoryId = product.CategoryId,
                         CategoryName = category.Name,
                     };
-
                     await _products.AddAsync(productDb);
-
                     _logger.LogInformation($"Выполнено добавление продукта {product.Id}");
                 }
                 return RedirectToAction("Index");
@@ -149,7 +147,6 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             try
             {
                 product.CategoryName = category.Name;
-
                 var productViewModel = product.ToProductViewModel();
 
                 var allCategories = await _categories.GetAll();
@@ -159,8 +156,6 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     Id = c.Id,
                     Name = c.Name,
                     Description = c.Description,
-
-
                 }).ToList();
 
                 _logger.LogInformation($"Выполнено получение продукта для редактирования id - {product.Id}.");
@@ -232,7 +227,6 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
                 return View("Error");
             }
-
         }
     }
 }

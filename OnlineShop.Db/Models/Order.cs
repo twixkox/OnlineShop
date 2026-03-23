@@ -13,6 +13,5 @@
         public DateTime CreationDateOrder { get; set; } = DateTime.Now;
 
         public OrderStatus Status { get; set; } = OrderStatus.Created;
-
     }
 }

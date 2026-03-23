@@ -1,12 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.FileProviders;
-using OnlineShopWebApp.Areas.Admin.Intarfaces;
+﻿using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace OnlineShopWebApp.Areas.Client.Models
 {
@@ -27,7 +21,6 @@ namespace OnlineShopWebApp.Areas.Client.Models
             {
                 throw new ArgumentException("Пустой файл");
             }
-
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png" };
 
             var extesnionsFile = Path.GetExtension(file.FileName).ToLowerInvariant();
@@ -47,7 +40,6 @@ namespace OnlineShopWebApp.Areas.Client.Models
             {
                 relativePath = Path.Combine("uploads", "category", $"{fileFolder}", fileName);
             }
-
             var physicalPath = Path.Combine(_appEnviroment.WebRootPath, relativePath);
 
             var directory = Path.GetDirectoryName(physicalPath);
@@ -76,7 +68,7 @@ namespace OnlineShopWebApp.Areas.Client.Models
 
         public async Task<string> GenerateThumbnailImageAsync(string relativePath)
         {
-            var path = Path.Combine(_appEnviroment.WebRootPath, relativePath); // путь к файлу
+            var path = Path.Combine(_appEnviroment.WebRootPath, relativePath);
 
             if (!File.Exists(path))
             {
@@ -85,9 +77,9 @@ namespace OnlineShopWebApp.Areas.Client.Models
                 throw new ArgumentException($"Исходный файл не найден");
             }
 
-            var extensionFile = Path.GetExtension(path);// расширение файла
+            var extensionFile = Path.GetExtension(path);
             var fileFolder = Path.GetFileNameWithoutExtension(relativePath);
-            var fileName = $"{fileFolder}-thumb{extensionFile}";// объединение пути + расширения
+            var fileName = $"{fileFolder}-thumb{extensionFile}";
 
             var thumbnailRelativePath = Path.Combine("uploads", "products", "thumbnails", $"{fileFolder}", fileName).Replace('\\', '/');
 
@@ -104,7 +96,7 @@ namespace OnlineShopWebApp.Areas.Client.Models
                 {
                     image.Mutate(x => x.Resize(new ResizeOptions
                     {
-                        Size = new Size(300, 300), // Задание параметров высоты - ширины
+                        Size = new Size(300, 300),
                         Mode = ResizeMode.Crop
                     }));
 

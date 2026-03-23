@@ -4,7 +4,6 @@
     ViewData["Title"] = Model?.Name ?? "Товар не найден";
 }
 
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -31,13 +30,11 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <!-- Левая колонка: изображение -->
                             <div class="col-md-5 mb-4 mb-md-0">
                                 <div class="border rounded p-3 bg-light text-center">
                                     <img src="/@Model.PhotoPath" class="img-fluid" alt="@Model.Name" style="max-height: 400px; object-fit: contain;">
                                 </div>
                             </div>
-                            <!-- Правая колонка: детали -->
                             <div class="col-md-7">
                                 <h2 class="text-success mb-3">@Model.Name</h2>
                                 <div class="mb-4">

@@ -4,7 +4,6 @@
     ViewData["Title"] = "Добавление категории";
 }
 
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -27,13 +26,10 @@
                         Форма создания категории
                     </h5>
                 </div>
-
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data"
-                        asp-action="Add">
+                          asp-action="Add">
                         <div class="text-danger fw-bold" asp-validation-summary="ModelOnly"></div>
-
-                        <!-- Название категории -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Name">
                                 <i class="bi bi-tag text-success me-1"></i>Название категории
@@ -45,8 +41,6 @@
                                 Название должно быть от 2 до 25 символов
                             </div>
                         </div>
-
-                                              <!-- Описание -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Description">
                                 <i class="bi bi-text-paragraph text-success me-1"></i>Описание
@@ -58,8 +52,6 @@
                                 Краткое описание категории (не более 200 символов)
                             </div>
                         </div>
-
-                        <!-- IdentityUrl (slug) -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="IdentityUrl">
                                 <i class="bi bi-link-45deg text-success me-1"></i>URL идентификатор (slug)
@@ -81,8 +73,6 @@
                                 <input type="file" name="UploadedFile" class="form-control" />
                             </p>
                         </div>
-                       
-                        <!-- Кнопки -->
                         <div class="d-flex justify-content-between align-items-center mt-5">
                             <a asp-action="Index" class="btn btn-outline-secondary">
                                 <i class="bi bi-x-circle me-1"></i>Отмена

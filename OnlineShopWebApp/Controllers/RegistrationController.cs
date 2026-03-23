@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.FileProviders;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Areas.Client.Models;
-using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -14,7 +12,7 @@ namespace OnlineShopWebApp.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<RegistrationController> _logger;
         private readonly IFileStorageService _fileStorageService;
-        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager,ILogger<RegistrationController> logger, IFileStorageService fileStorageService)
+        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<RegistrationController> logger, IFileStorageService fileStorageService)
         {
             _fileStorageService = fileStorageService;
             _logger = logger;
@@ -31,22 +29,21 @@ namespace OnlineShopWebApp.Controllers
         {
             if (user.UserName == user.Password) ModelState.AddModelError("", "Логин и пароль должны отличаться");
 
-            var existingUser = _userManager.FindByNameAsync(user.UserName);
+            var existingUser = await _userManager.FindByNameAsync(user.UserName);
 
             if (existingUser != null)
             {
                 ModelState.AddModelError("", "Пользователь с таким Email уже существует");
             }
-                       
+
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning($"Попытка передачи невалидной модели для регистрации");
-                return View("Index",user);
+                return View("Index", user);
             }
 
             var currentUser = new User()
             {
-                
                 Email = user.UserName,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
@@ -56,7 +53,7 @@ namespace OnlineShopWebApp.Controllers
                 ProfileImage = _fileStorageService.GetUserPhotoPath()
             };
             _logger.LogInformation($"Создание нового пользователя");
-            await _userManager.CreateAsync(currentUser,user.Password);
+            await _userManager.CreateAsync(currentUser, user.Password);
             _logger.LogInformation($"Присвоение роли пользователю");
             var addRole = await _userManager.AddToRoleAsync(currentUser, "User");
             try

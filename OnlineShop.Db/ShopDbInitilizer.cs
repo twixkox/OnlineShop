@@ -7,23 +7,18 @@ namespace OnlineShop.Db
     {
         public static async Task InitializeAsync(DatabaseContext context)
         {
-            // СОЗДАЁМ БД, ЕСЛИ ЕЁ НЕТ (проще, без миграций)
             await context.Database.EnsureCreatedAsync();
 
-            // Проверяем, есть ли уже данные
             if (await context.Categories.AnyAsync() && await context.Products.AnyAsync())
             {
-                Console.WriteLine("✅ База данных уже заполнена");
+                Console.WriteLine("База данных уже заполнена");
                 return;
             }
 
-            Console.WriteLine("🌱 Начинаем инициализацию базы данных магазина растений...");
+            Console.WriteLine("Инициализация базы данных магазина растений...");
 
             var categories = await CreateCategoriesAsync(context);
-
-
             await CreateProductsAsync(context, categories);
-
         }
 
         private static async Task<Dictionary<string, Category>> CreateCategoriesAsync(DatabaseContext context)
@@ -94,13 +89,12 @@ namespace OnlineShop.Db
             context.Categories.AddRange(rootCategories);
             await context.SaveChangesAsync();
 
-            // Добавляем в словарь для быстрого доступа по IdentityUrl
             foreach (var cat in rootCategories)
             {
                 categories[cat.IdentityUrl] = cat;
             }
 
-            Console.WriteLine($"✅ Создано категорий: {categories.Count}");
+            Console.WriteLine($" Создано категорий: {categories.Count}");
             return categories;
         }
 
@@ -108,14 +102,13 @@ namespace OnlineShop.Db
         {
             var products = new List<Product>
     {
-        // ===== ПЛОДОВЫЕ (для подкатегорий плодовых) =====
         new Product
         {
             Id = Guid.NewGuid(),
             Name = "Яблоня 'Антоновка'",
             Description = "Классический сорт яблони с ароматными плодами. Срок созревания: сентябрь-октябрь.",
             Cost = 890.00m,
-            CategoryId = categories["plodovye"].Id,  // Исправлено: родительская категория
+            CategoryId = categories["plodovye"].Id,
             PhotoPath = "uploads/products/original/anyProduct.png",
             ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
@@ -139,8 +132,6 @@ namespace OnlineShop.Db
             PhotoPath = "uploads/products/original/anyProduct.png",
             ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
-        
-        // ===== ЛИСТВЕННЫЕ =====
         new Product
         {
             Id = Guid.NewGuid(),
@@ -171,8 +162,6 @@ namespace OnlineShop.Db
             PhotoPath = "uploads/products/original/anyProduct.png",
             ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
-        
-        // ===== ХВОЙНЫЕ =====
         new Product
         {
             Id = Guid.NewGuid(),
@@ -203,8 +192,6 @@ namespace OnlineShop.Db
             PhotoPath = "uploads/products/original/anyProduct.png",
             ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
-        
-        // ===== ОДНОЛЕТНИКИ =====
         new Product
         {
             Id = Guid.NewGuid(),
@@ -235,8 +222,6 @@ namespace OnlineShop.Db
            PhotoPath = "uploads/products/original/anyProduct.png",
             ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
-        
-        // ===== МНОГОЛЕТНИКИ =====
         new Product
         {
             Id = Guid.NewGuid(),
@@ -267,8 +252,6 @@ namespace OnlineShop.Db
             PhotoPath = "uploads/products/original/anyProduct.png",
             ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
-        
-        // ===== РОЗЫ =====
         new Product
         {
             Id = Guid.NewGuid(),
@@ -299,8 +282,6 @@ namespace OnlineShop.Db
            PhotoPath = "uploads/products/original/anyProduct.png",
             ThumbnailPath = "uploads/products/original/anyProduct.png"
         },
-        
-        // ===== СОПУТСТВУЮЩИЕ ТОВАРЫ =====
         new Product
         {
             Id = Guid.NewGuid(),
@@ -332,11 +313,10 @@ namespace OnlineShop.Db
             ThumbnailPath = "uploads/products/original/anyProduct.png"
         }
     };
-
             context.Products.AddRange(products);
             await context.SaveChangesAsync();
 
-            Console.WriteLine($"✅ Создано продуктов: {products.Count}");
+            Console.WriteLine($" Создано продуктов: {products.Count}");
         }
     }
-    }
+}

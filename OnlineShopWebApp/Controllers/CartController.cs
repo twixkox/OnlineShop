@@ -1,7 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
-using OnlineShop.Db.Models;
 using OnlineShopWebApp.Helpers;
 using System.Security.Claims;
 
@@ -12,7 +10,6 @@ namespace OnlineShopWebApp.Controllers
         private readonly ICartsStorages _cartsStorage;
         private readonly IProductStorages _productStorage;
         private readonly ILogger<CartController> _logger;
-
 
         public CartController(ICartsStorages cartsStorage, IProductStorages productStorage, ILogger<CartController> logger)
         {
@@ -60,9 +57,7 @@ namespace OnlineShopWebApp.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Ошибка при добавлении товара в корзину." +
-                    $"Id Товара -{productId}" +
-                    $"Id Пользователя - {userId}");
+                _logger.LogError(ex,$"Ошибка при добавлении товара в корзину. Id Товара -{productId}.Id Пользователя - {userId}");
                 return View("Error");
             }
         }

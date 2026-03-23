@@ -4,8 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Client.Models;
 
-
-
 namespace OnlineShopWebApp.Areas.Admin.Controllers
 {
     [Area("Admin")]
@@ -44,7 +42,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
                 return View(roleViewModels);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, $"Произошла ошибка при получении списка ролей. Role/Index");
                 return View("Error");
@@ -60,10 +58,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(RoleViewModel role)
         {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
             {
                 _logger.LogWarning($"Передана невалидная роль. Role/Add");
-                return View(role); 
+                return View(role);
             }
             _logger.LogInformation($"Поиск роли по имени - {role.Name}");
             var roleName = await _roleManager.RoleExistsAsync(role.Name);
@@ -71,7 +69,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             if (roleName)
             {
                 _logger.LogWarning($"Попытка создания существующей роли. Role/Add");
-                ModelState.AddModelError("", "Данная роль уже существует"); 
+                ModelState.AddModelError("", "Данная роль уже существует");
             }
             try
             {
@@ -101,7 +99,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
             if (existingRole == null)
             {
-                _logger.LogWarning($"Роль с Id - {roleId}, не найдена");    
+                _logger.LogWarning($"Роль с Id - {roleId}, не найдена");
                 TempData["ErrorMessage"] = $"Роль не найдена";
                 return RedirectToAction("Error");
             }
@@ -187,10 +185,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> AssignRole(AssignRoleViewModel model)
         {
-            if (ModelState.IsValid) 
+            if (ModelState.IsValid)
             {
                 _logger.LogWarning($"Передана невалидная роль. Role/AssignRole");
-                return View(model); 
+                return View(model);
             }
             _logger.LogInformation($"Поиск пользователя с Id - {model.UserId}");
             var user = await _userManager.FindByIdAsync(model.UserId);
@@ -235,16 +233,15 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     _logger.LogInformation($"Роль пользователя Id - {user.Id} успешно изменена на {selectionRole.Name}");
                     TempData["SuccesMessage"] = $"Пользователю {user.UserName} назначена роль - {selectionRole.Name}";
 
-                   
+
                 }
                 return RedirectToAction("Index", "User");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,$"Произошла ошибка назначения роли пользователя Id - {model.UserId}. Role/AssingRole");
+                _logger.LogError(ex, $"Произошла ошибка назначения роли пользователя Id - {model.UserId}. Role/AssingRole");
                 return View("Error");
             }
-            
         }
     }
 }

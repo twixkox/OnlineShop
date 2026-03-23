@@ -4,7 +4,6 @@
     ViewData["Title"] = "Добавление товара";
 }
 
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -30,10 +29,8 @@
 
                 <div class="card-body">
                     <form method="post" enctype="multipart/form-data">
-                        <!-- Сводка ошибок -->
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
-                        <!-- Название товара -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Name">
                                 <i class="bi bi-tag text-success me-1"></i>Название товара
@@ -46,14 +43,13 @@
                             </div>
                         </div>
 
-                        <!-- Цена и Категория в одной строке (адаптивно) -->
                         <div class="row mb-4">
                             <div class="col-md-6">
                                 <label class="form-label fw-medium" asp-for="Cost">
                                     <i class="bi bi-currency-ruble text-success me-1"></i>Цена (₽)
                                 </label>
-                                <input class="form-control" asp-for="Cost" type="number" step="0.01"
-                                       placeholder="0.00" />
+                                <input class="form-control" asp-for="Cost" type="number" step="1"
+                                       placeholder="0" />
                                 <span asp-validation-for="Cost" class="text-danger small"></span>
                                 <div class="form-text text-muted">
                                     Укажите цену в рублях
@@ -80,7 +76,6 @@
                             </div>
                         </div>
 
-                        <!-- Описание -->
                         <div class="mb-4">
                             <label class="form-label fw-medium" asp-for="Description">
                                 <i class="bi bi-text-paragraph text-success me-1"></i>Описание
@@ -93,7 +88,6 @@
                             </div>
                         </div>
 
-                        <!-- Загрузка изображения -->
                         <div class="mb-4">
                             <label class="form-label fw-medium">
                                 <i class="bi bi-image text-success me-1"></i>Изображение товара
@@ -107,7 +101,6 @@
                             </div>
                         </div>
 
-                        <!-- Кнопки -->
                         <div class="d-flex justify-content-between align-items-center mt-5">
                             <a asp-action="Index" class="btn btn-outline-secondary">
                                 <i class="bi bi-x-circle me-1"></i>Отмена
@@ -124,11 +117,9 @@
 </div>
 
 @section Scripts {
-    <!-- Валидация на стороне клиента -->
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        // Предварительный просмотр изображения перед загрузкой
         document.getElementById('imageInput').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (file) {

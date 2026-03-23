@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-
-namespace OnlineShopWebApp.Areas.Client.Models
+﻿namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class CartViewModel
     {

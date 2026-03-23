@@ -4,7 +4,6 @@
     ViewData["Title"] = "Управление категориями";
 }
 
-<!-- Шапка с заголовком и кнопкой -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -18,7 +17,6 @@
 </div>
 
 <div class="container-fluid px-4">
-    <!-- Уведомления -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
@@ -26,7 +24,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-
     @if (TempData["ErrorMessage"] != null)
     {
         <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
@@ -34,8 +31,6 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     }
-
-    <!-- Краткая статистика -->
     <div class="row g-3 mb-4">
         <div class="col-md-4">
             <div class="card bg-light border-0">
@@ -78,7 +73,6 @@
         </div>
     </div>
 
-    <!-- Поиск (простой) -->
     <div class="mb-4">
         <div class="input-group">
             <span class="input-group-text bg-white">
@@ -88,7 +82,6 @@
         </div>
     </div>
 
-    <!-- Таблица категорий -->
     <div class="card shadow-sm">
         <div class="card-body p-0">
             @if (Model.Any())
@@ -171,7 +164,6 @@
 
 @section Scripts {
     <script>
-        // Простой поиск по таблице
         document.getElementById('searchInput').addEventListener('keyup', function() {
             var searchText = this.value.toLowerCase();
             var rows = document.querySelectorAll('#categoriesTable tbody tr');

@@ -4,7 +4,6 @@
     ViewData["Title"] = "Редактирование данных пользователя";
 }
 
-<!-- Шапка с заголовком и навигацией -->
 <div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
     <div>
         <h1 class="h3 mb-0">
@@ -30,10 +29,7 @@
 
                 <div class="card-body">
                     <form method="post">
-
-                        <!-- Скрытое поле для Id -->
                         <input type="hidden" asp-for="Id" />
-
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label class="form-label fw-medium" asp-for="FirstName">
@@ -71,7 +67,6 @@
                             </div>
                         </div>
 
-                        <!-- Поле пароля скрыто, можно вывести подсказку о смене пароля -->
                         <div class="mb-3">
                             <label class="form-label fw-medium">
                                 <i class="bi bi-lock text-success me-1"></i>Пароль
@@ -84,7 +79,6 @@
                             </div>
                         </div>
 
-                        <!-- Кнопки -->
                         <div class="d-flex justify-content-between align-items-center mt-4">
                             <a asp-area="Admin" asp-controller="User" asp-action="Detail" asp-route-userId="@Model.Id" class="btn btn-outline-secondary">
                                 <i class="bi bi-x-circle me-1"></i>Отмена

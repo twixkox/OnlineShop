@@ -19,7 +19,7 @@ namespace OnlineShop.Db.Storages
         }
 
         public async Task AddAsync(Product product, string userId)
-          {
+        {
             var existingFavorite = await TryGetByUserIdAsync(userId);
 
             if (existingFavorite == null)
@@ -28,14 +28,12 @@ namespace OnlineShop.Db.Storages
                 {
                     UserId = userId,
                     Products = new List<Product>() { product }
-
                 };
-            
                 await databaseContext.Favorites.AddAsync(existingFavorite);
             }
             else
             {
-                var existFavoriteItem =  existingFavorite.Products.FirstOrDefault(x => x.Id == product.Id);
+                var existFavoriteItem = existingFavorite.Products.FirstOrDefault(x => x.Id == product.Id);
 
                 if (existFavoriteItem == null)
                 {
@@ -49,7 +47,7 @@ namespace OnlineShop.Db.Storages
         {
             var existingFavorite = await TryGetByUserIdAsync(userId);
 
-            var existingProduct =  existingFavorite.Products.FirstOrDefault(product => product.Id == productId);
+            var existingProduct = existingFavorite.Products.FirstOrDefault(product => product.Id == productId);
 
             if (existingProduct != null) { existingFavorite.Products.Remove(existingProduct); }
 
