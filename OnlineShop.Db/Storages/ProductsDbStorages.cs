@@ -20,20 +20,19 @@ namespace OnlineShop.Db.Storages
         public async Task AddAsync(Product product)
         {
             await databaseContext.Products.AddAsync(product);
-
             await databaseContext.SaveChangesAsync();
         }
         public async Task DeleteAsync(Guid id)
         {
             var existingProduct = await databaseContext.Products.FirstOrDefaultAsync(product => product.Id == id);
-
-            if (existingProduct != null) {databaseContext.Products.Remove(existingProduct); }
+            if (existingProduct != null) { databaseContext.Products.Remove(existingProduct); }
 
             await databaseContext.SaveChangesAsync();
         }
         public async Task<Product> TryGetProductByIdAsync(Guid productId)
         {
-            return await databaseContext.Products.Include(x => x.CartItems).FirstOrDefaultAsync(product => product.Id == productId);
+            return await databaseContext.Products.Include(x => x.CartItems)
+                .FirstOrDefaultAsync(product => product.Id == productId);
         }
         public async Task EditProductAsync(Product product)
         {
@@ -44,6 +43,9 @@ namespace OnlineShop.Db.Storages
                 currentProduct.Cost = product.Cost;
                 currentProduct.Description = product.Description;
                 currentProduct.PhotoPath = product.PhotoPath;
+                currentProduct.ThumbnailPath = product.ThumbnailPath;
+                currentProduct.CategoryId = product.CategoryId;
+                currentProduct.CategoryName = product.CategoryName;
             }
 
             await databaseContext.SaveChangesAsync();
@@ -53,6 +55,14 @@ namespace OnlineShop.Db.Storages
             if (query == null) return [];
 
             return await databaseContext.Products.Where(p => p.Name.Contains(query)).ToListAsync();
+        }
+
+        public async Task<List<Guid>> TryGetProductsByCategoryId(Guid categoryId)
+        {
+            return await databaseContext.Products
+                .Where(c => c.CategoryId == categoryId)
+                .Select(p => p.Id)
+                .ToListAsync();
         }
     }
 }

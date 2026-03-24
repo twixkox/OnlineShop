@@ -1,19 +1,19 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace OnlineShopWebApp.Models
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class RegistrationUser
     {
         [Display(Name = "Логин", Prompt = "Введите логин")]
         [Required(ErrorMessage = "Не указан логин")]
-        [StringLength(20, MinimumLength = 2, ErrorMessage = "Длина логина от {2} до {1} символов!")]
+        [StringLength(35, MinimumLength = 2, ErrorMessage = "Длина логина от {2} до {1} символов!")]
         [DataType(DataType.EmailAddress)]
         [EmailAddress(ErrorMessage ="Введите корректный e-mail")]
         public required string UserName { get; set; }
 
         [Display(Name = "Пароль", Prompt ="Введите пароль")]
         [Required(ErrorMessage ="Не задан пароль")]
-        [StringLength(25, MinimumLength = 8, ErrorMessage = "Длина пароля от {2} до {1} символов!")]
+        [StringLength(25, MinimumLength = 5, ErrorMessage = "Длина пароля от {2} до {1} символов!")]
         [DataType(DataType.Password)]
         public required string Password { get; set; }
 
@@ -27,7 +27,7 @@ namespace OnlineShopWebApp.Models
         [Required(ErrorMessage ="Не указан телефон")]
         [DataType(DataType.PhoneNumber)]
         [Phone(ErrorMessage ="Номер телефона может содержать только цифры")]
-        [StringLength(16,MinimumLength =5,ErrorMessage = "Длина телефона от {2} до {1} символов!")]
+        [StringLength(18,MinimumLength =5,ErrorMessage = "Длина телефона от {2} до {1} символов!")]
         public required string Phone {  get; set; }
 
         [Display(Name ="Имя",Prompt ="Введите ваше имя")]

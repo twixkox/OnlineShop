@@ -1,153 +1,184 @@
-﻿@model OrderViewModel
+﻿@using OnlineShopWebApp.Areas.Client.Models
+@model OrderViewModel
 @{
     ViewData["Title"] = "Детали заказа";
 }
 
-<div class="row mt-3">
-    @await Html.PartialAsync("SideBar")
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-truck me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Просмотр и редактирование информации о заказе</p>
+    </div>
+    <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="btn btn-light">
+        <i class="bi bi-arrow-left me-1"></i>Назад к списку
+    </a>
+</div>
 
-
-    <div class="col-9 mb-3">
-        <div class="text-center text-uppercase text-success mb-5 mt-5">
-            <h2 class="row-title">Детали заказа</h2>
-        </div>
-        <form method="post">
-
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
             @if (Model != null)
             {
-                <input type="hidden" name="Id" value="@Model.Id" />
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                            Информация о заказе
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" asp-area="Admin" asp-controller="Order" asp-action="UpdateOrderStatus">
+                            <input type="hidden" name="orderId" value="@Model.Id" />
+                            <input type="hidden" asp-for="Id" />
 
-                <table class="table table-responsive mb-5 caption-top">
-                    <tr>
-                        <td class="fw-bold border-end border-bottom border-dark">Заказ</td>
-                        <td class="border-bottom border-dark">
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-success mb-3">
+                                    <i class="bi bi-info-circle me-2"></i>Основные данные
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <table class="table table-sm table-borderless">
+                                            <tr>
+                                                <td class="fw-medium" style="width: 40%;">ID заказа</td>
+                                                <td>@Model.Id</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Общая стоимость</td>
+                                                <td class="fw-bold text-success">@Model.TotalCost?.ToString("C")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Количество позиций</td>
+                                                <td>@Model.Items.Count</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Количество товаров</td>
+                                                <td>@Model.ItemsQuantity</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-sm table-borderless">
+                                            <tr>
+                                                <td class="fw-medium" style="width: 40%;">Дата создания</td>
+                                                <td>@Model.CreationDateOrder.ToString("dd.MM.yyyy HH:mm")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Статус</td>
+                                                <td>
+                                                    <select asp-for="Status" class="form-select form-select-sm w-75"
+                                                            asp-items="@Html.GetEnumSelectList<OrderStatusViewModel>()">
+                                                    </select>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
 
-                            <table class="table table-hover">
-                                <tr>
-                                    <td class="w-25"><span>ID</span></td>
-                                    <td class="w-auto">@Model.Id</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Стоимость</span></td>
-                                    <td class="fw-bold w-auto">@Model.TotalCost?.ToString("c")</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Количество позиций</span></td>
-                                    <td class="w-auto">@Model.Items.Count</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Количество товаров</span></td>
-                                    <td class="w-auto">@Model.ItemsQuantity</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Статус заказа</span></td>
-                                    <td class="w-auto">
-                                        <p>
-                                            <select asp-for="@Model.Status"
-                                                    class="form-select list-group-item-success w-50"
-                                                    asp-items="@Html.GetEnumSelectList<OrderStatusViewModel>()">
-                                            </select>
-                                        </p>
-
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Время создания заказа</span></td>
-                                    <td class="w-auto">@Model.CreationDateOrder</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold border-end border-bottom border-dark">Пользователь</td>
-                        <td class="border-bottom border-dark">
-                            <table class="table table-hover">
-                                <tr>
-                                    <td class="w-25"><span>ID</span></td>
-                                    <td class="w-auto">@Model.UserId</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold border-end border-bottom border-dark">Покупатель</td>
-                        <td class="border-bottom border-dark">
-                            <table class="table table-hover p-0 m-0">
-                                <tr>
-                                    <td class="w-25"><span>ID</span></td>
-                                    <td class="w-auto">@Model.DeliveryUserInfo.Id</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Имя</span></td>
-                                    <td class="w-auto">@Model.DeliveryUserInfo.UserName</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Телефон</span></td>
-                                    <td class="w-auto">@Model.DeliveryUserInfo.Phone</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Адрес</span></td>
-                                    <td class="w-auto">@Model.DeliveryUserInfo.Adress</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Дата доставки</span></td>
-                                    <td class="w-auto">@Model.DeliveryUserInfo.DeliveryDate.ToShortDateString()</td>
-                                </tr>
-                                <tr>
-                                    <td class="w-25"><span>Комментарий</span></td>
-                                    <td class="w-auto">@Model.DeliveryUserInfo.Comment</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td class="fw-bold border-end border-dark">Состав заказа</td>
-                        <td class="border-bottom border-dark">
-                            <table class="table table-responsive table-striped table-hover caption-top">
-                                <thead>
-                                    <tr align="center">
-                                        <th scope="col">#</th>
-                                        <th scope="col">Наименование товара</th>
-                                        <th scope="col">Цена, руб.</th>
-                                        <th scope="col">Количество, шт.</th>
-                                        <th scope="col">Стоимость, руб.</th>
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-success mb-3">
+                                    <i class="bi bi-person-circle me-2"></i>Пользователь
+                                </h6>
+                                <table class="table table-sm table-borderless w-50">
+                                    <tr>
+                                        <td class="fw-medium" style="width: 30%;">ID пользователя</td>
+                                        <td>@Model.UserId</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    @for (var i = 0; i < Model.Items.Count; i++)
-                                    {
-                                        <tr align="center" class="align-baseline">
-                                            <td class="fw-bold">@(i + 1)</td>
-                                            <td align="left">@Model.Items[i].Product.Name</td>
-                                            <td align="left">
-                                                @Model.Items[i].Product.Cost.ToString("c")
-                                            </td>
-                                            <td>@Model.Items[i].Quantity</td>
-                                            <td class="fw-bold">@Model.Items[i].Cost.ToString("c")</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
+                                </table>
+                            </div>
 
-                <div class="text-center mt-5">
-                    <button class="btn btn-outline-success" type="submit"
-                            asp-area="Admin"
-                            asp-controller="Order"
-                            asp-action="UpdateOrderStatus"
-                            asp-route-orderId=@Model.Id>
-                        Обновить статус
-                    </button>
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-success mb-3">
+                                    <i class="bi bi-truck me-2"></i>Данные доставки
+                                </h6>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <table class="table table-sm table-borderless">
+                                            <tr>
+                                                <td class="fw-medium" style="width: 40%;">Имя</td>
+                                                <td>@Model.DeliveryUserInfo?.UserName</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Телефон</td>
+                                                <td>@Model.DeliveryUserInfo?.Phone</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Адрес</td>
+                                                <td>@Model.DeliveryUserInfo?.Adress</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <table class="table table-sm table-borderless">
+                                            <tr>
+                                                <td class="fw-medium" style="width: 40%;">Дата доставки</td>
+                                                <td>@(Model.DeliveryUserInfo?.DeliveryDate.ToShortDateString() ?? "")</td>
+                                            </tr>
+                                            <tr>
+                                                <td class="fw-medium">Комментарий</td>
+                                                <td>@Model.DeliveryUserInfo?.Comment</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <h6 class="fw-bold text-success mb-3">
+                                    <i class="bi bi-basket me-2"></i>Состав заказа
+                                </h6>
+                                <div class="table-responsive">
+                                    <table class="table table-hover align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Наименование</th>
+                                                <th scope="col" class="text-end">Цена</th>
+                                                <th scope="col" class="text-center">Количество</th>
+                                                <th scope="col" class="text-end">Стоимость</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @for (var i = 0; i < Model.Items.Count; i++)
+                                            {
+                                                var item = Model.Items[i];
+                                                <tr>
+                                                    <td class="fw-bold">@(i + 1)</td>
+                                                    <td>@item.Product?.Name</td>
+                                                    <td class="text-end">@item.Product?.Cost.ToString("C")</td>
+                                                    <td class="text-center">@item.Quantity</td>
+                                                    <td class="fw-bold text-end">@item.Cost.ToString("C")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mt-5">
+                                <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle me-1"></i>Отмена
+                                </a>
+                                <button type="submit" class="btn btn-success px-5">
+                                    <i class="bi bi-check-circle me-2"></i>Обновить статус
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             }
             else
             {
-                <div class="text-center">
-                    <h2>Такого заказа не существует!</h2>
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Заказ не найден</p>
+                    <a asp-area="Admin" asp-controller="Order" asp-action="Index" class="btn btn-success mt-3">
+                        <i class="bi bi-arrow-left me-1"></i>Вернуться к списку
+                    </a>
                 </div>
             }
-        </form>
+        </div>
     </div>
 </div>

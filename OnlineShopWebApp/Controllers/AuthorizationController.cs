@@ -1,16 +1,18 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Models;
-using OnlineShopWebApp.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 
 namespace OnlineShopWebApp.Controllers
 {
     public class AuthorizationController : Controller
     {
         private readonly SignInManager<User> _signInManager;
+        private readonly ILogger<AuthorizationController> _logger;
 
-        public AuthorizationController(SignInManager<User> signInManager)
+        public AuthorizationController(SignInManager<User> signInManager, ILogger<AuthorizationController> logger)
         {
+            _logger = logger;
             _signInManager = signInManager;
         }
 
@@ -21,21 +23,32 @@ namespace OnlineShopWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> Authorization(AuthorizationUserViewModel user)
         {
-            if (user.UserName == user.Password) ModelState.AddModelError("", "Логин и пароль не должны совпадать");
-                          
+            _logger.LogInformation($"Проверка авторизации пользователя {user.UserName}");
             var result = await _signInManager.PasswordSignInAsync(user.UserName, user.Password, user.RememberMe, false);
-
-            if (result.Succeeded)
+            try
             {
-                return RedirectToAction("Index", "Home");
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation($"Авторизация успешна");
+                    return RedirectToAction("Index", "Home");
+                }
+                else
+                {
+                    _logger.LogInformation($"Ошибка авторизаци по логину/паролю");
+                    ModelState.AddModelError("", "Неверный пароль");
+                }
+                if (!ModelState.IsValid)
+                {
+                    _logger.LogWarning($"Передана невалидная модель. Authorization/Authorization");
+                    return View("Index", user);
+                }
+                return RedirectToAction(nameof(Index), "Home");
             }
-            else
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "Неверный пароль");
+                _logger.LogError($"Произошла ошибка авторизации пользователя. Authorization/Authorization");
+                return View("Error");
             }
-            if (!ModelState.IsValid) return View("Index", user);
-
-            return RedirectToAction(nameof(Index), "Home");
         }
 
         [HttpGet]

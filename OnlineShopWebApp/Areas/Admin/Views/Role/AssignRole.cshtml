@@ -1,50 +1,78 @@
-﻿@using OnlineShopWebApp.Models
+﻿@using OnlineShopWebApp.Areas.Client.Models
 @model AssignRoleViewModel
 @{
     ViewData["Title"] = "Назначение роли";
 }
 
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-person-badge me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Изменение роли пользователя</p>
+    </div>
+    <a asp-controller="User" asp-action="Detail" asp-route-userId="@Model.UserId" class="btn btn-light">
+        <i class="bi bi-arrow-left me-1"></i>Назад к профилю
+    </a>
+</div>
+
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card mt-4">
-                <div class="card-header">
-                    <h3>@ViewData["Title"]</h3>
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                        Форма назначения роли
+                    </h5>
                 </div>
+
                 <div class="card-body">
-                    <h5>Пользователь: @Model.UserName</h5>
-                    @if (!string.IsNullOrEmpty(Model.CurrentRole))
-                    {
-                        <p>Текущая роль: <strong>@Model.CurrentRole</strong></p>
-                    }
-                    <hr />
+                    <div class="alert alert-info bg-light d-flex align-items-center mb-4" role="alert">
+                        <i class="bi bi-person-circle fs-4 me-3 text-success"></i>
+                        <div>
+                            <strong>Пользователь:</strong> @Model.UserName<br />
+                            @if (!string.IsNullOrEmpty(Model.CurrentRole))
+                            {
+                                <span><strong>Текущая роль:</strong> <span class="badge bg-secondary">@Model.CurrentRole</span></span>
+                            }
+                            else
+                            {
+                                <span><em>Роль не назначена</em></span>
+                            }
+                        </div>
+                    </div>
 
                     <form asp-action="AssignRole" method="post">
                         <input type="hidden" asp-for="UserId" />
                         <input type="hidden" asp-for="UserName" />
+                        <div asp-validation-summary="ModelOnly" class="text-danger fw-bold mb-3"></div>
 
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="SelectedRoleId" class="form-label"></label>
-                            <select asp-for="SelectedRoleId" class="form-control">
-                                <option value="">-- Выберите роль --</option>
+                        <div class="mb-4">
+                            <label class="form-label fw-medium" asp-for="SelectedRoleId">
+                                <i class="bi bi-shield-lock text-success me-1"></i>Новая роль
+                            </label>
+                            <select asp-for="SelectedRoleId" class="form-select form-select-lg">
+                                <option value="">— Выберите роль —</option>
                                 @foreach (var role in Model.AvailableRoles)
                                 {
                                     <option value="@role.Id">@role.Name</option>
                                 }
                             </select>
-                            <span asp-validation-for="SelectedRoleId" class="text-danger"></span>
+                            <span asp-validation-for="SelectedRoleId" class="text-danger small"></span>
+                            <div class="form-text text-muted">
+                                Выберите роль, которую хотите назначить пользователю
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="bi bi-person-check"></i> Назначить роль
-                            </button>
+                        <div class="d-flex justify-content-between align-items-center mt-5">
                             <a asp-controller="User" asp-action="Detail" asp-route-userId="@Model.UserId"
-                               class="btn btn-secondary">
-                                <i class="bi bi-arrow-left"></i> Отмена
+                               class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-1"></i>Отмена
                             </a>
+                            <button type="submit" class="btn btn-success px-5">
+                                <i class="bi bi-check-circle me-2"></i>Назначить роль
+                            </button>
                         </div>
                     </form>
                 </div>

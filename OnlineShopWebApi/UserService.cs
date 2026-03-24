@@ -16,7 +16,7 @@ namespace OnlineShopWebApi
 
         public async Task<bool> IsValidUserForRegister (RegUser regUser, UserManager<User> userManager)
         {
-            var user = new User { UserName = regUser.UserName,FirstName = "Swagger", LastName = "User" };
+            var user = new User { UserName = regUser.UserName,FirstName = "Swagger", LastName = "User",ProfileImage = "", };
             var result = await userManager.CreateAsync(user, regUser.Password);
 
             return result.Succeeded;

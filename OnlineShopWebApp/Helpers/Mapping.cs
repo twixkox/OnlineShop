@@ -1,14 +1,95 @@
-﻿using Microsoft.AspNetCore.Identity;
-using OnlineShop.Db.Models;
+﻿using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Models;
-using System.Threading.Tasks;
 
 namespace OnlineShopWebApp.Helpers
 {
     public static class Mapping
     {
-       
-        public static async Task<UserViewModel> ToUserViewModel(this User user)
+        #region Category
+        public static CategoryViewModel ToCategoryViewModel(this Category category)
+        {
+            if (category == null) { return null; }
+
+            else
+            {
+                var existingCategory = new CategoryViewModel
+                {
+                    Id = category.Id,
+                    Name = category.Name,
+                    Description = category.Description,
+                    IdentityUrl = category.IdentityUrl,
+                    PhotoPath = category.PhotoPath,
+                };
+                return existingCategory;
+            }
+        }
+
+        public static Category ToCategory(this CategoryViewModel categoryViewModel)
+        {
+            if (categoryViewModel == null) { return null; }
+            else
+            {
+                var existingCategory = new Category
+                {
+                    Name = categoryViewModel.Name,
+                    Description = categoryViewModel.Description,
+                    Id = categoryViewModel.Id,
+                };
+                return existingCategory;
+            }
+        }
+
+        public static List<Category> ToListCategory(this List<CategoryViewModel> categoryViewModels)
+        {
+            if (categoryViewModels == null) { return new List<Category>(); }
+            else
+            {
+                var existingCategories = new List<Category>();
+
+                foreach (var categoryViewModel in categoryViewModels)
+                {
+
+                    existingCategories.Add(ToCategory(categoryViewModel));
+                }
+                return existingCategories;
+            }
+        }
+
+        public static List<CategoryViewModel> ToListCategoryViewModels(this List<Category> categories)
+        {
+            if (categories == null) { return new List<CategoryViewModel>(); }
+            else
+            {
+                var existingCageroriesViewModels = new List<CategoryViewModel>();
+                foreach (var category in categories)
+                {
+                    existingCageroriesViewModels.Add(ToCategoryViewModel(category));
+                }
+                return existingCageroriesViewModels;
+            }
+        }
+
+        #endregion
+        #region User
+        public static EditUserInfoViewModel ToEditUserInfoViewModel(this User user)
+        {
+            if (user == null) { return null; }
+            else
+            {
+                var existingUser = new EditUserInfoViewModel
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Phone = user.PhoneNumber,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                };
+                return existingUser;
+            }
+        }
+
+        public static UserViewModel ToUserViewModel(this User user)
         {
             if (user == null) { return null; }
 
@@ -23,7 +104,7 @@ namespace OnlineShopWebApp.Helpers
                     Password = user.PasswordHash,
                     Id = user.Id,
                     CreationDateTime = user.CreationDateTime,
-                    
+
                 };
                 return existingUser;
             }
@@ -34,27 +115,29 @@ namespace OnlineShopWebApp.Helpers
 
             else
             {
-               var result = new List<UserViewModel>();
+                var result = new List<UserViewModel>();
                 foreach (var item in user)
                 {
                     var existingUser = new UserViewModel
                     {
                         Id = item.Id,
                         Phone = item.PhoneNumber,
-                        
+
                         UserName = item.Email,
                         FirstName = item.FirstName,
-                        
+
                         Password = item.PasswordHash
 
                     };
                     result.Add(existingUser);
                 }
-                
                 return result;
             }
         }
 
+
+
+        #endregion
         #region Product
         public static ProductViewModel ToProductViewModel(this Product product)
         {
@@ -65,10 +148,13 @@ namespace OnlineShopWebApp.Helpers
                 Description = product.Description,
                 Cost = product.Cost,
                 PhotoPath = product.PhotoPath,
+                ThumbnailsPhotoPath = product.ThumbnailPath!,
+                CategoryId = product.CategoryId,
+                CurrentCategoryName = product.CategoryName,
             };
         }
 
-        public static Product ToProduct (this ProductViewModel productViewModel)
+        public static Product ToProduct(this ProductViewModel productViewModel)
         {
             return new Product
             {
@@ -77,6 +163,9 @@ namespace OnlineShopWebApp.Helpers
                 Description = productViewModel.Description,
                 Cost = productViewModel.Cost,
                 PhotoPath = productViewModel.PhotoPath,
+                ThumbnailPath = productViewModel.ThumbnailsPhotoPath,
+                CategoryId = productViewModel.CategoryId,
+                CategoryName = productViewModel.CurrentCategoryName,
             };
         }
 
@@ -122,7 +211,7 @@ namespace OnlineShopWebApp.Helpers
             };
         }
 
-        public static List<CartItem> ToCartItems (this List<CartItemViewModel> cartItems)
+        public static List<CartItem> ToCartItems(this List<CartItemViewModel> cartItems)
         {
             if (cartItems == null) return null;
 
@@ -162,6 +251,7 @@ namespace OnlineShopWebApp.Helpers
             return new DeliveryUserInfoViewModel
             {
                 Adress = deliveryUserInfo.Adress,
+                Apartment = deliveryUserInfo.Apartment,
                 Phone = deliveryUserInfo.Phone,
                 UserName = deliveryUserInfo.UserName,
                 DeliveryDate = deliveryUserInfo.DeliveryDate,
@@ -177,6 +267,7 @@ namespace OnlineShopWebApp.Helpers
             return new DeliveryUserInfo
             {
                 Adress = deliveryUserInfo.Adress,
+                Apartment = deliveryUserInfo.Apartment,
                 Phone = deliveryUserInfo.Phone,
                 UserName = deliveryUserInfo.UserName,
                 DeliveryDate = deliveryUserInfo.DeliveryDate,
@@ -189,16 +280,15 @@ namespace OnlineShopWebApp.Helpers
         {
             if (order == null) return null;
 
-            var viewModel =  new OrderViewModel
+            var viewModel = new OrderViewModel
             {
                 Id = order.Id,
                 UserId = order.UserId,
                 DeliveryUserInfo = ToDeliveryUserInfoViewModel(order.DeliveryUserInfo),
-                
+
                 CreationDateOrder = order.CreationDateOrder,
                 Status = (OrderStatusViewModel)(int)order.Status,
                 Items = ToCartViewModels(order.Items),
-                
             };
             return viewModel;
         }
@@ -212,7 +302,7 @@ namespace OnlineShopWebApp.Helpers
 
             foreach (var order in DbOrders)
             {
-               var viewModel = order.ToOrderViewModel();
+                var viewModel = order.ToOrderViewModel();
                 viewModels.Add(viewModel);
             }
             return viewModels;
@@ -224,12 +314,11 @@ namespace OnlineShopWebApp.Helpers
 
             var existingOrder = new Order
             {
-                
+
                 UserId = order.UserId,
                 DeliveryUserInfo = ToDeliveryUserInfo(order.DeliveryUserInfo),
                 CreationDateOrder = order.CreationDateOrder,
                 Items = ToCartItems(order.Items),
-
             };
             return existingOrder;
         }

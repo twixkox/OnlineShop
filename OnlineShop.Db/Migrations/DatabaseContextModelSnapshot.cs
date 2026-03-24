@@ -76,8 +76,10 @@ namespace OnlineShop.Db.Migrations
                     b.Property<double>("Discount")
                         .HasColumnType("float");
 
+                    b.Property<string>("SessionId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserId")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -104,6 +106,35 @@ namespace OnlineShop.Db.Migrations
                     b.ToTable("CartItem");
                 });
 
+            modelBuilder.Entity("OnlineShop.Db.Models.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IdentityUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PhotoPath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdentityUrl")
+                        .IsUnique();
+
+                    b.ToTable("Categories");
+                });
+
             modelBuilder.Entity("OnlineShop.Db.Models.DeliveryUserInfo", b =>
                 {
                     b.Property<Guid>("Id")
@@ -111,6 +142,10 @@ namespace OnlineShop.Db.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Adress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Apartment")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -180,6 +215,9 @@ namespace OnlineShop.Db.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");
 
@@ -195,19 +233,14 @@ namespace OnlineShop.Db.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ThumbnailPath")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Products");
+                    b.HasIndex("CategoryId");
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("ef667330-84d7-48ee-908b-5aa72b61114b"),
-                            Cost = 1000m,
-                            Description = "Описание",
-                            Name = "Товар 1",
-                            PhotoPath = "images/products/12312312"
-                        });
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("CartCartItem", b =>
@@ -275,6 +308,22 @@ namespace OnlineShop.Db.Migrations
                         .IsRequired();
 
                     b.Navigation("DeliveryUserInfo");
+                });
+
+            modelBuilder.Entity("OnlineShop.Db.Models.Product", b =>
+                {
+                    b.HasOne("OnlineShop.Db.Models.Category", "Category")
+                        .WithMany("Products")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("OnlineShop.Db.Models.Category", b =>
+                {
+                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("OnlineShop.Db.Models.Product", b =>

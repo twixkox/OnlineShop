@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity;
-using OnlineShop.Db.Models;
-using OnlineShopWebApp.Areas.Admin.Models;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace OnlineShopWebApp.Models
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class UserViewModel
     {
@@ -19,7 +16,6 @@ namespace OnlineShopWebApp.Models
         [StringLength(20, MinimumLength = 2, ErrorMessage = "Фамилия должна быть от {2} до {1} символов")]
         public string LastName { get; set; }
 
-
         [Display(Name = "Логин", Prompt = "Логин")]
         [Required(ErrorMessage = "Не указан логин пользователя")]
         [DataType(DataType.EmailAddress)]
@@ -27,18 +23,17 @@ namespace OnlineShopWebApp.Models
         [StringLength(30, MinimumLength = 5, ErrorMessage = "Логин должен быть от {2} до {1} символов")]
         public string UserName { get; set; }
 
-
         [Display(Name = "Пароль", Prompt = "Введите ваш пароль")]
         [Required(ErrorMessage = "Не указан пароль")]
         [DataType(DataType.Password)]
-        [StringLength(30, MinimumLength = 8, ErrorMessage = "Пароль должен быть от {2} до {1} символов")]
+        [StringLength(30, MinimumLength = 5, ErrorMessage = "Пароль должен быть от {2} до {1} символов")]
         public string Password { get; set; }
 
         [Display(Name = "Телефон", Prompt = "Введите ваш телефон")]
         [Required(ErrorMessage = "Не указан телефон")]
         [DataType(DataType.PhoneNumber)]
         [Phone(ErrorMessage = "Номер телефона может содержать только цифры")]
-        [StringLength(16, MinimumLength = 5, ErrorMessage = "Длина телефона от {2} до {1} символов!")]
+        [StringLength(18, MinimumLength = 18, ErrorMessage = "Длина телефона от {2} до {1} символов!")]
         public required string Phone { get; set; }
 
         public string Role { get; set; }

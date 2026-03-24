@@ -8,8 +8,8 @@ namespace OnlineShop.Db.Interfaces
         Task AddAsync(Product product);
         Task<Product> TryGetProductByIdAsync(Guid productId);
         Task DeleteAsync(Guid id);
-
         Task EditProductAsync(Product product);
         Task<List<Product>> SearchAsync(string query);
+        Task<List<Guid>> TryGetProductsByCategoryId(Guid categoryId);
     }
 }

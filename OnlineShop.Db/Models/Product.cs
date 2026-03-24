@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
+
 namespace OnlineShop.Db.Models
 {
     public class Product
@@ -10,11 +13,21 @@ namespace OnlineShop.Db.Models
 
         public decimal Cost { get; set; }
 
+        public Guid CategoryId { get; set; }
+
+        [NotMapped]
+        public string? CategoryName { get; set; }
+
         public string PhotoPath { get; set; }
+
+        [MaybeNull]
+        public string ThumbnailPath { get; set; }
 
         public List<CartItem> CartItems { get; set; }
 
         public List<Favorite> Favorite { get; set; }
+
+        public Category? Category { get; set; }
     }
 }
 

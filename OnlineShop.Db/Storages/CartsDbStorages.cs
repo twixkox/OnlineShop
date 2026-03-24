@@ -15,7 +15,10 @@ namespace OnlineShop.Db.Storages
 
         public async Task<Cart> TryGetByUserIdAsync(string userId)
         {
-            return await databaseContext.Carts.Include(x => x.Items).ThenInclude(x => x.Product).FirstOrDefaultAsync(x => x.UserId == userId);
+            return await databaseContext.Carts
+                .Include(x => x.Items)
+                .ThenInclude(x => x.Product).
+                FirstOrDefaultAsync(x => x.UserId == userId);
         }
 
         public async Task AddAsync(Product? product, string userId)

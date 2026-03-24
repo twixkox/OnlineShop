@@ -1,0 +1,182 @@
+﻿@using OnlineShopWebApp.Areas.Client.Models
+@model List<ProductViewModel>
+@{
+    ViewData["Title"] = ViewBag.CategoryName ?? "Каталог товаров";
+}
+
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-grid-3x3-gap-fill me-2"></i>@ViewData["Title"]
+        </h1>
+        @if (ViewBag.CategoryDescription != null)
+        {
+            <p class="mb-0 small opacity-75">@ViewBag.CategoryDescription</p>
+        }
+    </div>
+    <div class="d-flex align-items-center gap-2">
+        <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">
+            <i class="bi bi-arrow-left me-1"></i>На главную
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    @if (Model != null && Model.Count != 0)
+    {
+        <div class="row mb-4 g-3">
+            <div class="col-md-7">
+                <div class="btn-group flex-wrap" role="group" aria-label="Сортировка">
+                    <button type="button" class="btn btn-outline-success active" data-sort="default">
+                        <i class="bi bi-arrow-down-up"></i> По умолчанию
+                    </button>
+                    <button type="button" class="btn btn-outline-success" data-sort="price-asc">
+                        <i class="bi bi-arrow-up"></i> Цена ↑
+                    </button>
+                    <button type="button" class="btn btn-outline-success" data-sort="price-desc">
+                        <i class="bi bi-arrow-down"></i> Цена ↓
+                    </button>
+                    <button type="button" class="btn btn-outline-success" data-sort="name">
+                        <i class="bi bi-sort-alpha-down"></i> Название
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0">
+                        <i class="bi bi-search text-success"></i>
+                    </span>
+                    <input type="text" class="form-control border-start-0" id="searchInput" placeholder="Поиск среди @Model.Count товаров...">
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4" id="productsContainer">
+            @foreach (var product in Model)
+            {
+                <div class="col-xl-3 col-lg-4 col-md-6 col-sm-6 product-item"
+                     data-name="@product.Name.ToLower()"
+                     data-price="@product.Cost">
+                    <div class="card h-100 shadow-sm border-0 hover-card">
+                        <div class="position-relative">
+                            @if (!string.IsNullOrEmpty(product.ThumbnailsPhotoPath))
+                            {
+                                <img src="/@product.ThumbnailsPhotoPath" class="card-img-top" alt="@product.Name"
+                                     style="height: 300px; width: 100%; object-fit: cover; object-position: center;">
+                            }
+                                                     
+                        </div>
+
+                        <div class="card-body d-flex flex-column text-center">
+                            <a asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
+                                   class="text-success text-decoration-none fw-bold fs-5 mb-2">
+                                @product.Name
+                            </a>
+
+                            @if (!string.IsNullOrEmpty(product.Description))
+                            {
+                                <p class="card-text text-muted small mb-3">
+                                    @(product.Description.Length > 60
+                                                            ? product.Description.Substring(0, 57) + "..."
+                                                            : product.Description)
+                                </p>
+                            }
+
+                            <h4 class="text-success fw-bold mb-3 mt-auto">@product.Cost.ToString("C")</h4>
+
+                            <div class="d-grid gap-2">
+                                <a asp-area="" asp-controller="Cart" asp-action="Add" asp-route-productId="@product.Id"
+                                       class="btn btn-success add-to-cart-btn">
+                                    <i class="bi bi-cart-plus me-1"></i>В корзину
+                                </a>
+                                <a asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
+                                       class="btn btn-outline-secondary">
+                                    <i class="bi bi-eye me-1"></i>Подробнее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+
+<script>
+    document.querySelectorAll('[data-sort]').forEach(button => {
+        button.addEventListener('click', function() {
+            document.querySelectorAll('[data-sort]').forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            const sortType = this.dataset.sort;
+            const container = document.getElementById('productsContainer');
+            const products = Array.from(document.querySelectorAll('.product-item'));
+
+            products.sort((a, b) => {
+                const nameA = a.dataset.name;
+                const nameB = b.dataset.name;
+                const priceA = parseFloat(a.dataset.price);
+                const priceB = parseFloat(b.dataset.price);
+
+                switch(sortType) {
+                    case 'price-asc': return priceA - priceB;
+                    case 'price-desc': return priceB - priceA;
+                    case 'name': return nameA.localeCompare(nameB);
+                    default: return 0;
+                }
+            });
+
+            container.innerHTML = '';
+            products.forEach(p => container.appendChild(p));
+        });
+    });
+
+    document.getElementById('searchInput')?.addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const products = document.querySelectorAll('.product-item');
+        let visibleCount = 0;
+
+        products.forEach(product => {
+            const name = product.dataset.name;
+            if (name.includes(searchText)) {
+                product.style.display = '';
+                visibleCount++;
+            } else {
+                product.style.display = 'none';
+            }
+        });
+
+        const container = document.getElementById('productsContainer');
+        let noResults = document.getElementById('noResultsMessage');
+        if (visibleCount === 0) {
+            if (!noResults) {
+                const msg = document.createElement('div');
+                msg.id = 'noResultsMessage';
+                msg.className = 'col-12 text-center py-5';
+                msg.innerHTML = `
+                    <i class="bi bi-search display-1 text-muted"></i>
+                    <h4 class="text-muted mt-3">Ничего не найдено</h4>
+                    <p class="text-muted">Попробуйте изменить поисковый запрос</p>
+                `;
+                container.appendChild(msg);
+            }
+        } else if (noResults) {
+            noResults.remove();
+        }
+    });
+
+         document.querySelectorAll('.add-to-cart-btn').forEach(btn => {
+             btn.addEventListener('click', function(e) {
+                 e.preventDefault();
+                 const url = this.href;
+                 fetch(url, { method: 'GET' })
+                     .then(response => {
+                         if (response.ok) {
+                             const modal = new bootstrap.Modal(document.getElementById('cartModal'));
+                             modal.show();
+                         }
+                     });
+             });
+         });
+</script>

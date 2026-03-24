@@ -2,15 +2,15 @@
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Helpers;
 
-namespace OnlineShopWebApp.Views.Shared.Components.Favorite
+namespace OnlineShopWebApp.Areas.Client.Views.Shared.Components.Favorite
 {
     public class FavoriteViewComponent(IFavoritesStorages favoriteStorages) : ViewComponent
     {
         private readonly IFavoritesStorages _favoritesStorages = favoriteStorages;
 
-        public async Task<IViewComponentResult> InvokeAsync()
+        public async Task<IViewComponentResult> InvokeAsync(string userId)
         {
-            var favorite = await _favoritesStorages.TryGetByUserIdAsync(Constants.UserId);
+            var favorite = await _favoritesStorages.TryGetByUserIdAsync(userId);
 
             var favoriteViewModel = favorite.ToFavoriteViewModel();
 

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace OnlineShop.Db.Models
+﻿namespace OnlineShop.Db.Models
 {
     public class DeliveryUserInfo
     {
@@ -12,9 +10,10 @@ namespace OnlineShop.Db.Models
 
         public string Adress { get; set; }
 
+        public string Apartment {  get; set; }
+
         public DateOnly DeliveryDate { get; set; }
 
         public string? Comment { get; set; }
-
     }
 }

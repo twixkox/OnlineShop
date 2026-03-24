@@ -1,98 +1,106 @@
-﻿@model List<ProductViewModel> 
+﻿@using OnlineShopWebApp.Areas.Client.Models
+@model List<ProductViewModel>
 @{
-    ViewData["Title"] = "Товары";
+    ViewData["Title"] = "Управление товарами";
 }
 
-<div class="row mt-3">
-    @await Html.PartialAsync("SideBar")
-    <div class="col-9 mb-3">
-        <div class="text-center text-uppercase text-success mb-5 mt-5">
-            <h2 class="row-title">Товары</h2>
-        </div>
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-box-seam me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Список всех товаров в магазине</p>
+    </div>
+    <a asp-area="Admin" asp-controller="Product" asp-action="Add" class="btn btn-light">
+        <i class="bi bi-plus-circle me-2"></i>Добавить товар
+    </a>
+</div>
 
-        @if (Model != null && Model.Count > 0)
-        {
-            <div class="row justify-content-center mt-3">
-                <div class="col-12">
-                    <div class="text-end">
-                        <a class="btn btn-outline-success mb-2 mt-2"
-                           asp-area="Admin"
-                           asp-controller="Product"
-                           asp-action="Add">
-                            Добавить новый продукт
-                        </a>
-                    </div>
-                    <table class="table table-responsive table-striped table-hover mb-5">
-                        <thead>
-                            <tr align="center">
-                                <th scope="col">#</th>
-                                <th scope="col">Наименование товара</th>
-                                <th scope="col">Цена, руб.</th>
-                                <th scope="col"></th>
-                                <th scope="col"></th>
+<div class="container-fluid px-4">
+    @if (Model != null && Model.Count > 0)
+    {
+        <div class="card shadow-sm">
+            <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-list-ul text-success me-2"></i>Каталог товаров
+                </h5>
+                <span class="badge bg-success">Всего: @Model.Count</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col" class="ps-4">#</th>
+                                <th scope="col">Наименование</th>
+                                <th scope="col">Цена (₽)</th>
+                                <th scope="col" class="text-end pe-4">Действия</th>
                             </tr>
                         </thead>
                         <tbody>
                             @for (var i = 0; i < Model.Count; i++)
                             {
-                                <tr align="center" class="align-baseline">
-                                    <td class="fw-bold">@(i + 1)</td>
-                                    <td align="left">
-                                        <a class="text-success"
-                                           asp-area=""
-                                           asp-controller="Product"
-                                           asp-action="Index"
-                                           asp-route-Id="@Model[i].Id">
-                                            <h5>@Model[i].Name</h5>
+                                <tr>
+                                    <td class="ps-4 fw-medium">@(i + 1)</td>
+                                    <td>
+                                        <a asp-area="" asp-controller="Product" asp-action="Index"
+                                           asp-route-Id="@Model[i].Id"
+                                           class="text-decoration-none text-dark fw-medium">
+                                            @Model[i].Name
                                         </a>
                                     </td>
-                                    <td>@Model[i].Cost</td>
-                                    <td>
-                                        <a class="btn btn-outline-success"
-                                           asp-area="Admin"
-                                           asp-controller="Product"
-                                           asp-action="Edit"
-                                           asp-route-Id="@Model[i].Id">
-                                            Редактировать
-                                        </a>
-                                    </td>
-                                    <td>
-                                        <a class="btn btn-outline-success"
-                                           asp-area="Admin"
-                                           asp-controller="Product"
-                                           asp-action="Remove"
-                                           asp-route-Id="@Model[i].Id">
-                                            Удалить
-                                        </a>
+                                    <td class="fw-bold text-success">@Model[i].Cost.ToString("N2") ₽</td>
+                                    <td class="text-end pe-4">
+                                        <div class="btn-group" role="group">
+                                            <a asp-area="Admin" asp-controller="Product" asp-action="Edit"
+                                               asp-route-Id="@Model[i].Id"
+                                               class="btn btn-sm btn-outline-primary"
+                                               data-bs-toggle="tooltip" title="Редактировать">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </a>
+                                            <a asp-area="Admin" asp-controller="Product" asp-action="Remove"
+                                               asp-route-Id="@Model[i].Id"
+                                               class="btn btn-sm btn-outline-danger"
+                                               data-bs-toggle="tooltip" title="Удалить"
+                                               onclick="return confirm('Вы уверены, что хотите удалить товар @Model[i].Name?')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </div>
                                     </td>
                                 </tr>
                             }
                         </tbody>
-                        <tfoot>
-                            <tr align="center">
-                                <th colspan="2"></th>
-                                <th colspan="3">
-                                    Общее количество товаров: @Model.Count
-                                </th>
-                            </tr>
-                        </tfoot>
                     </table>
                 </div>
             </div>
-        }
-        else
-        {
-            <div class="text-center">
-                <h2 class="row-title">В хранилище нет товаров!</h2>
+            <div class="card-footer bg-white py-3">
+                <div class="d-flex justify-content-between align-items-center small text-muted">
+                    <span><i class="bi bi-info-circle me-1"></i> Отображено @Model.Count записей</span>
+                    <span>Общее количество товаров: <strong>@Model.Count</strong></span>
+                </div>
             </div>
-            <div class="text-center mt-5">
-                <a class="btn btn-outline-success mb-2 mt-2"
-                   asp-area="Admin"
-                   asp-controller="Product"
-                   asp-action="Add">
-                    Добавить новый продукт
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-box-seam display-1 text-muted"></i>
+                <h4 class="text-muted mt-3">Товаров пока нет</h4>
+                <p class="text-muted mb-4">Добавьте первый товар, чтобы начать продажи</p>
+                <a asp-area="Admin" asp-controller="Product" asp-action="Add" class="btn btn-success">
+                    <i class="bi bi-plus-circle me-2"></i>Добавить товар
                 </a>
             </div>
-        }
-    </div>
+        </div>
+    }
 </div>
+
+@section Scripts {
+    <script>
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    </script>
+}

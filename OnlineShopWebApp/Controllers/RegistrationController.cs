@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Models;
-using OnlineShopWebApp.Models;
-using System.Threading.Tasks;
+using OnlineShopWebApp.Areas.Admin.Intarfaces;
+using OnlineShopWebApp.Areas.Client.Models;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -10,8 +10,12 @@ namespace OnlineShopWebApp.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
-        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager)
+        private readonly ILogger<RegistrationController> _logger;
+        private readonly IFileStorageService _fileStorageService;
+        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<RegistrationController> logger, IFileStorageService fileStorageService)
         {
+            _fileStorageService = fileStorageService;
+            _logger = logger;
             _userManager = userManager;
             _signInManager = signInManager;
         }
@@ -24,8 +28,19 @@ namespace OnlineShopWebApp.Controllers
         public async Task<IActionResult> Registration(RegistrationUser user)
         {
             if (user.UserName == user.Password) ModelState.AddModelError("", "Логин и пароль должны отличаться");
-                       
-            if (!ModelState.IsValid) return View("Index", user);
+
+            var existingUser = await _userManager.FindByNameAsync(user.UserName);
+
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("", "Пользователь с таким Email уже существует");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning($"Попытка передачи невалидной модели для регистрации");
+                return View("Index", user);
+            }
 
             var currentUser = new User()
             {
@@ -35,16 +50,23 @@ namespace OnlineShopWebApp.Controllers
                 PhoneNumber = user.Phone,
                 CreationDateTime = DateTime.Now,
                 UserName = user.UserName,
-                
+                ProfileImage = _fileStorageService.GetUserPhotoPath()
             };
-
-            await _userManager.CreateAsync(currentUser,user.Password);
-
+            _logger.LogInformation($"Создание нового пользователя");
+            await _userManager.CreateAsync(currentUser, user.Password);
+            _logger.LogInformation($"Присвоение роли пользователю");
             var addRole = await _userManager.AddToRoleAsync(currentUser, "User");
+            try
+            {
+                await _signInManager.SignInAsync(currentUser, true);
 
-            await _signInManager.SignInAsync(currentUser,true);
-
-            return RedirectToAction("Index","Home");
+                return RedirectToAction("Index", "Home");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Произошла ошибка при регистрации нового пользователя. Registration/Registration");
+                return View("Error");
+            }
         }
 
         public IActionResult Success()

@@ -1,9 +1,133 @@
-﻿@model List<ProductViewModel>
+﻿
+@model HomeViewModel
 @{
     ViewData["Title"] = "Главная";
 }
 
-<div class="text-center text-uppercase text-success mb-5 mt-5">
-    <h2 class="row-title">Каталог товаров</h2>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-info-circle text-success me-2"></i>
+                        О нашем питомнике
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted" style="line-height: 1.8;">
+                        RusGarden — это питомник растений, где Вы можете приобрести качественный посадочный материал для Вашего сада. Мы предлагаем плодовые и декоративные деревья и кустарники, цветы многолетние и однолетние, знаем, какие из них лучше ведут себя в нашем регионе и будут долго радовать Вас на дачном участке. Вы также можете купить у нас сопутствующие товары: удобрения, грунт, мульчу из коры сосны и лиственницы, газонную траву, садовый инструмент и элементы декора.
+
+                        Кроме продажи растений, мы с удовольствием проконсультируем Вас по дизайну и посадке, лично приедем и поможем Вам оформить свой сад, расскажем, как правильно высаживать, формировать растения и ухаживать за ними. Мы предлагаем продукцию как для садоводов-любителей, так и для профессионалов, доставляем купленные растения по доступным ценам, занимаемся ландшафтным дизайном (в том числе проектированием и 3д-визуализацией), озеленением террас и фито-дизайном интерьеров. Наши сотрудники постоянно повышают квалификацию, участвуя в различных семинарах и мастер-классах ведущих специалистов России и Европы, посещая международные форумы и выставки.                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                        Наши растения
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        @foreach (var category in Model.MainCategories)
+                        {
+                            <div class="col-md-3 col-6">
+                                <a asp-controller="Catalog" asp-action="CurrentCategory"
+                                       asp-route-identityUrl="@category.IdentityUrl"
+                                       asp-route-categoryId="@category.Id"
+                                       class="text-decoration-none text-dark">
+                                    <div class="card h-100 shadow-sm">
+                                        <img src="/@category.PhotoPath" class="card-img-top" alt="@category.Name"
+                                             style="height: 300px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-success">@category.Name</h5>
+                                            <p class="card-text small text-muted">@category.Description</p>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.FeaturedProducts.Any())
+    {
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card shadow-sm mb-5">
+                    <div class="card-header bg-white py-3">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-star-fill text-success me-2"></i>
+                            Популярные товары
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            @foreach (var product in Model.FeaturedProducts.Take(4))
+                            {
+                                <div class="col-md-3 col-6">
+                                    <div class="card h-100 shadow-sm">
+                                        <img src="@product.ThumbnailPath" class="card-img-top" alt="@product.Name"
+                                             style="height: 300px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <h5 class="card-title">@product.Name</h5>
+                                            <p class="card-text text-success fw-bold">@product.Cost.ToString("C")</p>
+                                        </div>
+                                        <div class="card-footer bg-white border-0">
+                                            <a asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
+                                                   class="btn btn-outline-success w-100">
+                                                <i class="bi bi-eye me-1"></i>Подробнее
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card shadow-sm mb-5">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-geo-alt-fill text-success me-2"></i>
+                        Как нас найти
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <i class="bi bi-clock fs-2 text-success"></i>
+                            <h5 class="mt-2">Режим работы</h5>
+                            <p class="text-muted">ежедневно 10:00 — 19:00</p>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-geo-alt fs-2 text-success"></i>
+                            <h5 class="mt-2">Адрес</h5>
+                            <a href="https://yandex.ru/maps/-/CPR7n2-C" <p"text-muted">пос. Сосново, ул. Садовая, 1</p><br>Есть парковка </a>
+                        </div>
+                        <div class="col-md-4">
+                            <i class="bi bi-telephone fs-2 text-success"></i>
+                            <h5 class="mt-2">Контакты</h5>
+                            <p class="text-muted">+7 (812) 925-05-08<br>vopros@rus.garden</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
-@await Html.PartialAsync("ProductsCatalog", Model)

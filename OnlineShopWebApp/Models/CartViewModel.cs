@@ -1,12 +1,10 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-
-namespace OnlineShopWebApp.Models
+﻿namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class CartViewModel
     {
         public Guid Id { get; set; }
 
-        public string UserId = "UserId";
+        public string UserId { get; set; }
 
         public int Discount { get; set; }
 

@@ -1,4 +1,4 @@
-namespace OnlineShopWebApp.Models
+namespace OnlineShopWebApp.Areas.Client.Models
 {
     public class ErrorViewModel
     {

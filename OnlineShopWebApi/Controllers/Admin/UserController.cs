@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Models;
-using OnlineShopWebApp.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 
 namespace OnlineShopWebApi.Controllers.Admin
 {
@@ -205,7 +205,7 @@ namespace OnlineShopWebApi.Controllers.Admin
         }
 
         [HttpPost("ChangePasswordUser")]
-        public async Task<IActionResult> ChangePassword(ChangePassword user)
+        public async Task<IActionResult> ChangePassword(OnlineShopWebApp.Areas.Admin.Models.AdminChangePasswordViewModel user)
         {
             try
             {

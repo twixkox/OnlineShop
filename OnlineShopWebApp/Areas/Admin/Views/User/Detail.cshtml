@@ -1,105 +1,117 @@
-﻿@model UserViewModel
+﻿@using OnlineShopWebApp.Areas.Client.Models
+@model UserViewModel
 @{
     ViewData["Title"] = "Пользователь";
 }
 
-<div class="row mt-3">
-    @await Html.PartialAsync("SideBar")
+<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+    <div>
+        <h1 class="h3 mb-0">
+            <i class="bi bi-person-circle me-2"></i>@ViewData["Title"]
+        </h1>
+        <p class="mb-0 small opacity-75">Просмотр и управление данными пользователя</p>
+    </div>
+    <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn btn-light">
+        <i class="bi bi-arrow-left me-1"></i>Назад к списку
+    </a>
+</div>
 
-
-    <div class="col-9 mb-3">
-        <div class="text-center text-uppercase text-success mb-5 mt-5">
-            <h2 class="row-title">Пользователь</h2>
-        </div>
-        <form method="post">
-
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
             @if (Model != null)
             {
-                <input type="hidden" name="Id" value="@Model.Id" />
-
-                <div class="text-end mt-5">
-                    <button class="btn btn-outline-success dropdown-toggle" role="button" id="dropdownMenuButton" data-toggle="dropdown"
-                            data-bs-toggle="dropdown" aria-expanded="false">
-                        Действия
-                    </button>
-                    <ul class="dropdown-menu list-group-item-success" aria-labelledby="dropdownMenuButton">
-                        <li>
-                            <a class="dropdown-item"
-                               asp-area="Admin"
-                               asp-controller="User"
-                               asp-action="ChangePassword"
-                               asp-route-userId="@Model.Id">
-                                Смена пароля
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item"
-                               asp-area="Admin"
-                               asp-controller="User"
-                               asp-action="Update"
-                               asp-route-userId="@Model.Id">
-                                Редактирование данных
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item"
-                               asp-area="Admin"
-                               asp-controller="Role"
-                               asp-action="AssignRole"
-                               asp-route-userId="@Model.Id">
-                                Смена прав доступа
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item"
-                               asp-area="Admin"
-                               asp-controller="User"
-                               asp-action="Delete"
-                               asp-route-userId="@Model.Id">
-                                Удалить пользователя
-                            </a>
-                        </li>
-                    </ul>
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">
+                            <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
+                            Информация о пользователе
+                        </h5>
+                        <div class="dropdown">
+                            <button class="btn btn-outline-success dropdown-toggle" type="button" id="dropdownActions" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-gear me-1"></i>Действия
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownActions">
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="User" asp-action="ChangePassword" asp-route-userId="@Model.Id">
+                                        <i class="bi bi-key me-2 text-success"></i>Смена пароля
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="User" asp-action="Update" asp-route-userId="@Model.Id">
+                                        <i class="bi bi-pencil me-2 text-success"></i>Редактирование данных
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" asp-area="Admin" asp-controller="Role" asp-action="AssignRole" asp-route-userId="@Model.Id">
+                                        <i class="bi bi-shield me-2 text-success"></i>Смена прав доступа
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" asp-area="Admin" asp-controller="User" asp-action="Delete" asp-route-userId="@Model.Id"
+                                           onclick="return confirm('Вы уверены, что хотите удалить этого пользователя?');">
+                                        <i class="bi bi-trash me-2 text-danger"></i>Удалить пользователя
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="fw-medium" style="width: 200px;">ID</td>
+                                <td>@Model.Id</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium">Email (логин)</td>
+                                <td class="fw-bold">@Model.UserName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium">Имя</td>
+                                <td>@Model.FirstName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium">Фамилия</td>
+                                <td>@Model.LastName</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium">Телефон</td>
+                                <td>@Model.Phone</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium">Роль</td>
+                                <td>
+                                    @{
+                                        string roleClass = Model.Role?.ToLower() switch
+                                        {
+                                            "администратор" => "bg-danger",
+                                            "модератор" => "bg-warning text-dark",
+                                            "пользователь" => "bg-info",
+                                            _ => "bg-secondary"
+                                        };
+                                    }
+                                    <span class="badge @roleClass">@Model.Role</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-medium">Дата регистрации</td>
+                                <td>@(Model.CreationDateTime.ToString("dd.MM.yyyy HH:mm"))</td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
-
-                <table class="table table-hover">
-                    <tr>
-                        <td><span>ID</span></td>
-                        <td>@Model.Id</td>
-                    </tr>
-                    <tr>
-                        <td><span>Email (логин)</span></td>
-                        <td class="fw-bold">@Model.UserName</td>
-                    </tr>
-                    <tr>
-                        <td><span>Имя</span></td>
-                        <td>@Model.FirstName</td>
-                    </tr>
-                    <tr>
-                        <td><span>Фамилия</span></td>
-                        <td>@Model.LastName</td>
-                    </tr>
-                    <tr>
-                        <td><span>Телефон</span></td>
-                        <td>@Model.Phone</td>
-                    </tr>
-
-                    <tr>
-                        <td><span>Роль</span></td>
-                        <td>@Model.Role</td>
-                    </tr>
-                    <tr>
-                        <td class="w-25"><span>Дата регистрации</span></td>
-                        <td class="w-auto">@Model.CreationDateTime</td>
-                    </tr>
-                </table>
             }
             else
             {
-                <div class="text-center">
-                    <h2>Такого пользователя не существует!</h2>
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-0">Пользователь не найден</p>
+                    <a asp-area="Admin" asp-controller="User" asp-action="Index" class="btn btn-success mt-3">
+                        <i class="bi bi-arrow-left me-1"></i>Вернуться к списку
+                    </a>
                 </div>
             }
-        </form>
+        </div>
     </div>
 </div>

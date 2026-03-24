@@ -2,15 +2,15 @@
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Helpers;
 
-namespace OnlineShopWebApp.Views.Shared.ViewComponents.CartViewComponents
+namespace OnlineShopWebApp.Areas.Client.Views.Shared.Components.Cart
 {
     public class CartViewComponent (ICartsStorages cartsStorages) : ViewComponent
     {
         private readonly ICartsStorages _cartStorages = cartsStorages;
 
-        public async Task <IViewComponentResult> InvokeAsync()
+        public async Task <IViewComponentResult> InvokeAsync(string userId)
         {
-            var cart = await _cartStorages.TryGetByUserIdAsync(Constants.UserId);
+            var cart = await _cartStorages.TryGetByUserIdAsync(userId);
 
             var carViewModel = cart.ToCartViewModel();
 
