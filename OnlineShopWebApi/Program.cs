@@ -26,12 +26,9 @@ public partial class Program
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        // или
-        // options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
     });
         builder.Services.AddAuthorization();
 
-        // добавляем контекст DatabaseContext в качестве сервиса в приложение
         builder.Services.AddDbContext<DatabaseContext>(options => options.UseSqlServer(connection));
 
         builder.Services.AddDbContext<IdentityContext>(options => options.UseSqlServer(connection));
@@ -94,7 +91,7 @@ public partial class Program
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidateAudience = true,
         ValidAudience = builder.Configuration["Jwt:Audience"],
-        ValidateLifetime = false, // Проверяет expiration time
+        ValidateLifetime = false,
         ClockSkew = TimeSpan.Zero,
             };
         });
@@ -111,7 +108,6 @@ public partial class Program
                 c.RoutePrefix = string.Empty; 
             });
         }
-        
 
         app.UseSerilogRequestLogging();
         app.UseHttpsRedirection();

@@ -70,7 +70,6 @@ namespace OnlineShopWebApi.Controllers
                 Issuer = _configuration["Jwt:Issuer"],
                 Audience = _configuration["Jwt:Audience"],
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-
             };
             var token = tokenHandler.CreateToken(tokenDesriptor);
             return tokenHandler.WriteToken(token);

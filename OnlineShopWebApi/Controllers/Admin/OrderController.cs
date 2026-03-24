@@ -1,8 +1,6 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
-using OnlineShopWebApp.Helpers;
 
 namespace OnlineShopWebApi.Controllers.Admin
 {
@@ -21,9 +19,9 @@ namespace OnlineShopWebApi.Controllers.Admin
         [HttpGet("GetOrders")]
         public async Task<ActionResult<List<Order>>> Index()
         {
+            var orders = await _orders.GetAllAsync();
             try
             {
-                var orders = await _orders.GetAllAsync();
                 _logger.LogInformation("Получение списка заказов успешно");
                 return Ok(orders);
             }
@@ -37,10 +35,9 @@ namespace OnlineShopWebApi.Controllers.Admin
         [HttpGet(nameof(Detail))]
         public async Task<ActionResult<Order>> Detail(Guid orderId)
         {
+            var order = await _orders.TryGetByIdAsync(orderId);
             try
             {
-                var order = await _orders.TryGetByIdAsync(orderId);
-
                 if (order == null)
                 {
                     _logger.LogWarning($"Заказ с ID {orderId} не найден");
@@ -55,24 +52,23 @@ namespace OnlineShopWebApi.Controllers.Admin
             {
                 _logger.LogError(ex, $"Ошибка получения заказа от пользователя.Id заказа - {orderId}");
                 return StatusCode(500, "Произошла ошибка получения заказа");
-            }
-            
+            } 
         }
+
         [HttpPost(nameof(UpdateOrderStatus))]
         public async Task<ActionResult<Order>> UpdateOrderStatus(Guid orderId, OrderStatus status)
         {
+            var currentOrder = await _orders.TryGetByIdAsync(orderId);
+            await _orders.UpdateStatusAsync(orderId, status);
+
+            var existingOrder = await _orders.TryGetByIdAsync(orderId);
             try
             {
-                var currentOrder = await _orders.TryGetByIdAsync(orderId);
                 if (currentOrder == null)
                 {
                     _logger.LogWarning($"Заказ с ID {orderId} не найден");
                     return NotFound();
                 }
-
-                await _orders.UpdateStatusAsync(orderId, status);
-
-                var existingOrder = await _orders.TryGetByIdAsync(orderId);
 
                 return StatusCode(201,existingOrder);
             }
@@ -81,7 +77,6 @@ namespace OnlineShopWebApi.Controllers.Admin
                 _logger.LogError(ex, $"Ошибка обновления статуса заказа. Id заказа - {orderId}");
                 return BadRequest();
             }
-            
         }
     }
 }

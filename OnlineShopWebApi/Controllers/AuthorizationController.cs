@@ -6,7 +6,7 @@ using OnlineShopWebApp.Areas.Client.Models;
 
 namespace OnlineShopWebApi.Controllers
 {
-   //[Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
+   [Authorize(AuthenticationSchemes = Microsoft.AspNetCore.Authentication.JwtBearer.JwtBearerDefaults.AuthenticationScheme)]
    [ApiController]
    [Route("api/[controller]")]
     public class AuthorizationController : Controller
@@ -23,13 +23,12 @@ namespace OnlineShopWebApi.Controllers
         [HttpPost("Authorize")]
         public async Task<IActionResult> AuthorizationAsync(AuthorizationUserViewModel user)
         {
+            if (user.UserName == user.Password) return Conflict($"Имя и пароль не должны совпадать");
+
+            var result = await _signInManager.PasswordSignInAsync(user.UserName, user.Password, user.RememberMe, false);
+            _logger.LogInformation($"Авторизация пользователя - {user.UserName}");
             try
             {
-                if (user.UserName == user.Password) return Conflict($"Имя и пароль не должны совпадать");
-
-                var result = await _signInManager.PasswordSignInAsync(user.UserName, user.Password, user.RememberMe, false);
-                _logger.LogInformation($"Авторизация пользователя - {user.UserName}");
-
                 if (result.Succeeded)
                 {
                     return Ok();
