@@ -6,13 +6,17 @@
 
 # Основные возможности
 ## Для покупателей
+### Возможность авторизации/регистрации через ASP.Identity
+<img width="313" height="433" alt="image" src="https://github.com/user-attachments/assets/939a4a43-5ad2-4496-80f8-662d6fde9ca5" />
+<img width="501" height="555" alt="image" src="https://github.com/user-attachments/assets/372a3a53-1e27-42cc-90ce-2f10c327d175" />
+
+
 ### Каталог товаров – динамическая сортировка (по цене, названию) и поиск без перезагрузки страницы.
 <img width="1902" height="901" alt="image" src="https://github.com/user-attachments/assets/9b8ebbd6-4649-4345-80de-1a2d12a15494" />
 
 
 ### Корзина – добавление/удаление товаров, изменение количества, оформление заказа.
 <img width="1197" height="566" alt="image" src="https://github.com/user-attachments/assets/dbc75923-f768-441e-b217-c6dad2933df5" />
-<img width="987" height="915" alt="image" src="https://github.com/user-attachments/assets/7c5278d7-59b8-4d0c-a47a-c20a8c908b7a" />
 
 
 
