@@ -7,8 +7,10 @@
 # Основные возможности
 ## Для покупателей
 ### Возможность авторизации/регистрации через ASP.Identity
-<img width="313" height="433" alt="image" src="https://github.com/user-attachments/assets/939a4a43-5ad2-4496-80f8-662d6fde9ca5" />
-<img width="501" height="555" alt="image" src="https://github.com/user-attachments/assets/372a3a53-1e27-42cc-90ce-2f10c327d175" />
+<img width="1915" height="917" alt="image" src="https://github.com/user-attachments/assets/4e97cba9-27df-4c92-9f9d-376222084fe2" />
+
+<img width="1911" height="921" alt="image" src="https://github.com/user-attachments/assets/698f4e5f-00f7-4a5b-8e59-5daf9e2acd61" />
+
 
 
 ### Каталог товаров – динамическая сортировка (по цене, названию) и поиск без перезагрузки страницы.
