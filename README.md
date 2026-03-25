@@ -79,9 +79,9 @@ IIS (Windows Server) с .NET Hosting Bundle
 
 Статические файлы с кэшированием (asp-append-version)
 
-⚙️ Установка и запуск
-# Локально
-## Клонировать репозиторий
+# Установка и запуск
+## Локально
+### Клонировать репозиторий
 
 ### [git clone https://github.com/twixkox/OnlineShopWebApp.git](https://github.com/twixkox/OnlineShop)
 
@@ -106,9 +106,9 @@ dotnet run
 # Тестовые данные
 ## Администратор:
 
-Email: admin@gmail.com
+### Email: admin@gmail.com
 
-Пароль: Admin12345!
+### Пароль: Admin12345!
 
 ## Пользователь - путем регистрации нового пользователя
 
