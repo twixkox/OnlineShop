@@ -54,3 +54,41 @@ IIS (Windows Server) с .NET Hosting Bundle
 Настроены права доступа к папке wwwroot/uploads
 
 Статические файлы с кэшированием (asp-append-version)
+
+⚙️ Установка и запуск
+# Локально
+## Клонировать репозиторий
+
+### [git clone https://github.com/twixkox/OnlineShopWebApp.git](https://github.com/twixkox/OnlineShop)
+
+### cd OnlineShopWebApp
+
+Настроить базу данных (по умолчанию SQL Server Express)
+Измените строку подключения в appsettings.json:
+
+json
+"ConnectionStrings": {
+  "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=OnlineShop;Trusted_Connection=True;"
+}
+
+Применить миграции
+
+dotnet ef database update
+Запустить приложение
+
+dotnet run
+Открыть в браузере https://localhost:5001
+
+# Тестовые данные
+## Администратор:
+
+Email: admin@gmail.com
+
+Пароль: Admin12345!
+
+## Пользователь - путем регистрации нового пользователя
+
+# Контакты
+### Email: twixkox@gmail.com
+### Telegram: @twixkox
+### GitHub: twixkox
