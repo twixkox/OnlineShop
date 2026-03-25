@@ -55,7 +55,7 @@
 ### Backend
 ASP.NET Core MVC (.NET 8).
 
-ASP.NET Core Web API** – отдельный проект для REST API.
+ASP.NET Core Web API – отдельный проект для REST API.
 
 Entity Framework Core (Code First, миграции).
 
