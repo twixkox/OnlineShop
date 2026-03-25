@@ -6,7 +6,7 @@
 
 # Основные возможности
 ## Для покупателей
-### Возможность авторизации/регистрации через ASP.Identity
+### Возможность авторизации/регистрации через ASP.Identity. Выполнено в модальных окнах.
 <img width="1915" height="917" alt="image" src="https://github.com/user-attachments/assets/4e97cba9-27df-4c92-9f9d-376222084fe2" />
 
 <img width="1911" height="921" alt="image" src="https://github.com/user-attachments/assets/698f4e5f-00f7-4a5b-8e59-5daf9e2acd61" />
