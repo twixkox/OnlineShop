@@ -46,7 +46,8 @@
 
 ### Управление заказами – просмотр списка, изменение статуса (Создан → В обработке → В пути → Доставлен → Отменён).
 <img width="1176" height="505" alt="image" src="https://github.com/user-attachments/assets/439bd107-74c4-4545-957c-137d50924556" />
-<img width="1317" height="860" alt="image" src="https://github.com/user-attachments/assets/7f940f00-6ab6-4e72-a4ed-376046b889fd" />
+<img width="1285" height="789" alt="image" src="https://github.com/user-attachments/assets/977fd0dc-d030-49ee-9177-dc686e56f681" />
+
 
 
 
