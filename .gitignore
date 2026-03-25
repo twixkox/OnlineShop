@@ -361,3 +361,13 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+# Local configuration files (secrets, appsettings.Development.json)
+appsettings.Development.json
+appsettings.Production.json
+secrets.json
+*.local.json
+
+# User uploaded files (avoid committing images)
+wwwroot/uploads/
+wwwroot/user-images/
