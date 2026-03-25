@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp;
-using OnlineShopWebApp.Helpers;
 
 namespace OnlineShopWebApi.Controllers
 {
@@ -25,11 +24,10 @@ namespace OnlineShopWebApi.Controllers
         [HttpGet("GetCart")]
         public async Task<IActionResult> Index(string userId)
         {
+            var cart = await _cartsStorage.TryGetByUserIdAsync(userId);
+            _logger.LogInformation($"Получение корзины пользователя id - {userId}");
             try
             {
-                var cart = await _cartsStorage.TryGetByUserIdAsync(userId);
-                _logger.LogInformation($"Получение корзины пользователя id - {userId}");
-
                 return Ok();
             }
             catch (Exception ex)
@@ -44,14 +42,13 @@ namespace OnlineShopWebApi.Controllers
         [HttpPost("AddProductInCart")]
         public async Task<IActionResult> Add(Guid productId)
         {
+            var product = await _productStorage.TryGetProductByIdAsync(productId);
+            _logger.LogInformation($"Получение продукта с id - {productId}");
+
+            await _cartsStorage.AddAsync(product, Constants.UserId);
+            _logger.LogInformation($"Продукт был успешно добавлен в корзину");
             try
             {
-                var product = await _productStorage.TryGetProductByIdAsync(productId);
-                _logger.LogInformation($"Получение продукта с id - {productId}");
-
-                await _cartsStorage.AddAsync(product, Constants.UserId);
-                _logger.LogInformation($"Продукт был успешно добавлен в корзину");
-
                 return Created();
             }
             catch (Exception ex)
@@ -65,11 +62,11 @@ namespace OnlineShopWebApi.Controllers
         [HttpDelete("ClearCart")]
         public IActionResult Clear(string userId)
         {
+            _cartsStorage.ClearAsync(userId);
+            _logger.LogInformation($"Очистка корзыины пользователя id - {userId} выполнена");
+
             try
             {
-                _cartsStorage.ClearAsync(userId);
-                _logger.LogInformation($"Очистка корзыины пользователя id - {userId} выполнена");
-
                 return Ok();
             }
             catch(Exception ex)
@@ -83,9 +80,9 @@ namespace OnlineShopWebApi.Controllers
         [HttpPatch(nameof(Subtract))]
         public IActionResult Subtract(Guid productId, string userId)
         {
+            _cartsStorage.SubtractAsync(productId, userId);
             try
             {
-                _cartsStorage.SubtractAsync(productId, userId);
                 return Ok();
             }
             catch (Exception ex)

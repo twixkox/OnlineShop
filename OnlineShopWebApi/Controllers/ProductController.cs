@@ -21,11 +21,10 @@ namespace OnlineShopWebApi.Controllers
         [HttpGet("GetProduct")]
         public async Task<IActionResult> Index(Guid id)
         {
+            var product = await _productStorage.TryGetProductByIdAsync(id);
+            _logger.LogInformation($"Получение продукта с id - {id}");
             try
             {
-                var product = await _productStorage.TryGetProductByIdAsync(id);
-                _logger.LogInformation($"Получение продукта с id - {id}");
-
                 return Ok();
             }
             catch (Exception ex)

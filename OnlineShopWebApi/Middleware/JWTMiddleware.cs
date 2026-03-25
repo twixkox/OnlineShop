@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using OnlineShop.Db.Models;
 using System.IdentityModel.Tokens.Jwt;
@@ -29,7 +30,6 @@ namespace OnlineShopWebApi.Middleware
               await attachAccountToContextAsync(context, token);
 
                 await _next(context);
-         
         }
 
         private async Task attachAccountToContextAsync(HttpContext context, string token)
@@ -46,20 +46,19 @@ namespace OnlineShopWebApi.Middleware
                     ValidIssuer = _configuration["Jwt:Issuer"],
                     ValidateAudience = true,
                     ValidAudience = _configuration["Jwt:Audience"],
-                    // set clockskew to zero so tokens expire exactly at token expiration time (instead of 5 minutes later)
+                    
                     ClockSkew = TimeSpan.Zero
                 }, out SecurityToken validatedToken);
 
                 var jwtToken = (JwtSecurityToken)validatedToken;
-                var userEmail = jwtToken.Claims.First(x => x.Type == "UserName").Value; // РАЗОБРАТЬСЯ С ЭТИМ !!!!!!!
+                var userEmail = jwtToken.Claims.First(x => x.Type == "UserName").Value;
                 var user = await _userManager.FindByEmailAsync(userEmail);
-                // attach account to context on successful jwt validation
+                
                 context.Items["User"] = user;
             }
-            catch
+            catch(Exception ex) 
             {
-                // do nothing if jwt validation fails
-                // account is not attached to context so request won't have access to secure routes
+                _logger.LogError(ex, $"Проиозшла ошибка авторизации");                
             }
         }
     }

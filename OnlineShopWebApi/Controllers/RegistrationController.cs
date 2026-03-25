@@ -23,25 +23,24 @@ namespace OnlineShopWebApi.Controllers
         [HttpPost(nameof(Registration))]
         public async Task<IActionResult> Registration(RegistrationUser user)
         {
+            var currentUser = new User()
+            {
+                Email = user.UserName,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.Phone,
+                CreationDateTime = DateTime.Now,
+                UserName = user.UserName,
+
+            };
+
+            await _userManager.CreateAsync(currentUser, user.Password);
+            _logger.LogInformation($"Создание пользователя выполнено");
+
+            await _signInManager.SignInAsync(currentUser, true);
+            _logger.LogInformation($"Авторизация пользователя выполнена");
             try
             {
-                var currentUser = new User()
-                {
-                    Email = user.UserName,
-                    FirstName = user.FirstName,
-                    LastName = user.LastName,
-                    PhoneNumber = user.Phone,
-                    CreationDateTime = DateTime.Now,
-                    UserName = user.UserName,
-
-                };
-
-                await _userManager.CreateAsync(currentUser, user.Password);
-                _logger.LogInformation($"Создание пользователя выполнено");
-
-                await _signInManager.SignInAsync(currentUser, true);
-                _logger.LogInformation($"Авторизация пользователя выполнена");
-
                 return Ok();
             }
             catch (Exception ex)

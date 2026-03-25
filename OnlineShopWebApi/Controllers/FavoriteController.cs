@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
-using OnlineShopWebApp;
-using OnlineShopWebApp.Helpers;
 
 namespace OnlineShopWebApi.Controllers
 {
@@ -25,11 +23,10 @@ namespace OnlineShopWebApi.Controllers
         [HttpGet("GetFavorite")]
         public async Task<IActionResult> Index(string userId)
         {
+            var favorites = _favoriteStorages.TryGetByUserIdAsync(userId);
+            _logger.LogInformation($"Получение избранного у пользователя id - {userId}");
             try
             {
-                var favorites = _favoriteStorages.TryGetByUserIdAsync(userId);
-                _logger.LogInformation($"Получение избранного у пользователя id - {userId}");
-
                 return Ok();
             }
             catch (Exception ex)
@@ -43,14 +40,13 @@ namespace OnlineShopWebApi.Controllers
         [HttpPost(nameof(Add))]
         public async Task<IActionResult> Add(Guid productId, string userId)
         {
+            var product = await _productStorages.TryGetProductByIdAsync(productId);
+            _logger.LogInformation($"Получение продукта id - {productId}");
+
+            await _favoriteStorages.AddAsync(product, userId);
             try
             {
-                var product = await _productStorages.TryGetProductByIdAsync(productId);
-                _logger.LogInformation($"Получение продукта id - {productId}");
-
-                await _favoriteStorages.AddAsync(product, userId);
-
-                return RedirectToAction(nameof(Index));
+                return Ok();
             }
             catch (Exception ex)
             {
@@ -63,11 +59,10 @@ namespace OnlineShopWebApi.Controllers
         [HttpDelete(nameof(Delete))]
         public async Task<IActionResult> Delete(Guid productId, string userId)
         {
+            await _favoriteStorages.DeleteAsync(productId, userId);
+            _logger.LogInformation($"Удаление продукта из избранного выполнено");
             try
             {
-                await _favoriteStorages.DeleteAsync(productId, userId);
-                _logger.LogInformation($"Удаление продукта из избранного выполнено");
-
                 return Ok();
             }
             catch (Exception ex)

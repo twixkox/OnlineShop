@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
-using OnlineShopWebApp.Helpers;
 
 namespace OnlineShopWebApi.Controllers
 {
@@ -22,11 +21,10 @@ namespace OnlineShopWebApi.Controllers
         [HttpGet("GetAllProducts")]
         public async Task<IActionResult> Index()
         {
+            var products = await _productStorage.GetAllAsync();
+            _logger.LogInformation($"ѕолучение списка продуктов выполнено");
             try
             {
-                var products = await _productStorage.GetAllAsync();
-                _logger.LogInformation($"ѕолучение списка продуктов выполнено");
-
                 return Ok();
             }
             catch (Exception ex)
@@ -53,7 +51,6 @@ namespace OnlineShopWebApi.Controllers
 
                 return StatusCode(500);
             }
-
         }
     }
 }

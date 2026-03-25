@@ -3,10 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Client.Models;
-using OnlineShopWebApp.Areas.Models;
-using OnlineShopWebApp.Areas.User.Models;
-using OnlineShopWebApp.Models;
-using System.Threading.Tasks;
 
 namespace OnlineShopWebApi.Controllers.Admin
 {
@@ -29,10 +25,9 @@ namespace OnlineShopWebApi.Controllers.Admin
         [HttpGet("GetRoles")]
         public async Task<ActionResult<List<IdentityRole>>> Index()
         {
+            var roles = await _roleManager.Roles.ToListAsync();
             try
             {
-                var roles = await _roleManager.Roles.ToListAsync();
-
                 _logger.LogInformation($"Получение списка ролей успешно");
 
                 return Ok(roles);
@@ -45,22 +40,19 @@ namespace OnlineShopWebApi.Controllers.Admin
             }
         }
 
-
-
         [HttpPost("AddRole")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(IdentityRole role)
         {
+            var roleName = await _roleManager.RoleExistsAsync(role.Name);
+
+            _logger.LogInformation($"Получение роли {role.Name}");
+
+            var existingRole = new IdentityRole(role.Name);
+
+            var result = await _roleManager.CreateAsync(existingRole);
             try
             {
-                var roleName = await _roleManager.RoleExistsAsync(role.Name);
-
-                _logger.LogInformation($"Получение роли {role.Name}");
-
-                var existingRole = new IdentityRole(role.Name);
-
-                var result = await _roleManager.CreateAsync(existingRole);
-
                 if (result.Succeeded)
                 {
                     _logger.LogInformation($"Создание роли {role.Name}");
@@ -81,30 +73,28 @@ namespace OnlineShopWebApi.Controllers.Admin
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(string roleId)
         {
+            var existingRole = await _roleManager.FindByIdAsync(roleId);
+            if (existingRole == null)
+            {
+                _logger.LogInformation($"Роль не найдена");
+
+                return Conflict($"Роль не найдена");
+            }
+
+            var usersInRole = await _userManager.GetUsersInRoleAsync(existingRole.Name);
+
+            _logger.LogInformation($"Проверка наличия у пользоваталей роли - {existingRole.Name}");
+
+            if (usersInRole.Any())
+            {
+                _logger.LogWarning($"Удаление роли {existingRole.Name} невозможно, {usersInRole.Count} имеют данную роль");
+
+                return Conflict($"Удаление роли {existingRole.Name} невозможно");
+            }
+
+            var result = await _roleManager.DeleteAsync(existingRole);
             try
             {
-                var existingRole = await _roleManager.FindByIdAsync(roleId);
-
-                if (existingRole == null)
-                {
-                    _logger.LogInformation($"Роль не найдена");
-
-                    return Conflict($"Роль не найдена");
-                }
-
-                var usersInRole = await _userManager.GetUsersInRoleAsync(existingRole.Name);
-
-                _logger.LogInformation($"Проверка наличия у пользоваталей роли - {existingRole.Name}");
-
-                if (usersInRole.Any())
-                {
-                    _logger.LogWarning($"Удаление роли {existingRole.Name} невозможно, {usersInRole.Count} имеют данную роль");
-
-                    return Conflict($"Удаление роли {existingRole.Name} невозможно");
-                }
-
-                var result = await _roleManager.DeleteAsync(existingRole);
-
                 if (result.Succeeded)
                 {
                     _logger.LogInformation($"Роль {existingRole.Name} удалена");
@@ -123,23 +113,23 @@ namespace OnlineShopWebApi.Controllers.Admin
         [HttpGet(nameof(AssignRole))]
         public async Task<IActionResult> AssignRole(string userId)
         {
+            var existingUser = await _userManager.FindByIdAsync(userId);
+            if (existingUser == null)
+            {
+                _logger.LogError($"Не удалось найти пользователю с id - {userId}");
+
+                return BadRequest();
+            }
+
+            var userRole = await _userManager.GetRolesAsync(existingUser);
+
+            _logger.LogInformation($"Получение роли пользователя {userId}");
+
+            var currentRole = userRole.FirstOrDefault();
+
+            var roles = await _roleManager.Roles.ToListAsync();
             try
             {
-                var existingUser = await _userManager.FindByIdAsync(userId);
-                if (existingUser == null)
-                {
-                    _logger.LogError($"Не удалось найти пользователю с id - {userId}");
-
-                    return BadRequest();
-                }
-
-                var userRole = await _userManager.GetRolesAsync(existingUser);
-
-                _logger.LogInformation($"Получение роли пользователя {userId}");
-
-                var currentRole = userRole.FirstOrDefault();
-
-                var roles = await _roleManager.Roles.ToListAsync();
                 var availableRoles = roles.Select(r => new RoleViewModel
                 {
                     Id = r.Id,
@@ -169,34 +159,32 @@ namespace OnlineShopWebApi.Controllers.Admin
 
                 return BadRequest();
             }
-
         }
 
         [HttpPost(nameof(AssignRole))]
         public async Task<IActionResult> AssignRole(AssignRoleViewModel model)
         {
-            try
+            var user = await _userManager.FindByIdAsync(model.UserId);
+
+            _logger.LogInformation($"Поиск пользователя с ID {model.UserId}");
+
+            if (user == null)
             {
-                var user = await _userManager.FindByIdAsync(model.UserId);
+                _logger.LogWarning("Пользователь с таким Id не найден");
+                return BadRequest();
+            }
 
-                _logger.LogInformation($"Поиск пользователя с ID {model.UserId}");
+            var selectionRole = await _roleManager.FindByIdAsync(model.SelectedRoleId);
 
-                if (user == null)
-                {
-                    _logger.LogWarning("Пользователь с таким Id не найден");
-                    return BadRequest();
-                }
+            if (selectionRole == null)
+            {
+                _logger.LogWarning($"Роль не найдена");
+                return BadRequest();
+            }
 
-                var selectionRole = await _roleManager.FindByIdAsync(model.SelectedRoleId);
-
-                if (selectionRole == null)
-                {
-                    _logger.LogWarning($"Роль не найдена");
-                    return BadRequest();
-                }
-
-                var currentRoles = await _userManager.GetRolesAsync(user);
-
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            try
+            { 
                 if (currentRoles.Any())
                 {
                     var removeRole = await _userManager.RemoveFromRolesAsync(user, currentRoles);

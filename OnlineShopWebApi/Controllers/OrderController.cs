@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
-using OnlineShopWebApp;
 using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
 
@@ -27,11 +26,10 @@ namespace OnlineShopWebApi.Controllers
         [HttpGet("GetCurrentCart")]
         public async Task<IActionResult> Index(string userId)
         {
+            await _cartsStorages.TryGetByUserIdAsync(userId);
+            _logger.LogInformation($"Получение корзины пользователя id - {userId}");
             try
             {
-                await _cartsStorages.TryGetByUserIdAsync(userId);
-                _logger.LogInformation($"Получение корзины пользователя id - {userId}");
-
                 return Ok();
             }
             catch (Exception ex)
@@ -44,23 +42,22 @@ namespace OnlineShopWebApi.Controllers
         [HttpPost(nameof(Buy))]
         public async Task<IActionResult> Buy(OrderViewModel orders,string userId)
         {
+            var cart = await _cartsStorages.TryGetByUserIdAsync(userId);
+            _logger.LogInformation($"Получение корзины пользователя id - {userId}");
+
+            var order = new Order
+            {
+                DeliveryUserInfo = Mapping.ToDeliveryUserInfo(orders.DeliveryUserInfo),
+                Items = cart.Items,
+            };
+
+            await _orderStorages.AddAsync(order);
+            _logger.LogInformation($"Добавление корзины к заказу");
+
+            await _cartsStorages.ClearAsync(userId);
+            _logger.LogInformation($"Очистка корзины");
             try
             {
-                var cart = await _cartsStorages.TryGetByUserIdAsync(userId);
-                _logger.LogInformation($"Получение корзины пользователя id - {userId}");
-
-                var order = new Order
-                {
-                    DeliveryUserInfo = Mapping.ToDeliveryUserInfo(orders.DeliveryUserInfo),
-                    Items = cart.Items,
-                };
-
-                await _orderStorages.AddAsync(order);
-                _logger.LogInformation($"Добавление корзины к заказу");
-
-                await _cartsStorages.ClearAsync(userId);
-                _logger.LogInformation($"Очистка корзины");
-
                 return Ok();
             }
             catch (Exception ex)

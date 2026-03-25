@@ -17,12 +17,13 @@ namespace OnlineShopWebApi.Controllers.Admin
             _logger = logger;
             _products = products;
         }
+
         [HttpGet("GetProducts")]
         public async Task<ActionResult<List<Product>>> Index()
         {
+            var products = await _products.GetAllAsync();
             try
             {
-                var products = await _products.GetAllAsync();
                 _logger.LogInformation($"Получение списка продуктов успешно");
 
                 return Ok(products);
@@ -36,10 +37,9 @@ namespace OnlineShopWebApi.Controllers.Admin
         [HttpDelete(nameof(Remove))]
         public async Task<IActionResult> Remove(Guid id)
         {
+            await _products.DeleteAsync(id);
             try
             {
-                await _products.DeleteAsync(id);
-
                 _logger.LogInformation($"Удаление товара {id} выполнено");
 
                 return NoContent();
@@ -55,17 +55,16 @@ namespace OnlineShopWebApi.Controllers.Admin
         [HttpPost(nameof(Add))]
         public async Task<ActionResult<Product>> Add(Product product)
         {
-            try
+            var productDb = new Product
             {
-                var productDb = new Product
-                {
-                    Name = product.Name,
-                    Description = product.Description,
-                    Cost = product.Cost,
-                };
+                Name = product.Name,
+                Description = product.Description,
+                Cost = product.Cost,
+            };
 
-                await _products.AddAsync(productDb);
-
+            await _products.AddAsync(productDb);
+            try
+            {   
                 _logger.LogInformation($"Продукт успешно добавлен. id - {productDb.Id}");
 
                 return Created();
@@ -76,15 +75,13 @@ namespace OnlineShopWebApi.Controllers.Admin
 
                 return StatusCode(500, "Произошла ошибка добавления продукта");
             }
-
         }
         [HttpGet(nameof(Edit))]
         public async Task<ActionResult<Product>> Edit(Guid id)
         {
+            var product = await _products.TryGetProductByIdAsync(id);
             try
             {
-                var product = await _products.TryGetProductByIdAsync(id);
-
                 if (product == null)
                 {
                     _logger.LogWarning($"Продукт с id - {id} не найден");
@@ -96,7 +93,6 @@ namespace OnlineShopWebApi.Controllers.Admin
 
             catch (Exception ex)
             {
-
                 _logger.LogError(ex, $"Ошибка изменения (получения) продукта id - {id}");
 
                 return StatusCode(500, "Произошла ошибка изменения продукта");
@@ -106,18 +102,17 @@ namespace OnlineShopWebApi.Controllers.Admin
         [HttpPost(nameof(Edit))]
         public async Task<ActionResult<Product>> Edit(ProductViewModel product)
         {
+            var productDb = new Product
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Cost = product.Cost,
+            };
+
+            await _products.EditProductAsync(productDb);
             try
             {
-                var productDb = new Product
-                {
-                    Id = product.Id,
-                    Name = product.Name,
-                    Description = product.Description,
-                    Cost = product.Cost,
-                };
-
-                await _products.EditProductAsync(productDb);
-
                 _logger.LogInformation($"Изменение продукта с id {product.Id} успешно");
 
                 return Ok(productDb);
