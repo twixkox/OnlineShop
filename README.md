@@ -52,32 +52,34 @@
 
 
 # Технологии
-Backend
-ASP.NET Core MVC (.NET 8)
+### Backend
+ASP.NET Core MVC (.NET 8).
 
-Entity Framework Core (Code First, миграции)
+ASP.NET Core Web API** – отдельный проект для REST API.
 
-ASP.NET Core Identity (аутентификация, авторизация, роли)
+Entity Framework Core (Code First, миграции).
 
-SixLabors.ImageSharp – создание миниатюр
+ASP.NET Core Identity (аутентификация, авторизация, роли).
 
-Serilog / ILogger – логирование
+SixLabors.ImageSharp – создание миниатюр.
 
-Dependency Injection – внедрение сервисов
+Serilog / ILogger – логирование.
 
-Frontend
+Dependency Injection – внедрение сервисов.
+
+### Frontend
 Bootstrap 5 + Bootstrap Icons
 
-JavaScript (ES6) – AJAX, тосты, модальные окна, сортировка, поиск, форматирование телефона
+JavaScript – модальные окна, сортировка, поиск, форматирование телефона.
 
 Yandex.Maps API – выбор адреса на карте
 
-Развёртывание
+### Развёртывание
 IIS (Windows Server) с .NET Hosting Bundle
 
 Настроены права доступа к папке wwwroot/uploads
 
-Статические файлы с кэшированием (asp-append-version)
+Статические файлы с кэшированием
 
 # Установка и запуск
 ## Локально
