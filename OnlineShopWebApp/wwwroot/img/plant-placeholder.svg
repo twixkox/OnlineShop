@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" role="img" aria-label="Растение">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#eef6ee"/>
+      <stop offset="1" stop-color="#dcebdc"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5fb88a"/>
+      <stop offset="1" stop-color="#2d6a4f"/>
+    </linearGradient>
+    <linearGradient id="leaf2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#95d5b2"/>
+      <stop offset="1" stop-color="#40916c"/>
+    </linearGradient>
+    <linearGradient id="pot" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d9824f"/>
+      <stop offset="1" stop-color="#b85c33"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#bg)"/>
+  <circle cx="320" cy="80" r="46" fill="#f4e9c8" opacity=".7"/>
+  <ellipse cx="200" cy="338" rx="92" ry="12" fill="#1f4d3a" opacity=".08"/>
+  <path d="M200 250 C198 210 196 170 200 120" stroke="#2d6a4f" stroke-width="6" fill="none" stroke-linecap="round"/>
+  <path d="M200 160 C160 150 128 120 120 80 C162 82 194 112 200 160Z" fill="url(#leaf)"/>
+  <path d="M200 140 C236 128 262 98 270 60 C230 64 204 94 200 140Z" fill="url(#leaf2)"/>
+  <path d="M199 205 C158 205 124 186 104 156 C146 150 184 168 199 205Z" fill="url(#leaf2)"/>
+  <path d="M201 196 C240 194 274 172 292 140 C250 136 214 158 201 196Z" fill="url(#leaf)"/>
+  <path d="M200 120 C186 104 184 84 196 66 C212 84 212 104 200 120Z" fill="url(#leaf2)"/>
+  <path d="M138 240 H262 L248 332 H152 Z" fill="url(#pot)"/>
+  <rect x="130" y="230" width="140" height="22" rx="6" fill="#c96c3d"/>
+  <path d="M152 270 H248" stroke="#fff" stroke-opacity=".18" stroke-width="6" stroke-linecap="round"/>
+</svg>

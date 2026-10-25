@@ -47,6 +47,8 @@ namespace OnlineShop.Db.Storages
         {
             var existingFavorite = await TryGetByUserIdAsync(userId);
 
+            if (existingFavorite == null) return;
+
             var existingProduct = existingFavorite.Products.FirstOrDefault(product => product.Id == productId);
 
             if (existingProduct != null) { existingFavorite.Products.Remove(existingProduct); }

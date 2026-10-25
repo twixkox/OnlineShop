@@ -7,21 +7,21 @@ namespace OnlineShopWebApp.Areas.Client.Models
     {
         public Guid Id { get; set; }
 
-        [Display(Name = "Название продукта", Prompt = "Наименование")]
-        [Required(ErrorMessage = "Не указано наименование товара")]
+        [Display(Name = "РќР°Р·РІР°РЅРёРµ РїСЂРѕРґСѓРєС‚Р°", Prompt = "РќР°РёРјРµРЅРѕРІР°РЅРёРµ")]
+        [Required(ErrorMessage = "РќРµ СѓРєР°Р·Р°РЅРѕ РЅР°РёРјРµРЅРѕРІР°РЅРёРµ С‚РѕРІР°СЂР°")]
         [DataType(DataType.Text)]
-        [StringLength(200, MinimumLength = 2, ErrorMessage = "Наименование от {2} до {1} символов")]
+        [StringLength(200, MinimumLength = 2, ErrorMessage = "РќР°РёРјРµРЅРѕРІР°РЅРёРµ РѕС‚ {2} РґРѕ {1} СЃРёРјРІРѕР»РѕРІ")]
         public string Name { get; set; }
 
-        [Display(Name = "Описание", Prompt = "Описание товара")]
-        [Required(ErrorMessage = "Не задано описание")]
-        [MaxLength(4096, ErrorMessage = "Максимальная длина описания {1} символов")]
+        [Display(Name = "РћРїРёСЃР°РЅРёРµ", Prompt = "РћРїРёСЃР°РЅРёРµ С‚РѕРІР°СЂР°")]
+        [Required(ErrorMessage = "РќРµ Р·Р°РґР°РЅРѕ РѕРїРёСЃР°РЅРёРµ")]
+        [MaxLength(4096, ErrorMessage = "РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° РѕРїРёСЃР°РЅРёСЏ {1} СЃРёРјРІРѕР»РѕРІ")]
         public string Description { get; set; }
 
 
-        [Display(Name = "Стоимость", Prompt = "Цена продукта")]
-        [Required(ErrorMessage = "Не указана стоимость товара")]
-        [Range(0, 1000000, ErrorMessage = "Диапозон цен от {1} до {2} рублей")]
+        [Display(Name = "РЎС‚РѕРёРјРѕСЃС‚СЊ", Prompt = "Р¦РµРЅР° РїСЂРѕРґСѓРєС‚Р°")]
+        [Required(ErrorMessage = "РќРµ СѓРєР°Р·Р°РЅР° СЃС‚РѕРёРјРѕСЃС‚СЊ С‚РѕРІР°СЂР°")]
+        [Range(0, 1000000, ErrorMessage = "Р”РёР°РїРѕР·РѕРЅ С†РµРЅ РѕС‚ {1} РґРѕ {2} СЂСѓР±Р»РµР№")]
         public decimal Cost { get; set; }
 
         [MaybeNull]
@@ -34,8 +34,8 @@ namespace OnlineShopWebApp.Areas.Client.Models
 
         public Guid CategoryId { get; set; }
 
-        [Required(ErrorMessage = "Выберите категорию")]
-        [Display(Name = "Категория")]
+        [Required(ErrorMessage = "Р’С‹Р±РµСЂРёС‚Рµ РєР°С‚РµРіРѕСЂРёСЋ")]
+        [Display(Name = "РљР°С‚РµРіРѕСЂРёСЏ")]
         public List<CategoryViewModel> AvailableCategory { get; set; } = new();
 
         [MaybeNull]

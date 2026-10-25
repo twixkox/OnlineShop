@@ -179,6 +179,19 @@ namespace OnlineShopWebApp.Helpers
             }
             return existingProducts;
         }
+
+        /// <summary>
+        /// Category.Name у товара не хранится в БД ([NotMapped]), поэтому подставляем названия категорий для карточек.
+        /// </summary>
+        public static List<ProductViewModel> WithCategoryNames(this List<ProductViewModel> products, IEnumerable<Category> categories)
+        {
+            var names = categories.ToDictionary(c => c.Id, c => c.Name);
+            foreach (var product in products)
+            {
+                if (names.TryGetValue(product.CategoryId, out var name)) product.CurrentCategoryName = name;
+            }
+            return products;
+        }
         #endregion
 
         #region Cart

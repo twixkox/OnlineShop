@@ -1,7 +1,9 @@
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
-using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Areas.Client.Models;
+using OnlineShopWebApp.Helpers;
+using System.Diagnostics;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -19,41 +21,73 @@ namespace OnlineShopWebApp.Controllers
 
         public async Task<IActionResult> Index()
         {
-            _logger.LogInformation($"Получение списка всех товаров");
-            var products = await _productStorage.GetAllAsync();
-            _logger.LogInformation($"Получение списка категорий товаров");
-            var category = await _categoryStorages.GetAll();
-            var viewModel = new HomeViewModel
-            {
-                FeaturedProducts = products,
-                MainCategories = category,
-                HeroTitle = "Добро пожаловать в PlantShop!",
-                HeroSubtitle = "Свежие растения прямо из питомника",
-            };
             try
             {
+                _logger.LogInformation("Получение данных для главной страницы");
+                var products = await _productStorage.GetAllAsync();
+                var categories = await _categoryStorages.GetAll();
+
+                var viewModel = new HomeViewModel
+                {
+                    FeaturedProducts = products,
+                    MainCategories = categories,
+                    HeroTitle = "Сад, который радует круглый год",
+                    HeroSubtitle = "Саженцы, цветы и всё для ухода за растениями — прямо из питомника, с доставкой и советом специалиста.",
+                    WorkHours = "Ежедневно 10:00 — 19:00",
+                    Address = "пос. Сосново, ул. Садовая, 1",
+                    ContactPhone = "+7 (812) 925-05-08",
+                    ContactEmail = "vopros@rus.garden",
+                };
+
                 return View(viewModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Произошла ошибка при получении всех товаров. Home/Index");
+                _logger.LogError(ex, "Произошла ошибка при получении данных главной страницы. Home/Index");
                 return View("Error");
             }
         }
 
-        public async Task<IActionResult> Search(string query)
+        public async Task<IActionResult> Search(string? query)
         {
-            _logger.LogInformation($"Поиск товаров по параметру поиска");
-            var products = await _productStorage.SearchAsync(query);
             try
             {
-                return View(products.ToProductsViewModels());
+                _logger.LogInformation("Поиск товаров по запросу {Query}", query);
+                var products = await _productStorage.SearchAsync(query);
+                var categories = await _categoryStorages.GetAll();
+                ViewBag.Query = query;
+                return View(products.ToProductsViewModels().WithCategoryNames(categories));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Произошла ошибка при поиске товара. Home/Search");
+                _logger.LogError(ex, "Произошла ошибка при поиске товара. Home/Search");
                 return View("Error");
             }
+        }
+
+        public IActionResult Privacy()
+        {
+            return View();
+        }
+
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            var feature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
+            if (feature?.Error != null)
+            {
+                _logger.LogError(feature.Error, "Необработанное исключение на {Path}", feature.Path);
+            }
+
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        // Красивые страницы для 404/403 и прочих кодов ответа
+        [Route("Home/Status/{code:int}")]
+        public IActionResult Status(int code)
+        {
+            ViewData["StatusCode"] = code;
+            return code == StatusCodes.Status404NotFound ? View("NotFound") : View("Error");
         }
     }
 }

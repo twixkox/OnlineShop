@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
+﻿using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db;
@@ -8,6 +8,8 @@ using OnlineShop.Db.Storages;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Areas.Client.Models;
 using Serilog;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -55,6 +57,7 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromDays(30);
     options.LoginPath = "/Authorization/Index";
     options.LogoutPath = "/";
+    options.AccessDeniedPath = "/Home/Status/403";
     options.Cookie = new CookieBuilder
     {
         IsEssential = true,
@@ -101,8 +104,25 @@ using (var scope = app.Services.CreateScope())
         logger.LogError(ex, ex.Message);
     }
 }
-app.UseStaticFiles();
+// Цены выводятся через ToString("C"): без явной культуры на сервере с английской локалью
+// вместо рублей показывались доллары
+var ruCulture = new CultureInfo("ru-RU");
+app.UseRequestLocalization(new RequestLocalizationOptions
+{
+    DefaultRequestCulture = new RequestCulture(ruCulture),
+    SupportedCultures = new[] { ruCulture },
+    SupportedUICultures = new[] { ruCulture }
+});
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
+app.UseStatusCodePagesWithReExecute("/Home/Status/{0}");
+
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseSerilogRequestLogging();
 app.UseRouting();
 app.UseAuthentication();

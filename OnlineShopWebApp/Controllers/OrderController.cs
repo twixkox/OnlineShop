@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Client.Models;
@@ -7,6 +8,7 @@ using System.Security.Claims;
 
 namespace OnlineShopWebApp.Controllers
 {
+    [Authorize]
     public class OrderController : Controller
     {
         private readonly ICartsStorages _cartsStorages;
@@ -18,61 +20,80 @@ namespace OnlineShopWebApp.Controllers
             _orderStorages = orderStorages;
             _logger = logger;
         }
+
+        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
         public async Task<IActionResult> Index()
         {
-            _logger.LogInformation($"Получение Id пользователя");
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation($"Получение корзины пользователя с Id - {userId}");
-            var cartDb = await _cartsStorages.TryGetByUserIdAsync(userId);
             try
             {
-                var cartViewModel = cartDb.ToCartViewModel();
-                var productCounts = cartViewModel?.Items.Count ?? 0;
-                var existingOrder = new OrderViewModel
+                _logger.LogInformation("Получение корзины пользователя для оформления заказа");
+                var cartViewModel = (await _cartsStorages.TryGetByUserIdAsync(UserId)).ToCartViewModel();
+
+                // Раньше пустая корзина приводила к NullReferenceException и странице ошибки
+                if (cartViewModel == null || cartViewModel.Items.Count == 0)
+                {
+                    TempData["InfoMessage"] = "Корзина пуста — добавьте товары, чтобы оформить заказ";
+                    return RedirectToAction("Index", "Cart");
+                }
+
+                var order = new OrderViewModel
                 {
                     Items = cartViewModel.Items,
                 };
 
-                return View(existingOrder);
+                return View(order);
             }
-           catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex,$"Произошла ошибка при получении корзины пользователя Id - {userId}. Oderd/Index");
+                _logger.LogError(ex, "Произошла ошибка при получении корзины пользователя. Order/Index");
                 return View("Error");
             }
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Buy(OrderViewModel orders)
         {
-            _logger.LogInformation($"Получение Id пользователя");
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation($"Получение корзины пользователя с Id - {userId}");
-            var cart = await _cartsStorages.TryGetByUserIdAsync(userId);
             try
             {
+                var cart = await _cartsStorages.TryGetByUserIdAsync(UserId);
+
+                if (cart == null || cart.Items.Count == 0)
+                {
+                    TempData["InfoMessage"] = "Корзина пуста — добавьте товары, чтобы оформить заказ";
+                    return RedirectToAction("Index", "Cart");
+                }
+
+                if (!ModelState.IsValid)
+                {
+                    orders.Items = cart.ToCartViewModel().Items;
+                    return View("Index", orders);
+                }
+
                 var order = new Order
                 {
-                    DeliveryUserInfo = Mapping.ToDeliveryUserInfo(orders.DeliveryUserInfo),
+                    DeliveryUserInfo = orders.DeliveryUserInfo.ToDeliveryUserInfo(),
                     Items = cart.Items,
-                    UserId = userId
+                    UserId = UserId
                 };
 
-                if (!ModelState.IsValid) return View("Index", order.ToOrderViewModel());
-
                 await _orderStorages.AddAsync(order);
+                await _cartsStorages.ClearAsync(UserId);
 
-                await _cartsStorages.ClearAsync(userId);
-                return RedirectToAction("OrderSuccess");
+                TempData["OrderId"] = order.Id.ToString();
+                return RedirectToAction(nameof(OrderSuccess));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex, $"Произошла ошибка при оформлении заказа. Order/Buy");
+                _logger.LogError(ex, "Произошла ошибка при оформлении заказа. Order/Buy");
                 return View("Error");
             }
         }
+
         public IActionResult OrderSuccess()
         {
+            ViewData["OrderId"] = TempData["OrderId"];
             return View();
         }
     }

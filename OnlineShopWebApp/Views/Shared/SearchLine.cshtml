@@ -1,6 +1,6 @@
-﻿<div class="row justify-content-end">
-    <form asp-controller="Home" asp-action="Search" class="d-flex w40" method="get">
-        <input class="form-control m-1" type="search" placeholder="Поиск..." name="query">
-        <button class="btn btn-outline-success" type="submit" value="search">Искать</button>
-    </form>
-</div>
+<form asp-area="" asp-controller="Home" asp-action="Search" method="get" class="search-pill flex-grow-1" role="search">
+    <i class="bi bi-search"></i>
+    <input class="form-control" type="search" name="query" value="@Context.Request.Query["query"]"
+           placeholder="Найти растение, например «туя»" aria-label="Поиск по магазину" autocomplete="off">
+    <button type="submit" aria-label="Искать"><i class="bi bi-arrow-right"></i></button>
+</form>

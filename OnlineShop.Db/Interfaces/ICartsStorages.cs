@@ -8,5 +8,6 @@ namespace OnlineShop.Db.Interfaces
         Task<Cart> TryGetByUserIdAsync(string userId);
         Task ClearAsync(string userId);
         Task SubtractAsync(Guid productId, string UserId);
+        Task RemoveAsync(Guid productId, string userId);
     }
 }

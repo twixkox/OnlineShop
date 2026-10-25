@@ -1,133 +1,211 @@
-﻿
-@model HomeViewModel
+﻿@model HomeViewModel
 @{
     ViewData["Title"] = "Главная";
+    var categories = Model.MainCategories ?? new();
+    var products = (Model.FeaturedProducts ?? new()).ToProductsViewModels().WithCategoryNames(categories);
+    var featured = products.Take(8).ToList();
+    var minPrice = products.Any() ? products.Min(p => p.Cost) : 0;
 }
 
-
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <div class="card shadow-sm mb-5">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-info-circle text-success me-2"></i>
-                        О нашем питомнике
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted" style="line-height: 1.8;">
-                        RusGarden — это питомник растений, где Вы можете приобрести качественный посадочный материал для Вашего сада. Мы предлагаем плодовые и декоративные деревья и кустарники, цветы многолетние и однолетние, знаем, какие из них лучше ведут себя в нашем регионе и будут долго радовать Вас на дачном участке. Вы также можете купить у нас сопутствующие товары: удобрения, грунт, мульчу из коры сосны и лиственницы, газонную траву, садовый инструмент и элементы декора.
-
-                        Кроме продажи растений, мы с удовольствием проконсультируем Вас по дизайну и посадке, лично приедем и поможем Вам оформить свой сад, расскажем, как правильно высаживать, формировать растения и ухаживать за ними. Мы предлагаем продукцию как для садоводов-любителей, так и для профессионалов, доставляем купленные растения по доступным ценам, занимаемся ландшафтным дизайном (в том числе проектированием и 3д-визуализацией), озеленением террас и фито-дизайном интерьеров. Наши сотрудники постоянно повышают квалификацию, участвуя в различных семинарах и мастер-классах ведущих специалистов России и Европы, посещая международные форумы и выставки.                    </p>
-                </div>
+<!-- Hero -->
+<section class="hero mb-5">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-7">
+            <div class="hero-badge" data-anim style="--d:.05s">
+                <span class="dot"><i class="bi bi-stars"></i></span>
+                Новый сезон посадок уже открыт
+            </div>
+            <h1 data-anim style="--d:.15s">
+                Сад, который радует
+                <span class="accent">круглый год<svg viewBox="0 0 300 20" preserveAspectRatio="none" aria-hidden="true"><path d="M2 14 C 80 2, 220 2, 298 12" stroke="#c8693f" stroke-width="5" fill="none" stroke-linecap="round" /></svg></span>
+            </h1>
+            <p class="hero-lead" data-anim style="--d:.25s">@Model.HeroSubtitle</p>
+            <div class="d-flex flex-wrap gap-3" data-anim style="--d:.35s">
+                <a asp-controller="Catalog" asp-action="AllProducts" class="btn btn-accent btn-lg px-4">
+                    Перейти в каталог <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+                <a href="#categories" class="btn btn-lg px-4" style="color:#fff; border:1.5px solid rgba(255,255,255,.35); border-radius:14px;">
+                    Категории
+                </a>
+            </div>
+            <div class="hero-stats" data-anim style="--d:.45s">
+                <div><strong data-count-to="@products.Count">@products.Count</strong><span>растений и товаров</span></div>
+                <div><strong data-count-to="@categories.Count">@categories.Count</strong><span>категорий</span></div>
+                <div><strong>7/7</strong><span>работаем без выходных</span></div>
+            </div>
+        </div>
+        <div class="col-lg-5 d-none d-md-block" data-anim style="--d:.3s">
+            <div class="hero-art" aria-hidden="true">
+                <div class="ring r2"></div>
+                <div class="ring"></div>
+                <img src="/img/plant-placeholder.svg" alt="" class="plant" style="border-radius: 50%; object-fit: cover; mix-blend-mode: normal; clip-path: circle(50%);">
+                <div class="floating f1"><i class="bi bi-flower1"></i></div>
+                <div class="floating f2"><i class="bi bi-sun"></i></div>
+                <div class="floating f3"><i class="bi bi-droplet"></i></div>
+                @if (products.Any())
+                {
+                    <div class="price-tag">
+                        <div class="text-muted small">Цены от</div>
+                        <strong>@minPrice.ToString("C0")</strong>
+                    </div>
+                }
             </div>
         </div>
     </div>
+</section>
 
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <div class="card shadow-sm mb-5">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
-                        Наши растения
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row g-4">
-                        @foreach (var category in Model.MainCategories)
+<!-- Преимущества -->
+<section class="mb-5 pb-2">
+    <div class="row g-3 g-lg-4" data-stagger=".08">
+        <div class="col-sm-6 col-lg-3">
+            <div class="feature">
+                <div class="feature-ico"><i class="bi bi-geo-alt"></i></div>
+                <div><h6>Для нашего климата</h6><p>Подбираем растения, которые хорошо приживаются в регионе</p></div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="feature">
+                <div class="feature-ico"><i class="bi bi-truck"></i></div>
+                <div><h6>Доставка до участка</h6><p>Привезём заказ в удобный день по доступной цене</p></div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="feature">
+                <div class="feature-ico"><i class="bi bi-chat-heart"></i></div>
+                <div><h6>Консультации</h6><p>Подскажем, как посадить и ухаживать за растениями</p></div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-lg-3">
+            <div class="feature">
+                <div class="feature-ico"><i class="bi bi-pencil-square"></i></div>
+                <div><h6>Ландшафтный дизайн</h6><p>Проект, 3D-визуализация и озеленение под ключ</p></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Категории -->
+@if (categories.Any())
+{
+    <section id="categories" class="mb-5 pb-2" style="scroll-margin-top: 100px;">
+        <div class="section-title" data-reveal>
+            <div>
+                <div class="eyebrow">Каталог</div>
+                <h2>Наши растения</h2>
+            </div>
+            <a asp-controller="Catalog" asp-action="AllProducts" class="link-arrow">Все товары <i class="bi bi-arrow-right"></i></a>
+        </div>
+        @{
+            // Сетка «бенто»: первая категория крупная, хвост последнего ряда растягиваем без пустых ячеек
+            var rest = Math.Max(0, categories.Count - 5) % 4;
+        }
+        <div class="cat-grid" data-stagger=".07">
+            @for (var i = 0; i < categories.Count; i++)
+            {
+                var category = categories[i];
+                var hasPhoto = !UiHelper.IsPlaceholder(category.PhotoPath);
+                var fromEnd = categories.Count - i;
+                var span = i == 0 ? "is-big"
+                    : categories.Count > 5 && rest == 1 && fromEnd == 1 ? "span-4"
+                    : categories.Count > 5 && rest == 2 && fromEnd <= 2 ? "span-2"
+                    : categories.Count > 5 && rest == 3 && fromEnd == 1 ? "span-2"
+                    : "";
+                <div class="@span">
+                    <a class="category-card" style="--tint: @UiHelper.Tint(category.Id)"
+                       asp-controller="Catalog" asp-action="CurrentCategory"
+                       asp-route-identityUrl="@category.IdentityUrl" asp-route-categoryId="@category.Id">
+                        @if (hasPhoto)
                         {
-                            <div class="col-md-3 col-6">
-                                <a asp-controller="Catalog" asp-action="CurrentCategory"
-                                       asp-route-identityUrl="@category.IdentityUrl"
-                                       asp-route-categoryId="@category.Id"
-                                       class="text-decoration-none text-dark">
-                                    <div class="card h-100 shadow-sm">
-                                        <img src="/@category.PhotoPath" class="card-img-top" alt="@category.Name"
-                                             style="height: 300px; object-fit: cover;">
-                                        <div class="card-body">
-                                            <h5 class="card-title text-success">@category.Name</h5>
-                                            <p class="card-text small text-muted">@category.Description</p>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
+                            <img src="@UiHelper.ImageUrl(category.PhotoPath)" alt="@category.Name" loading="lazy">
                         }
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @if (Model.FeaturedProducts.Any())
-    {
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <div class="card shadow-sm mb-5">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-star-fill text-success me-2"></i>
-                            Популярные товары
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-4">
-                            @foreach (var product in Model.FeaturedProducts.Take(4))
+                        else
+                        {
+                            <span class="cat-art"><i class="bi @UiHelper.CategoryIcon(category.IdentityUrl)"></i></span>
+                        }
+                        <span class="go"><i class="bi bi-arrow-right"></i></span>
+                        <div class="cat-body">
+                            <h3>@category.Name</h3>
+                            @if (!string.IsNullOrEmpty(category.Description))
                             {
-                                <div class="col-md-3 col-6">
-                                    <div class="card h-100 shadow-sm">
-                                        <img src="@product.ThumbnailPath" class="card-img-top" alt="@product.Name"
-                                             style="height: 300px; object-fit: cover;">
-                                        <div class="card-body">
-                                            <h5 class="card-title">@product.Name</h5>
-                                            <p class="card-text text-success fw-bold">@product.Cost.ToString("C")</p>
-                                        </div>
-                                        <div class="card-footer bg-white border-0">
-                                            <a asp-controller="Product" asp-action="Index" asp-route-id="@product.Id"
-                                                   class="btn btn-outline-success w-100">
-                                                <i class="bi bi-eye me-1"></i>Подробнее
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
+                                <p>@category.Description</p>
                             }
                         </div>
-                    </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<!-- Популярные товары -->
+@if (featured.Any())
+{
+    <section class="mb-5 pb-2">
+        <div class="section-title" data-reveal>
+            <div>
+                <div class="eyebrow">Выбор покупателей</div>
+                <h2>Популярные товары</h2>
+            </div>
+            <a asp-controller="Catalog" asp-action="AllProducts" class="link-arrow">Смотреть все <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <partial name="_ProductGrid" model="featured" />
+    </section>
+}
+
+<!-- О питомнике -->
+<section class="surface surface-pad mb-5" data-reveal>
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-6">
+            <div class="eyebrow">О питомнике</div>
+            <h2 class="mb-3">Растим с любовью — продаём с заботой</h2>
+            <p class="text-muted" style="line-height:1.8">
+                PlantShop — питомник, где можно купить качественный посадочный материал для сада: плодовые и декоративные
+                деревья и кустарники, многолетние и однолетние цветы. Мы знаем, какие растения лучше всего чувствуют себя
+                в нашем регионе и будут долго радовать вас на участке.
+            </p>
+            <p class="text-muted mb-0" style="line-height:1.8">
+                Помимо растений — удобрения, грунт, мульча из коры, газонная трава, садовый инструмент и декор.
+                Наши специалисты регулярно учатся на семинарах и выставках в России и Европе, чтобы советовать только проверенное.
+            </p>
+        </div>
+        <div class="col-lg-6">
+            <ul class="info-list">
+                <li><i class="bi bi-check2-circle"></i>Посадочный материал для любителей и профессионалов</li>
+                <li><i class="bi bi-house-heart"></i>Выезд специалиста и помощь в оформлении сада</li>
+                <li><i class="bi bi-flower3"></i>Озеленение террас и фитодизайн интерьеров</li>
+                <li><i class="bi bi-box-seam"></i>Аккуратная упаковка и доставка в выбранный день</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<!-- Контакты -->
+<section class="mb-2">
+    <div class="row g-3 g-lg-4" data-stagger=".08">
+        <div class="col-md-4">
+            <div class="contact-tile">
+                <div class="feature-ico"><i class="bi bi-clock"></i></div>
+                <div><div class="text-muted small">Режим работы</div><strong>@Model.WorkHours</strong></div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="contact-tile">
+                <div class="feature-ico"><i class="bi bi-geo-alt"></i></div>
+                <div>
+                    <div class="text-muted small">Адрес · есть парковка</div>
+                    <a href="https://yandex.ru/maps/-/CPR7n2-C" target="_blank" rel="noopener">@Model.Address <i class="bi bi-box-arrow-up-right small"></i></a>
                 </div>
             </div>
         </div>
-    }
-
-    <div class="row justify-content-center">
-        <div class="col-12">
-            <div class="card shadow-sm mb-5">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-geo-alt-fill text-success me-2"></i>
-                        Как нас найти
-                    </h5>
-                </div>
-                <div class="card-body">
-                    <div class="row text-center">
-                        <div class="col-md-4">
-                            <i class="bi bi-clock fs-2 text-success"></i>
-                            <h5 class="mt-2">Режим работы</h5>
-                            <p class="text-muted">ежедневно 10:00 — 19:00</p>
-                        </div>
-                        <div class="col-md-4">
-                            <i class="bi bi-geo-alt fs-2 text-success"></i>
-                            <h5 class="mt-2">Адрес</h5>
-                            <a href="https://yandex.ru/maps/-/CPR7n2-C" <p"text-muted">пос. Сосново, ул. Садовая, 1</p><br>Есть парковка </a>
-                        </div>
-                        <div class="col-md-4">
-                            <i class="bi bi-telephone fs-2 text-success"></i>
-                            <h5 class="mt-2">Контакты</h5>
-                            <p class="text-muted">+7 (812) 925-05-08<br>vopros@rus.garden</p>
-                        </div>
-                    </div>
+        <div class="col-md-4">
+            <div class="contact-tile">
+                <div class="feature-ico"><i class="bi bi-telephone"></i></div>
+                <div>
+                    <div class="text-muted small">Звоните или пишите</div>
+                    <a href="tel:+78129250508">@Model.ContactPhone</a><br>
+                    <a href="mailto:@Model.ContactEmail" class="small fw-semibold">@Model.ContactEmail</a>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>

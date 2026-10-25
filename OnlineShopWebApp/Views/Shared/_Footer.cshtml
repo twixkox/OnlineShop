@@ -1,0 +1,51 @@
+<footer class="site-footer">
+    <div class="container">
+        <div class="row g-4 g-lg-5">
+            <div class="col-lg-4">
+                <a class="brand mb-3" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="brand-mark"><i class="bi bi-flower1"></i></span>
+                    <span>Plant<em>Shop</em></span>
+                </a>
+                <p class="mt-3 mb-4" style="max-width: 22rem;">
+                    Питомник растений в Ленинградской области. Выращиваем саженцы, которые приживаются
+                    в нашем климате, и помогаем сделать сад красивым.
+                </p>
+                <div class="social d-flex gap-2">
+                    <a href="https://t.me/twixkox" target="_blank" rel="noopener" aria-label="Telegram"><i class="bi bi-telegram"></i></a>
+                    <a href="mailto:vopros@rus.garden" aria-label="Email"><i class="bi bi-envelope"></i></a>
+                    <a href="tel:+78129250508" aria-label="Телефон"><i class="bi bi-telephone"></i></a>
+                </div>
+            </div>
+            <div class="col-6 col-lg-2">
+                <h6>Магазин</h6>
+                <ul>
+                    <li><a asp-area="" asp-controller="Catalog" asp-action="AllProducts">Каталог</a></li>
+                    <li><a asp-area="" asp-controller="Cart" asp-action="Index">Корзина</a></li>
+                    <li><a asp-area="" asp-controller="Favorite" asp-action="Index">Избранное</a></li>
+                    <li><a asp-area="" asp-controller="Profile" asp-action="UserOrder">Мои заказы</a></li>
+                </ul>
+            </div>
+            <div class="col-6 col-lg-2">
+                <h6>Покупателям</h6>
+                <ul>
+                    <li><a asp-area="" asp-controller="Contacts" asp-action="Index">Контакты</a></li>
+                    <li><a asp-area="" asp-controller="Contacts" asp-action="Index" asp-fragment="delivery">Доставка</a></li>
+                    <li><a asp-area="" asp-controller="Home" asp-action="Privacy">Конфиденциальность</a></li>
+                </ul>
+            </div>
+            <div class="col-lg-4">
+                <h6>Связаться с нами</h6>
+                <ul>
+                    <li class="contact-line"><i class="bi bi-geo-alt"></i><span>Ленинградская обл., пос. Сосново, ул. Садовая, 1</span></li>
+                    <li class="contact-line"><i class="bi bi-telephone"></i><a href="tel:+78129250508">+7 (812) 925-05-08</a></li>
+                    <li class="contact-line"><i class="bi bi-envelope"></i><a href="mailto:vopros@rus.garden">vopros@rus.garden</a></li>
+                    <li class="contact-line"><i class="bi bi-clock"></i><span>Ежедневно 10:00 — 19:00</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom d-flex flex-wrap justify-content-between gap-2">
+            <span>&copy; @DateTime.Now.Year PlantShop. Все права защищены.</span>
+            <span>Сделано с <i class="bi bi-heart-fill" style="color: var(--ps-terracotta)"></i> к растениям</span>
+        </div>
+    </div>
+</footer>
