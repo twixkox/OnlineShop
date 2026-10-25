@@ -1,0 +1,53 @@
+@using OnlineShop.Db.Models
+@model OnlineShopWebApp.Areas.Client.Models.ProductViewModel
+
+<div class="admin-fieldset mb-4">
+    <h6 class="fw-bold text-success mb-3"><i class="bi bi-flower1 me-2"></i>Наличие и характеристики</h6>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <label class="form-label" asp-for="Stock"></label>
+            <input class="form-control" asp-for="Stock" type="number" min="0" step="1" />
+            <span asp-validation-for="Stock" class="text-danger small"></span>
+            <div class="form-text">0 — «нет в наличии»</div>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" asp-for="Height"></label>
+            <input class="form-control" asp-for="Height" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" asp-for="FloweringPeriod"></label>
+            <input class="form-control" asp-for="FloweringPeriod" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" asp-for="Light"></label>
+            <select class="form-select" asp-for="Light">
+                <option value="">Не указано</option>
+                @foreach (var light in Enum.GetValues<LightRequirement>())
+                {
+                    <option value="@light" selected="@(Model.Light == light)">@UiHelper.LightName(light)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" asp-for="Watering"></label>
+            <select class="form-select" asp-for="Watering">
+                <option value="">Не указано</option>
+                @foreach (var water in Enum.GetValues<WateringLevel>())
+                {
+                    <option value="@water" selected="@(Model.Watering == water)">@UiHelper.WateringName(water)</option>
+                }
+            </select>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label" asp-for="FrostZone"></label>
+            <select class="form-select" asp-for="FrostZone">
+                <option value="">Не указано</option>
+                @for (var z = 1; z <= 9; z++)
+                {
+                    <option value="@z" selected="@(Model.FrostZone == z)">@UiHelper.ZoneName(z)</option>
+                }
+            </select>
+            <span asp-validation-for="FrostZone" class="text-danger small"></span>
+        </div>
+    </div>
+</div>

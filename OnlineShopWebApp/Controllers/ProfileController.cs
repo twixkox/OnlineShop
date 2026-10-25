@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Admin.Intarfaces;
 using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
 using OnlineShopWebApp.Models;
@@ -17,9 +18,14 @@ namespace OnlineShopWebApp.Controllers
         private readonly IOrderStorages _orderStorages;
         private readonly UserManager<User> _user;
         private readonly SignInManager<User> _signInManager;
+        private readonly IFileStorageService _files;
+        private readonly OnlineShopWebApp.Services.IPaymentService _payments;
 
-        public ProfileController(ILogger<ProfileController> logger, IOrderStorages orderStorages, UserManager<User> user, SignInManager<User> signInManager)
+        public ProfileController(ILogger<ProfileController> logger, IOrderStorages orderStorages, UserManager<User> user, SignInManager<User> signInManager,
+            IFileStorageService files, OnlineShopWebApp.Services.IPaymentService payments)
         {
+            _files = files;
+            _payments = payments;
             _logger = logger;
             _orderStorages = orderStorages;
             _user = user;
@@ -86,6 +92,41 @@ namespace OnlineShopWebApp.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Avatar(IFormFile? avatar, bool remove = false)
+        {
+            var user = await _user.FindByIdAsync(UserId);
+            if (user == null) return RedirectToAction("Index", "Authorization");
+
+            try
+            {
+                if (remove)
+                {
+                    user.ProfileImage = _files.GetUserPhotoPath();
+                    TempData["InfoMessage"] = "Фото профиля удалено";
+                }
+                else if (avatar != null)
+                {
+                    user.ProfileImage = await _files.SaveAvatarAsync(avatar, user.Id);
+                    TempData["SuccessMessage"] = "Фото профиля обновлено";
+                }
+
+                await _user.UpdateAsync(user);
+            }
+            catch (ArgumentException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Не удалось сохранить аватар");
+                TempData["ErrorMessage"] = "Не удалось загрузить изображение — попробуйте другой файл";
+            }
+
+            return RedirectToAction(nameof(ProfileEdit));
+        }
+
         public async Task<IActionResult> UserOrder()
         {
             try
@@ -112,6 +153,16 @@ namespace OnlineShopWebApp.Controllers
 
                 // Пользователь может смотреть только свои заказы
                 if (order != null && order.UserId != UserId) order = null;
+
+                // Если покупатель вернулся без перехода с ЮKassa — обновим статус оплаты
+                if (order is { PaymentStatus: PaymentStatus.Pending } && !string.IsNullOrEmpty(order.PaymentId))
+                {
+                    var status = await _payments.GetPaymentStatusAsync(order.PaymentId);
+                    if (status == "succeeded") { order.PaymentStatus = PaymentStatus.Paid; await _orderStorages.UpdatePaymentAsync(order.Id, PaymentStatus.Paid); }
+                    if (status == "canceled") { order.PaymentStatus = PaymentStatus.Failed; await _orderStorages.UpdatePaymentAsync(order.Id, PaymentStatus.Failed); }
+                }
+
+                ViewBag.CanPay = _payments.IsEnabled;
 
                 return View(order?.ToOrderViewModel());
             }

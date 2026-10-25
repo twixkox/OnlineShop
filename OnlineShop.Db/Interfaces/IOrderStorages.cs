@@ -9,5 +9,7 @@ namespace OnlineShop.Db.Interfaces
         Task<Order> TryGetByIdAsync(Guid orderId);
         Task UpdateStatusAsync(Guid orderId, OrderStatus newStatus);
         Task<List<Order>> GetAllOrdersCurrentUser(string userId);
+        Task<Order?> TryGetByPaymentIdAsync(string paymentId);
+        Task UpdatePaymentAsync(Guid orderId, PaymentStatus status, string? paymentId = null);
     }
 }

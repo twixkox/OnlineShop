@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Корзина";
     var hasItems = Model != null && Model.Items.Count > 0;
+    var isGuest = User.Identity?.IsAuthenticated != true;
 }
 
 <section class="page-hero d-flex justify-content-between align-items-end">
@@ -67,7 +68,8 @@
                                     <i class="bi bi-dash-lg"></i>
                                 </a>
                                 <span class="val" data-qty>@item.Quantity</span>
-                                <a asp-controller="Cart" asp-action="Add" asp-route-productId="@item.Product.Id" data-cart-action aria-label="Увеличить">
+                                <a asp-controller="Cart" asp-action="Add" asp-route-productId="@item.Product.Id" data-cart-action aria-label="Увеличить"
+                                   class="@(item.Quantity >= item.Product.Stock ? "disabled" : "")" title="@(item.Quantity >= item.Product.Stock ? $"На складе {item.Product.Stock} шт." : "")">
                                     <i class="bi bi-plus-lg"></i>
                                 </a>
                             </div>
@@ -84,16 +86,46 @@
         <div class="col-lg-4">
             <aside class="surface surface-pad summary" data-reveal style="--d:.1s">
                 <h5 class="mb-3">Итого</h5>
-                <div class="summary-line"><span>Товары (<span data-cart-count>@Model.Quantity</span>)</span><span data-cart-total>@Model.TotalCost.ToString("C0")</span></div>
+                <div class="summary-line"><span>Товары (<span data-cart-count>@Model.Quantity</span>)</span><span data-cart-subtotal>@Model.Subtotal.ToString("C0")</span></div>
+                @if (!string.IsNullOrEmpty(Model.PromoCode))
+                {
+                    <div class="summary-line text-success">
+                        <span>Скидка @Model.Discount% <span class="promo-chip">@Model.PromoCode</span></span>
+                        <span data-cart-discount>−@Model.DiscountAmount.ToString("C0")</span>
+                    </div>
+                }
                 <div class="summary-line"><span>Доставка</span><span>рассчитает менеджер</span></div>
                 <div class="summary-total mb-4">
                     <span class="fw-bold">К оплате</span>
                     <span class="price" data-cart-total>@Model.TotalCost.ToString("C0")</span>
                 </div>
-                <a asp-controller="Order" asp-action="Index" class="btn btn-success btn-lg w-100">
-                    Оформить заказ <i class="bi bi-arrow-right ms-2"></i>
-                </a>
-                <p class="small text-muted text-center mt-3 mb-0"><i class="bi bi-shield-lock me-1"></i>Данные защищены</p>
+                @if (string.IsNullOrEmpty(Model.PromoCode))
+                {
+                    <form asp-controller="Cart" asp-action="ApplyPromo" method="post" class="promo-form mb-3" data-no-loader>
+                        <input type="text" name="code" class="form-control" placeholder="Промокод" aria-label="Промокод" autocomplete="off" required>
+                        <button type="submit" class="btn btn-outline-success">Применить</button>
+                    </form>
+                }
+                else
+                {
+                    <form asp-controller="Cart" asp-action="RemovePromo" method="post" class="mb-3 text-end" data-no-loader>
+                        <button type="submit" class="btn btn-link btn-sm text-muted p-0">Убрать промокод</button>
+                    </form>
+                }
+
+                @if (isGuest)
+                {
+                    <button type="button" class="btn btn-success btn-lg w-100" data-bs-toggle="modal" data-bs-target="#loginModal">
+                        Войти и оформить <i class="bi bi-arrow-right ms-2"></i>
+                    </button>
+                    <p class="small text-muted text-center mt-3 mb-0">Корзина сохранится после входа или регистрации</p>
+                }
+                else
+                {
+                    <a asp-controller="Order" asp-action="Index" class="btn btn-success btn-lg w-100">
+                        Оформить заказ <i class="bi bi-arrow-right ms-2"></i>
+                    </a>
+                }
             </aside>
         </div>
     </div>

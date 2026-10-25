@@ -1731,6 +1731,7 @@ main > .d-flex.bg-success.text-white h1 {
 }
 
 .status-badge {
+    white-space: nowrap;
     display: inline-flex;
     align-items: center;
     gap: .4rem;
@@ -2165,3 +2166,291 @@ main > .d-flex.bg-success.text-white h1 {
 .form-icon-field > .form-control:has(+ .pass-toggle) { padding-right: 3rem; }
 .min-w-0 { min-width: 0; }
 .breadcrumb-item + .breadcrumb-item::before { content: "›"; }
+
+/* =========================================================
+   Каталог: фильтры, пагинация
+   ========================================================= */
+
+.filter-panel { position: sticky; top: 100px; }
+.filter-group { padding-bottom: 1.1rem; margin-bottom: 1.1rem; border-bottom: 1px dashed var(--ps-line); }
+.filter-group:last-of-type { border-bottom: none; }
+.filter-panel .search-pill .form-control { padding-right: 1rem; }
+
+.filter-check {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .35rem 0;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: .95rem;
+}
+
+.filter-check .form-check-input { margin: 0; }
+.filter-check i { color: var(--ps-leaf); width: 1.1rem; text-align: center; }
+
+@media (max-width: 991.98px) {
+    .filter-panel { position: static; box-shadow: none; border: none; padding: 0 !important; }
+    .offcanvas-lg { --bs-offcanvas-width: min(360px, 90vw); }
+}
+
+.pagination-ps { gap: .35rem; }
+.pagination-ps .page-link {
+    border: 1px solid var(--ps-line);
+    border-radius: 12px !important;
+    min-width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    color: var(--ps-ink);
+    font-weight: 700;
+    background: #fff;
+    transition: all .25s var(--ps-ease);
+}
+.pagination-ps .page-link:hover { background: var(--ps-mint); color: var(--ps-forest); transform: translateY(-2px); }
+.pagination-ps .page-item.active .page-link { background: var(--ps-forest); border-color: var(--ps-forest); color: #fff; }
+.pagination-ps .page-item.disabled .page-link { background: transparent; opacity: .5; }
+
+/* =========================================================
+   Карточка товара: рейтинг, характеристики, наличие
+   ========================================================= */
+
+.rating-mini {
+    font-size: .8rem;
+    font-weight: 700;
+    color: var(--ps-ink);
+    white-space: nowrap;
+}
+.rating-mini i { color: #e0a030; }
+.rating-mini span { color: var(--ps-muted); font-weight: 500; }
+
+.product-traits {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+    margin-bottom: 1rem;
+}
+
+.product-traits span {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    background: var(--ps-cream);
+    color: var(--ps-muted);
+    font-size: .76rem;
+    font-weight: 600;
+}
+
+.product-traits i { color: var(--ps-leaf); }
+
+.product-tag.is-muted { background: var(--ps-ink); }
+.product-card.is-out .product-media img { filter: grayscale(.6) opacity(.75); }
+.cart-btn.is-disabled { background: #e7e4dc; color: var(--ps-muted); cursor: not-allowed; }
+.cart-btn.is-disabled:hover { transform: none; box-shadow: none; background: #e7e4dc; color: var(--ps-muted); }
+.qty a.disabled { opacity: .35; pointer-events: none; }
+
+/* =========================================================
+   Страница товара: рейтинг, характеристики, отзывы
+   ========================================================= */
+
+.stars { color: #e0a030; white-space: nowrap; letter-spacing: 1px; }
+
+.rating-line {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    color: var(--ps-ink);
+    text-decoration: none;
+}
+.rating-line > span:last-child { color: var(--ps-muted); }
+.rating-line:hover > span:last-child { color: var(--ps-forest-2); text-decoration: underline; }
+.breadcrumb a { text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+
+.traits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: .75rem;
+}
+
+.trait {
+    display: flex;
+    gap: .75rem;
+    align-items: center;
+    padding: .8rem 1rem;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid var(--ps-line);
+    transition: transform .3s var(--ps-ease), box-shadow .3s ease;
+}
+.trait:hover { transform: translateY(-2px); box-shadow: var(--ps-shadow-sm); }
+.trait > i {
+    width: 38px; height: 38px; border-radius: 12px; flex-shrink: 0;
+    display: grid; place-items: center;
+    background: var(--ps-mint); color: var(--ps-forest-2); font-size: 1.1rem;
+}
+.trait span { display: block; font-size: .76rem; color: var(--ps-muted); }
+.trait strong { font-size: .92rem; }
+
+.star-input {
+    display: inline-flex;
+    flex-direction: row-reverse;
+    gap: .15rem;
+    font-size: 1.9rem;
+}
+.star-input input { position: absolute; opacity: 0; pointer-events: none; }
+.star-input label { cursor: pointer; color: #ddd6c6; transition: color .15s ease, transform .2s var(--ps-ease); }
+.star-input label:hover,
+.star-input label:hover ~ label,
+.star-input input:checked ~ label { color: #e0a030; }
+.star-input label:hover { transform: scale(1.15); }
+.star-input input:focus-visible + label { outline: 2px solid var(--ps-leaf); border-radius: 6px; }
+
+.review-card {
+    padding: 1.2rem 1.3rem;
+    border-radius: var(--ps-radius);
+    background: #fff;
+    border: 1px solid var(--ps-line);
+}
+.review-card p { color: var(--ps-ink); line-height: 1.65; }
+
+.review-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--ps-mint); color: var(--ps-forest);
+    font-weight: 800;
+}
+
+/* =========================================================
+   Корзина и оформление: промокод, способ оплаты
+   ========================================================= */
+
+.promo-form { display: flex; gap: .5rem; }
+.promo-form .form-control { text-transform: uppercase; }
+.promo-form .form-control::placeholder { text-transform: none; }
+
+.promo-chip {
+    display: inline-block;
+    padding: .1rem .5rem;
+    border-radius: 8px;
+    border: 1.5px dashed currentColor;
+    font-size: .78rem;
+    font-weight: 800;
+    letter-spacing: .04em;
+    color: var(--ps-terracotta);
+}
+
+.pay-options { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: .75rem; }
+.pay-option { position: relative; cursor: pointer; margin: 0; }
+.pay-option input { position: absolute; opacity: 0; }
+.pay-option > span {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: .75rem;
+    align-items: center;
+    padding: 1rem 1.1rem;
+    border-radius: 16px;
+    border: 1.5px solid var(--ps-line);
+    background: #fff;
+    transition: border-color .2s ease, box-shadow .2s ease, background .2s ease;
+}
+.pay-option i { grid-row: span 2; font-size: 1.5rem; color: var(--ps-leaf); }
+.pay-option small { color: var(--ps-muted); }
+.pay-option input:checked + span { border-color: var(--ps-forest-2); background: var(--ps-mint); box-shadow: 0 0 0 4px rgba(64, 145, 108, .12); }
+.pay-option input:focus-visible + span { outline: 2px solid var(--ps-leaf); }
+.pay-option.is-disabled { cursor: not-allowed; opacity: .55; }
+
+/* =========================================================
+   Профиль: аватар
+   ========================================================= */
+
+.avatar-block { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; }
+.avatar-lg {
+    width: 96px; height: 96px; border-radius: 50%; object-fit: cover;
+    border: 3px solid #fff; box-shadow: 0 0 0 2px var(--ps-leaf), var(--ps-shadow);
+}
+
+/* =========================================================
+   Админка: сводка
+   ========================================================= */
+
+.segmented-light { background: rgba(255, 255, 255, .15); }
+.segmented a {
+    border-radius: 10px;
+    padding: .45rem .85rem;
+    font-weight: 700;
+    font-size: .86rem;
+    color: inherit;
+    text-decoration: none;
+    opacity: .85;
+}
+.segmented-light a { color: #fff; }
+.segmented a.active { background: #fff; color: var(--ps-forest); opacity: 1; box-shadow: var(--ps-shadow-sm); }
+
+.kpi {
+    height: 100%;
+    padding: 1.3rem 1.4rem;
+    border-radius: var(--ps-radius);
+    background: #fff;
+    border: 1px solid var(--ps-line);
+    display: flex;
+    flex-direction: column;
+    gap: .3rem;
+}
+.kpi-label { color: var(--ps-muted); font-weight: 600; font-size: .88rem; display: flex; gap: .45rem; align-items: center; }
+.kpi-label i { color: var(--ps-leaf); }
+.kpi strong { font-family: var(--ps-font-display); font-size: clamp(1.5rem, 2.6vw, 2.1rem); line-height: 1.15; }
+.kpi-change { font-size: .8rem; font-weight: 700; }
+.kpi-change.up { color: var(--ps-forest-2); }
+.kpi-change.down { color: var(--ps-danger); }
+
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 240px;
+    padding-bottom: 1.4rem;
+}
+.bar-col { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; position: relative; min-width: 0; }
+.bar {
+    height: max(var(--h), 2px);
+    border-radius: 6px 6px 2px 2px;
+    background: linear-gradient(180deg, var(--ps-leaf-light), var(--ps-forest-2));
+    transform-origin: bottom;
+    animation: grow-y .8s var(--ps-ease) both;
+    animation-delay: var(--d, 0s);
+    transition: filter .2s ease;
+}
+.bar-col:hover .bar { filter: brightness(1.15) saturate(1.2); }
+.bar-label { position: absolute; bottom: -1.35rem; left: 50%; transform: translateX(-50%); font-size: .7rem; color: var(--ps-muted); white-space: nowrap; }
+@keyframes grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+.status-row { margin-bottom: 1rem; }
+.status-row .progress { background: var(--ps-cream); }
+.status-row .progress-bar { background: var(--ps-leaf); transition: width 1s var(--ps-ease); }
+
+.dash-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .65rem .2rem;
+    border-bottom: 1px solid var(--ps-line);
+    color: var(--ps-ink);
+    text-decoration: none;
+    min-width: 0;
+}
+.dash-row:last-child { border-bottom: none; }
+.dash-row:hover { color: var(--ps-forest-2); }
+
+.top-list { padding-left: 1.1rem; margin: 0; display: grid; gap: .6rem; }
+.top-list li { font-weight: 600; }
+.top-list span { display: block; }
+.top-list small { color: var(--ps-muted); font-weight: 500; }
+
+.admin-fieldset {
+    padding: 1.25rem;
+    border-radius: var(--ps-radius);
+    background: var(--ps-cream);
+}

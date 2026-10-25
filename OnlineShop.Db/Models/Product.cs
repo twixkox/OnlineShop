@@ -1,4 +1,4 @@
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 
 namespace OnlineShop.Db.Models
@@ -28,6 +28,24 @@ namespace OnlineShop.Db.Models
         public List<Favorite> Favorite { get; set; }
 
         public Category? Category { get; set; }
+
+        /// <summary>Количество на складе</summary>
+        public int Stock { get; set; } = 10;
+
+        /// <summary>Высота взрослого растения, например «до 3 м»</summary>
+        public string? Height { get; set; }
+
+        /// <summary>Зона морозостойкости USDA (чем меньше — тем морозостойче)</summary>
+        public int? FrostZone { get; set; }
+
+        public LightRequirement? Light { get; set; }
+
+        public WateringLevel? Watering { get; set; }
+
+        /// <summary>Период цветения или плодоношения, например «июнь–июль»</summary>
+        public string? FloweringPeriod { get; set; }
+
+        public List<Review> Reviews { get; set; } = new();
     }
 }
 

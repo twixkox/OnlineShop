@@ -1,6 +1,7 @@
-﻿@{
+@{
     ViewData["Title"] = "Заказ оформлен";
     var orderId = ViewData["OrderId"] as string;
+    var paid = ViewData["Paid"] is true;
 }
 
 <div class="steps justify-content-center mt-2" data-reveal>
@@ -19,7 +20,7 @@
                 <path d="M36 62 L53 78 L86 44" />
             </svg>
             <h1 class="mb-3">Спасибо за заказ!</h1>
-            <p class="text-muted mb-1" style="font-size:1.05rem;">Мы получили ваш заказ и скоро свяжемся для подтверждения доставки.</p>
+            <p class="text-muted mb-1" style="font-size:1.05rem;">@(paid ? "Оплата прошла успешно. " : "")Мы получили ваш заказ и скоро свяжемся для подтверждения доставки. Подтверждение придёт на почту.</p>
             @if (!string.IsNullOrEmpty(orderId))
             {
                 <p class="text-muted small mb-4">Номер заказа: <strong class="text-body">@orderId[..8].ToUpperInvariant()</strong></p>

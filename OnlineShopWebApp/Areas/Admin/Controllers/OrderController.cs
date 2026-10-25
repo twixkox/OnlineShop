@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Helpers;
+using OnlineShopWebApp.Services;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
 {
@@ -12,8 +13,10 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
     {
         private readonly IOrderStorages _orders;
         private readonly ILogger<OrderController> _logger;
-        public OrderController(IOrderStorages orders, ILogger<OrderController> logger)
+        private readonly OrderNotificationService _notifications;
+        public OrderController(IOrderStorages orders, OrderNotificationService notifications, ILogger<OrderController> logger)
         {
+            _notifications = notifications;
             _orders = orders;
             _logger = logger;
         }
@@ -25,7 +28,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             {
                 _logger.LogInformation($"Получение списка заказов. Всего {orders.Count} заказов.");
 
-                return View(orders.ToOrdersViewModels());
+                return View(orders.OrderByDescending(o => o.CreationDateOrder).ToList().ToOrdersViewModels());
             }
             catch (Exception ex)
             {
@@ -52,10 +55,26 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateOrderStatus(Guid orderId, OrderStatus status)
         {
-            await _orders.UpdateStatusAsync(orderId, status);
             try
             {
+                var before = await _orders.TryGetByIdAsync(orderId);
+                if (before == null) return NotFound();
+                var changed = before.Status != status;
+
+                await _orders.UpdateStatusAsync(orderId, status);
                 _logger.LogInformation("Обновление статуса заказа Id - {Id} выполнено", orderId);
+
+                // Покупатель получает письмо о новом статусе
+                if (changed)
+                {
+                    before.Status = status;
+                    var url = Url.Action("DetailOrder", "Profile", new { area = "", orderId }, Request.Scheme) ?? "";
+                    await _notifications.StatusChangedAsync(before, url);
+                }
+
+                TempData["SuccessMessage"] = changed
+                    ? $"Статус заказа № {OrderNotificationService.Number(before)}: {OrderNotificationService.StatusName(status).ToLower()}"
+                    : "Статус не изменился";
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)

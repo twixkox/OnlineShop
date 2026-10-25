@@ -2,7 +2,9 @@
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Intarfaces;
+using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Areas.Client.Models;
+using OnlineShopWebApp.Services;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -12,8 +14,13 @@ namespace OnlineShopWebApp.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly ILogger<RegistrationController> _logger;
         private readonly IFileStorageService _fileStorageService;
-        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<RegistrationController> logger, IFileStorageService fileStorageService)
+        private readonly ICartsStorages _carts;
+        private readonly ICartOwnerProvider _cartOwner;
+        public RegistrationController(UserManager<User> userManager, SignInManager<User> signInManager, ILogger<RegistrationController> logger,
+            IFileStorageService fileStorageService, ICartsStorages carts, ICartOwnerProvider cartOwner)
         {
+            _carts = carts;
+            _cartOwner = cartOwner;
             _fileStorageService = fileStorageService;
             _logger = logger;
             _userManager = userManager;
@@ -78,6 +85,14 @@ namespace OnlineShopWebApp.Controllers
                 await _userManager.AddToRoleAsync(currentUser, Constants.UserRoleName);
 
                 await _signInManager.SignInAsync(currentUser, isPersistent: true);
+
+                // Товары, которые гость успел положить в корзину, остаются у него после регистрации
+                var guestId = _cartOwner.GetGuestOwnerId();
+                if (guestId != null)
+                {
+                    await _carts.MergeAsync(guestId, currentUser.Id);
+                    _cartOwner.ForgetGuest();
+                }
 
                 TempData["SuccessMessage"] = $"Добро пожаловать, {currentUser.FirstName}! Аккаунт создан";
                 return RedirectToAction("Index", "Home");

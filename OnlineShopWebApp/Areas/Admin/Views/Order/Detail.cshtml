@@ -1,4 +1,4 @@
-﻿@using OnlineShopWebApp.Areas.Client.Models
+@using OnlineShopWebApp.Areas.Client.Models
 @model OrderViewModel
 @{
     ViewData["Title"] = "Детали заказа";
@@ -42,7 +42,7 @@
                                         <table class="table table-sm table-borderless">
                                             <tr>
                                                 <td class="fw-medium" style="width: 40%;">ID заказа</td>
-                                                <td>@Model.Id</td>
+                                                <td>№ @Model.Number <span class="text-muted small">(@Model.Id)</span></td>
                                             </tr>
                                             <tr>
                                                 <td class="fw-medium">Общая стоимость</td>
@@ -55,6 +55,29 @@
                                             <tr>
                                                 <td class="fw-medium">Количество товаров</td>
                                                 <td>@Model.ItemsQuantity</td>
+                                            </tr>
+                                            @if (Model.DiscountPercent > 0)
+                                            {
+                                                <tr>
+                                                    <td class="fw-medium">Промокод</td>
+                                                    <td><span class="promo-chip">@Model.PromoCode</span> −@Model.DiscountPercent% (без скидки @Model.Subtotal?.ToString("C0"))</td>
+                                                </tr>
+                                            }
+                                            <tr>
+                                                <td class="fw-medium">Оплата</td>
+                                                <td>
+                                                    @if (Model.PaymentMethod == OnlineShop.Db.Models.PaymentMethod.Online)
+                                                    {
+                                                        <span>Онлайн</span>
+                                                        <span class="status-badge ms-1 @(Model.PaymentStatus == OnlineShop.Db.Models.PaymentStatus.Paid ? "status-Delivered" : Model.PaymentStatus == OnlineShop.Db.Models.PaymentStatus.Failed ? "status-Canceled" : "status-Delivering")">
+                                                            @(Model.PaymentStatus == OnlineShop.Db.Models.PaymentStatus.Paid ? "Оплачено" : Model.PaymentStatus == OnlineShop.Db.Models.PaymentStatus.Failed ? "Не оплачено" : "Ожидает оплаты")
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>При получении</span>
+                                                    }
+                                                </td>
                                             </tr>
                                         </table>
                                     </div>

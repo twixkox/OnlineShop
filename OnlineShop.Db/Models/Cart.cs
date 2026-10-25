@@ -10,6 +10,9 @@
 
         public double Discount { get; set; }
 
+        /// <summary>Применённый промокод</summary>
+        public string? PromoCode { get; set; }
+
         public List<CartItem> Items { get; set; } = new List<CartItem>();
 
         public bool IsAnonynous => string.IsNullOrEmpty(UserId);

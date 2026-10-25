@@ -1,10 +1,12 @@
+@inject Microsoft.AspNetCore.Identity.UserManager<OnlineShop.Db.Models.User> UserManager
 @{
+    var navUser = await UserManager.GetUserAsync(User);
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     string Active(params string[] names) => names.Contains(action) ? "active" : "";
 }
 <aside class="surface p-3" data-reveal>
     <div class="profile-head px-2 pt-2">
-        <img src="/uploads/users/avatars/UserAvatar.png" alt="">
+        <img src="@UiHelper.AvatarUrl(navUser?.ProfileImage)" alt="">
         <div class="min-w-0">
             <div class="small text-muted">Личный кабинет</div>
             <div class="fw-bold text-truncate" style="max-width: 12rem;">@User.Identity?.Name</div>

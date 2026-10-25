@@ -2,6 +2,7 @@
 @using OnlineShop.Db.Interfaces
 @model List<ProductViewModel>
 @inject IFavoritesStorages FavoritesStorages
+@inject IReviewStorages ReviewStorages
 @{
     // Отмечаем товары, которые уже в избранном (заполненное сердечко)
     if (ViewData["FavoriteIds"] is not HashSet<Guid>)
@@ -15,13 +16,21 @@
         }
         ViewData["FavoriteIds"] = ids;
     }
+
+    // Рейтинг по отзывам — одним запросом на всю сетку
+    if (Model.Any() && Model.All(p => p.ReviewsCount == 0))
+    {
+        Model.WithRatings(await ReviewStorages.GetRatingsAsync(Model.Select(p => p.Id)));
+    }
+
     var columns = ViewData["GridColumns"] as string ?? "row-cols-2 row-cols-md-3 row-cols-xl-4";
+    var removeOnUnfav = ViewData["RemoveOnUnfav"] is true;
 }
 
-<div class="row g-3 g-md-4 @columns" data-catalog-grid data-stagger=".06">
+<div class="row g-3 g-md-4 @columns" data-stagger=".06">
     @foreach (var product in Model)
     {
-        <div class="col product-item" data-name="@product.Name.ToLowerInvariant()" data-price="@product.Cost.ToString(System.Globalization.CultureInfo.InvariantCulture)">
+        <div class="col product-item" data-remove-on-unfav="@(removeOnUnfav ? "" : null)">
             <partial name="_ProductCard" model="product" view-data="ViewData" />
         </div>
     }

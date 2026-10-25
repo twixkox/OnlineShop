@@ -1,6 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
+using OnlineShop.Db.Models;
+using OnlineShopWebApp.Areas.Client.Models;
 using OnlineShopWebApp.Helpers;
+using System.Security.Claims;
 
 namespace OnlineShopWebApp.Controllers
 {
@@ -8,11 +13,17 @@ namespace OnlineShopWebApp.Controllers
     {
         private readonly IProductStorages _productStorage;
         private readonly ICategoryStorages _categoryStorages;
+        private readonly IReviewStorages _reviews;
+        private readonly UserManager<User> _users;
         private readonly ILogger<ProductController> _logger;
-        public ProductController(IProductStorages productStorage, ICategoryStorages categoryStorages, ILogger<ProductController> logger)
+
+        public ProductController(IProductStorages productStorage, ICategoryStorages categoryStorages, IReviewStorages reviews,
+            UserManager<User> users, ILogger<ProductController> logger)
         {
             _productStorage = productStorage;
             _categoryStorages = categoryStorages;
+            _reviews = reviews;
+            _users = users;
             _logger = logger;
         }
 
@@ -20,10 +31,8 @@ namespace OnlineShopWebApp.Controllers
         {
             try
             {
-                _logger.LogInformation("Получение товара с Id - {ProductId}", id);
                 var product = await _productStorage.TryGetProductByIdAsync(id);
 
-                // Раньше несуществующий товар приводил к NullReferenceException
                 if (product == null)
                 {
                     Response.StatusCode = StatusCodes.Status404NotFound;
@@ -34,9 +43,17 @@ namespace OnlineShopWebApp.Controllers
                 var viewModel = product.ToProductViewModel();
                 viewModel.CurrentCategoryName = category?.Name;
 
+                var reviews = await _reviews.GetByProductAsync(product.Id);
+                viewModel.ReviewsCount = reviews.Count;
+                viewModel.Rating = reviews.Count > 0 ? reviews.Average(r => r.Rating) : 0;
+
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                 ViewBag.Category = category;
+                ViewBag.Reviews = reviews;
+                ViewBag.MyReview = userId == null ? null : reviews.FirstOrDefault(r => r.UserId == userId);
                 ViewBag.Related = (await _productStorage.GetByCategoryIdAsync(product.CategoryId))
                     .Where(p => p.Id != product.Id)
+                    .OrderByDescending(p => p.Stock > 0)
                     .Take(4)
                     .ToList()
                     .ToProductsViewModels();
@@ -48,6 +65,39 @@ namespace OnlineShopWebApp.Controllers
                 _logger.LogError(ex, "Произошла ошибка при получении товара. Product/Index");
                 return View("Error");
             }
+        }
+
+        [HttpPost]
+        [Authorize]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Review(ReviewInputModel input)
+        {
+            if (await _productStorage.TryGetProductByIdAsync(input.ProductId) == null) return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                TempData["ErrorMessage"] = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage ?? "Проверьте отзыв";
+                return RedirectToAction(nameof(Index), new { id = input.ProductId });
+            }
+
+            var user = await _users.GetUserAsync(User);
+            if (user == null) return Challenge();
+
+            var displayName = string.IsNullOrWhiteSpace(user.FirstName)
+                ? user.UserName!.Split('@')[0]
+                : $"{user.FirstName} {(string.IsNullOrWhiteSpace(user.LastName) ? "" : user.LastName[0] + ".")}".Trim();
+
+            await _reviews.SaveAsync(new Review
+            {
+                ProductId = input.ProductId,
+                UserId = user.Id,
+                UserName = displayName,
+                Rating = input.Rating,
+                Text = string.IsNullOrWhiteSpace(input.Text) ? null : input.Text.Trim()
+            });
+
+            TempData["SuccessMessage"] = "Спасибо за отзыв!";
+            return Redirect(Url.Action(nameof(Index), new { id = input.ProductId }) + "#reviews");
         }
     }
 }

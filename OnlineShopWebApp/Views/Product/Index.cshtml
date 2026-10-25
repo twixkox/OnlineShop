@@ -1,4 +1,4 @@
-﻿@using System.Security.Claims
+@using System.Security.Claims
 @using OnlineShop.Db.Interfaces
 @model ProductViewModel
 @inject IFavoritesStorages FavoritesStorages
@@ -6,6 +6,8 @@
     ViewData["Title"] = Model?.Name ?? "Товар не найден";
     var category = ViewBag.Category as OnlineShop.Db.Models.Category;
     var related = ViewBag.Related as List<ProductViewModel> ?? new();
+    var reviews = ViewBag.Reviews as List<OnlineShop.Db.Models.Review> ?? new();
+    var myReview = ViewBag.MyReview as OnlineShop.Db.Models.Review;
 
     var isFavorite = false;
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
@@ -32,6 +34,11 @@
 @{
     var image = UiHelper.ImageUrl(Model.PhotoPath);
     var isPlaceholder = image == UiHelper.PlaceholderImage;
+    ViewData["Description"] = Model.Description;
+    ViewData["OgImage"] = image;
+    ViewData["OgType"] = "product";
+    ViewData["Canonical"] = Url.Action("Index", "Product", new { id = Model.Id }, Context.Request.Scheme);
+    var hasTraits = Model.Light != null || Model.Watering != null || Model.FrostZone != null || !string.IsNullOrEmpty(Model.Height) || !string.IsNullOrEmpty(Model.FloweringPeriod);
 }
 
 <nav aria-label="breadcrumb" class="mb-3" data-reveal>
@@ -41,7 +48,7 @@
         @if (category != null)
         {
             <li class="breadcrumb-item">
-                <a asp-controller="Catalog" asp-action="CurrentCategory" asp-route-identityUrl="@category.IdentityUrl" asp-route-categoryId="@category.Id">@category.Name</a>
+                <a asp-controller="Catalog" asp-action="Category" asp-route-slug="@category.IdentityUrl">@category.Name</a>
             </li>
         }
         <li class="breadcrumb-item active text-truncate" aria-current="page" style="max-width: 18rem;">@Model.Name</li>
@@ -58,28 +65,82 @@
     <div class="col-lg-6" data-reveal style="--d:.1s">
         @if (category != null)
         {
-            <a class="chip mb-3" asp-controller="Catalog" asp-action="CurrentCategory" asp-route-identityUrl="@category.IdentityUrl" asp-route-categoryId="@category.Id">
+            <a class="chip mb-3" asp-controller="Catalog" asp-action="Category" asp-route-slug="@category.IdentityUrl">
                 <i class="bi @UiHelper.CategoryIcon(category.IdentityUrl)"></i> @category.Name
             </a>
         }
         <h1 class="mb-3" style="font-size: clamp(1.8rem, 3.5vw, 2.6rem);">@Model.Name</h1>
 
-        <div class="d-flex align-items-center gap-3 mb-4">
+        @if (Model.ReviewsCount > 0)
+        {
+            <a href="#reviews" class="rating-line mb-3">
+                <partial name="_Stars" model="Model.Rating" />
+                <strong>@Model.Rating.ToString("0.0")</strong>
+                <span>@Model.ReviewsCount @UiHelper.Plural(Model.ReviewsCount, "отзыв", "отзыва", "отзывов")</span>
+            </a>
+        }
+
+        <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
             <span class="price price-lg">@Model.Cost.ToString("C0")</span>
+            @if (!Model.InStock)
+            {
+                <span class="status-badge status-Canceled">Нет в наличии</span>
+            }
+            else if (Model.Stock <= 3)
+            {
+                <span class="status-badge status-Delivering">Осталось @Model.Stock шт.</span>
+            }
+            else
+            {
+                <span class="status-badge status-Delivered">В наличии</span>
+            }
         </div>
 
         <p class="text-muted mb-4" style="font-size: 1.05rem; line-height: 1.75;">@Model.Description</p>
 
         <div class="d-flex flex-wrap gap-2 mb-4">
-            <a class="btn btn-success btn-lg flex-grow-1 flex-sm-grow-0 px-4" data-add-to-cart
-               href="@Url.Action("Add", "Cart", new { productId = Model.Id })">
-                <i class="bi bi-bag-plus me-2"></i><span class="label">Добавить в корзину</span>
-            </a>
+            @if (Model.InStock)
+            {
+                <a class="btn btn-success btn-lg flex-grow-1 flex-sm-grow-0 px-4" data-add-to-cart
+                   href="@Url.Action("Add", "Cart", new { productId = Model.Id })">
+                    <i class="bi bi-bag-plus me-2"></i><span class="label">Добавить в корзину</span>
+                </a>
+            }
+            else
+            {
+                <button class="btn btn-secondary btn-lg px-4" disabled><i class="bi bi-bag-x me-2"></i>Нет в наличии</button>
+            }
             <a class="btn btn-outline-success btn-lg px-4 @(isFavorite ? "is-active" : "")" data-fav-toggle data-id="@Model.Id"
                href="@Url.Action("Toggle", "Favorite", new { productId = Model.Id })" aria-pressed="@(isFavorite ? "true" : "false")">
                 <i class="bi @(isFavorite ? "bi-heart-fill" : "bi-heart") me-2"></i><span class="label">@(isFavorite ? "В избранном" : "В избранное")</span>
             </a>
         </div>
+
+        @if (hasTraits)
+        {
+            <div class="traits-grid mb-4">
+                @if (!string.IsNullOrEmpty(Model.Height))
+                {
+                    <div class="trait"><i class="bi bi-arrows-vertical"></i><div><span>Высота</span><strong>@Model.Height</strong></div></div>
+                }
+                @if (Model.Light != null)
+                {
+                    <div class="trait"><i class="bi @UiHelper.LightIcon(Model.Light.Value)"></i><div><span>Освещение</span><strong>@UiHelper.LightName(Model.Light.Value)</strong></div></div>
+                }
+                @if (Model.Watering != null)
+                {
+                    <div class="trait"><i class="bi bi-droplet-half"></i><div><span>Полив</span><strong>@UiHelper.WateringName(Model.Watering.Value)</strong></div></div>
+                }
+                @if (Model.FrostZone != null)
+                {
+                    <div class="trait"><i class="bi bi-snow"></i><div><span>Зимостойкость</span><strong>@UiHelper.ZoneName(Model.FrostZone.Value)</strong></div></div>
+                }
+                @if (!string.IsNullOrEmpty(Model.FloweringPeriod))
+                {
+                    <div class="trait"><i class="bi bi-flower2"></i><div><span>Цветение / урожай</span><strong>@Model.FloweringPeriod</strong></div></div>
+                }
+            </div>
+        }
 
         <div class="surface p-4">
             <ul class="info-list">
@@ -91,6 +152,76 @@
     </div>
 </div>
 
+<section id="reviews" class="mb-5" style="scroll-margin-top: 100px;">
+    <div class="section-title" data-reveal>
+        <div>
+            <div class="eyebrow">Отзывы покупателей</div>
+            <h2>@(reviews.Any() ? $"{Model.Rating:0.0} из 5 · {reviews.Count} {UiHelper.Plural(reviews.Count, "отзыв", "отзыва", "отзывов")}" : "Пока без отзывов")</h2>
+        </div>
+    </div>
+    <div class="row g-4">
+        <div class="col-lg-5" data-reveal>
+            <div class="surface surface-pad">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <h5 class="mb-3">@(myReview == null ? "Оставить отзыв" : "Ваш отзыв")</h5>
+                    <form asp-controller="Product" asp-action="Review" method="post">
+                        <input type="hidden" name="ProductId" value="@Model.Id" />
+                        <div class="star-input mb-3" role="radiogroup" aria-label="Оценка">
+                            @for (var i = 5; i >= 1; i--)
+                            {
+                                <input type="radio" id="star@(i)" name="Rating" value="@i" checked="@(myReview?.Rating == i)" required />
+                                <label for="star@(i)" title="@i из 5"><i class="bi bi-star-fill"></i></label>
+                            }
+                        </div>
+                        <textarea name="Text" class="form-control mb-3" rows="4" maxlength="1000" placeholder="Как прижилось растение, понравилось ли качество?">@myReview?.Text</textarea>
+                        <button type="submit" class="btn btn-success w-100">@(myReview == null ? "Отправить отзыв" : "Обновить отзыв")</button>
+                    </form>
+                }
+                else
+                {
+                    <h5>Поделитесь впечатлением</h5>
+                    <p class="text-muted">Отзывы могут оставлять зарегистрированные покупатели.</p>
+                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#loginModal">Войти и написать отзыв</button>
+                }
+            </div>
+        </div>
+        <div class="col-lg-7">
+            @if (reviews.Any())
+            {
+                <div class="d-grid gap-3" data-stagger=".06">
+                    @foreach (var review in reviews)
+                    {
+                        <article class="review-card">
+                            <div class="d-flex justify-content-between align-items-center gap-2 mb-2">
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="review-avatar">@(review.UserName.Length > 0 ? review.UserName[0].ToString().ToUpper() : "?")</span>
+                                    <div>
+                                        <div class="fw-bold">@review.UserName</div>
+                                        <div class="small text-muted">@review.CreatedAt.ToString("d MMMM yyyy")</div>
+                                    </div>
+                                </div>
+                                <partial name="_Stars" model="(double)review.Rating" />
+                            </div>
+                            @if (!string.IsNullOrEmpty(review.Text))
+                            {
+                                <p class="mb-0">@review.Text</p>
+                            }
+                        </article>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="surface empty-state py-5" data-reveal>
+                    <div class="ico" style="width:80px;height:80px;font-size:2rem;border-radius:26px;"><i class="bi bi-chat-heart"></i></div>
+                    <p class="mb-0">Станьте первым, кто оценит это растение.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
 @if (related.Any())
 {
     <section>
@@ -101,7 +232,7 @@
             </div>
             @if (category != null)
             {
-                <a class="link-arrow" asp-controller="Catalog" asp-action="CurrentCategory" asp-route-identityUrl="@category.IdentityUrl" asp-route-categoryId="@category.Id">Вся категория <i class="bi bi-arrow-right"></i></a>
+                <a class="link-arrow" asp-controller="Catalog" asp-action="Category" asp-route-slug="@category.IdentityUrl">Вся категория <i class="bi bi-arrow-right"></i></a>
             }
         </div>
         @{

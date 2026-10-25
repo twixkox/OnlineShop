@@ -1,4 +1,4 @@
-﻿@using OnlineShopWebApp.Areas.Client.Models
+@using OnlineShopWebApp.Areas.Client.Models
 @model ProductViewModel
 @{
     ViewData["Title"] = "Добавление товара";
@@ -28,7 +28,7 @@
                 </div>
 
                 <div class="card-body">
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" enctype="multipart/form-data" asp-action="Add">
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
                         <div class="mb-4">
@@ -87,6 +87,8 @@
                                 Не более 500 символов
                             </div>
                         </div>
+
+                        <partial name="_PlantFields" model="Model" />
 
                         <div class="mb-4">
                             <label class="form-label fw-medium">

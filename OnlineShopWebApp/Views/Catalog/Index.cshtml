@@ -1,0 +1,203 @@
+@using OnlineShop.Db.Models
+@model CatalogPageViewModel
+@{
+    var cat = Model.CurrentCategory;
+    var f = Model.Filter;
+    ViewData["Title"] = cat?.Name ?? "Каталог";
+    ViewData["Description"] = cat?.Description ?? "Каталог питомника PlantShop: плодовые, хвойные и лиственные растения, цветы и товары для сада.";
+    ViewData["Canonical"] = cat == null ? Url.Action("AllProducts", "Catalog", null, Context.Request.Scheme) : Url.Action("Category", "Catalog", new { slug = cat.IdentityUrl }, Context.Request.Scheme);
+    if (cat != null) ViewData["HideCategory"] = true;
+
+    // Ссылка на текущую страницу каталога с изменёнными параметрами
+    string Link(int? page = null, ProductSort? sort = null)
+    {
+        var values = f.ToRouteValues(page, sort);
+        return cat == null
+            ? Url.Action("AllProducts", "Catalog", values.ToDictionary(k => k.Key, k => (object?)k.Value))!
+            : Url.Action("Category", "Catalog", new RouteValueDictionary(values) { ["slug"] = cat.IdentityUrl })!;
+    }
+    string formAction = cat == null ? Url.Action("AllProducts", "Catalog")! : Url.Action("Category", "Catalog", new { slug = cat.IdentityUrl })!;
+
+    var sorts = new[] { (ProductSort.Default, "Сначала в наличии"), (ProductSort.PriceAsc, "Сначала дешевле"), (ProductSort.PriceDesc, "Сначала дороже"), (ProductSort.Name, "По названию"), (ProductSort.Newest, "Новинки") };
+}
+
+<section class="page-hero d-flex justify-content-between align-items-end">
+    <div>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Главная</a></li>
+                @if (cat == null)
+                {
+                    <li class="breadcrumb-item active" aria-current="page">Каталог</li>
+                }
+                else
+                {
+                    <li class="breadcrumb-item"><a asp-controller="Catalog" asp-action="AllProducts">Каталог</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@cat.Name</li>
+                }
+            </ol>
+        </nav>
+        <h1>@(cat?.Name ?? "Каталог растений")</h1>
+        <p>@(cat?.Description ?? "Саженцы, цветы и всё для ухода за садом")</p>
+    </div>
+</section>
+
+<nav class="chip-scroll mb-4" aria-label="Категории" data-reveal>
+    <a class="chip @(cat == null ? "active" : "")" asp-controller="Catalog" asp-action="AllProducts"><i class="bi bi-grid-3x3-gap"></i> Все</a>
+    @foreach (var c in Model.Categories.OrderBy(c => c.Name))
+    {
+        <a class="chip @(cat?.Id == c.Id ? "active" : "")" asp-controller="Catalog" asp-action="Category" asp-route-slug="@c.IdentityUrl">
+            <i class="bi @UiHelper.CategoryIcon(c.IdentityUrl)"></i> @c.Name
+        </a>
+    }
+</nav>
+
+<div class="row g-4">
+    <!-- Фильтры: на телефоне открываются выезжающей панелью -->
+    <div class="col-lg-3">
+        <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="filters" aria-labelledby="filtersLabel">
+            <div class="offcanvas-header">
+                <h5 class="offcanvas-title" id="filtersLabel">Фильтры</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" data-bs-target="#filters" aria-label="Закрыть"></button>
+            </div>
+            <div class="offcanvas-body p-lg-0">
+                <form method="get" action="@formAction" class="surface p-4 filter-panel w-100" data-filter-form data-no-loader>
+                    @if (f.Sort != ProductSort.Default)
+                    {
+                        <input type="hidden" name="sort" value="@f.Sort" />
+                    }
+
+                    <div class="filter-group">
+                        <label class="form-label" for="fq">Название</label>
+                        <div class="search-pill">
+                            <i class="bi bi-search"></i>
+                            <input id="fq" type="search" name="q" value="@f.Q" class="form-control" placeholder="Например, роза">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="form-label d-block">Цена, ₽</span>
+                        <div class="d-flex gap-2 align-items-center">
+                            <input type="number" name="min" value="@f.Min?.ToString("0")" class="form-control" placeholder="от @Model.PriceMin.ToString("0")" min="0" aria-label="Цена от">
+                            <span class="text-muted">—</span>
+                            <input type="number" name="max" value="@f.Max?.ToString("0")" class="form-control" placeholder="до @Model.PriceMax.ToString("0")" min="0" aria-label="Цена до">
+                        </div>
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="form-label d-block">Освещение</span>
+                        @foreach (var light in Enum.GetValues<LightRequirement>())
+                        {
+                            <label class="filter-check">
+                                <input type="checkbox" name="light" value="@light" checked="@f.Light.Contains(light)" class="form-check-input">
+                                <i class="bi @UiHelper.LightIcon(light)"></i> @UiHelper.LightName(light)
+                            </label>
+                        }
+                    </div>
+
+                    <div class="filter-group">
+                        <span class="form-label d-block">Полив</span>
+                        @foreach (var water in Enum.GetValues<WateringLevel>())
+                        {
+                            <label class="filter-check">
+                                <input type="checkbox" name="water" value="@water" checked="@f.Water.Contains(water)" class="form-check-input">
+                                <i class="bi bi-droplet@(water == WateringLevel.High ? "-fill" : water == WateringLevel.Medium ? "-half" : "")"></i> @UiHelper.WateringName(water)
+                            </label>
+                        }
+                    </div>
+
+                    <div class="filter-group">
+                        <label class="form-label" for="fzone">Зимостойкость</label>
+                        <select id="fzone" name="zone" class="form-select">
+                            <option value="">Любая</option>
+                            @foreach (var (zone, label) in UiHelper.ZoneOptions)
+                            {
+                                <option value="@zone" selected="@(f.Zone == zone)">@label</option>
+                            }
+                        </select>
+                        <div class="form-text">Для Санкт-Петербурга и Ленобласти — зона 4–5</div>
+                    </div>
+
+                    <div class="filter-group">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" id="fstock" name="stock" value="true" checked="@f.Stock">
+                            <label class="form-check-label fw-semibold" for="fstock">Только в наличии</label>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">Показать</button>
+                    @if (f.HasFilters)
+                    {
+                        <a href="@formAction" class="btn btn-link w-100 mt-1 text-muted">Сбросить фильтры</a>
+                    }
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="toolbar" data-reveal>
+            <button class="btn btn-outline-success d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#filters">
+                <i class="bi bi-sliders me-1"></i>Фильтры
+                @if (f.ActiveCount > 0)
+                {
+                    <span class="badge bg-success ms-1">@f.ActiveCount</span>
+                }
+            </button>
+            <span class="result-count">Найдено: @Model.TotalCount</span>
+            <div class="dropdown ms-auto">
+                <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-sort-down me-1"></i>@sorts.First(s => s.Item1 == f.Sort).Item2
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    @foreach (var (sort, label) in sorts)
+                    {
+                        <li><a class="dropdown-item @(sort == f.Sort ? "active" : "")" href="@Link(sort: sort)">@label</a></li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        @if (Model.Products.Any())
+        {
+            ViewData["GridColumns"] = "row-cols-2 row-cols-md-3";
+            <partial name="_ProductGrid" model="Model.Products" view-data="ViewData" />
+
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="mt-5" aria-label="Страницы каталога">
+                    <ul class="pagination pagination-ps justify-content-center flex-wrap">
+                        <li class="page-item @(Model.Page <= 1 ? "disabled" : "")">
+                            <a class="page-link" href="@Link(Model.Page - 1)" aria-label="Предыдущая"><i class="bi bi-chevron-left"></i></a>
+                        </li>
+                        @for (var p = 1; p <= Model.TotalPages; p++)
+                        {
+                            if (p == 1 || p == Model.TotalPages || Math.Abs(p - Model.Page) <= 1)
+                            {
+                                <li class="page-item @(p == Model.Page ? "active" : "")"><a class="page-link" href="@Link(p)">@p</a></li>
+                            }
+                            else if (Math.Abs(p - Model.Page) == 2)
+                            {
+                                <li class="page-item disabled"><span class="page-link">…</span></li>
+                            }
+                        }
+                        <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")">
+                            <a class="page-link" href="@Link(Model.Page + 1)" aria-label="Следующая"><i class="bi bi-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        }
+        else
+        {
+            <div class="surface empty-state" data-reveal>
+                <div class="ico"><i class="bi bi-flower2"></i></div>
+                <h3>Ничего не нашлось</h3>
+                <p>@(f.HasFilters ? "Попробуйте ослабить фильтры — например, убрать ограничение по цене или зимостойкости." : "В этой категории пока нет товаров — скоро мы их высадим.")</p>
+                <a href="@(f.HasFilters ? formAction : Url.Action("AllProducts", "Catalog"))" class="btn btn-success btn-lg">
+                    @(f.HasFilters ? "Сбросить фильтры" : "Весь каталог")
+                </a>
+            </div>
+        }
+    </div>
+</div>

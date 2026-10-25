@@ -1,6 +1,8 @@
-﻿@using System.Security.Claims
+@using System.Security.Claims
 @using OnlineShop.Db.Interfaces
 @inject ICategoryStorages CategoryStorages
+@inject Microsoft.AspNetCore.Identity.UserManager<OnlineShop.Db.Models.User> UserManager
+@inject OnlineShopWebApp.Services.ICartOwnerProvider CartOwner
 
 @{
     var categories = (await CategoryStorages.GetAll()).OrderBy(c => c.Name).ToList();
@@ -8,6 +10,9 @@
     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     var isAdmin = User.IsInRole("Admin");
     var isStaff = isAdmin || User.IsInRole("Manager");
+    var currentUser = isAuthenticated ? await UserManager.GetUserAsync(User) : null;
+    var avatar = UiHelper.AvatarUrl(currentUser?.ProfileImage);
+    var cartOwnerId = CartOwner.GetOwnerId(createIfMissing: false);
 }
 
 <header class="site-header">
@@ -33,21 +38,14 @@
                 <a class="icon-btn" asp-area="" asp-controller="Cart" asp-action="Index" aria-label="Корзина" title="Корзина" data-cart-target>
                     <i class="bi bi-bag"></i>
                     <span class="d-none d-xl-inline">Корзина</span>
-                    @if (isAuthenticated)
-                    {
-                        @await Component.InvokeAsync("Cart", userId)
-                    }
-                    else
-                    {
-                        <span class="counter" data-counter="cart"></span>
-                    }
+                    @await Component.InvokeAsync("Cart", cartOwnerId)
                 </a>
 
                 @if (isAuthenticated)
                 {
                     <div class="dropdown">
                         <a class="avatar-btn dropdown-toggle d-block" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Меню пользователя">
-                            <img src="/uploads/users/avatars/UserAvatar.png" alt="@User.Identity!.Name" width="42" height="42">
+                            <img src="@avatar" alt="@User.Identity!.Name" width="42" height="42">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" style="min-width: 250px;">
                             <li class="dropdown-head">
@@ -73,9 +71,12 @@
                             {
                                 <li><hr class="dropdown-divider"></li>
                                 <li class="px-3 pt-1 pb-1"><small class="text-uppercase fw-bold" style="color: var(--ps-terracotta); letter-spacing: .08em; font-size: .72rem;">Панель управления</small></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-2 text-success"></i>Сводка</a></li>
                                 <li><a class="dropdown-item" asp-area="Admin" asp-controller="Order" asp-action="Index"><i class="bi bi-truck me-2 text-success"></i>Заказы</a></li>
                                 <li><a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index"><i class="bi bi-box-seam me-2 text-success"></i>Товары</a></li>
                                 <li><a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index"><i class="bi bi-grid me-2 text-success"></i>Категории</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="PromoCode" asp-action="Index"><i class="bi bi-ticket-perforated me-2 text-success"></i>Промокоды</a></li>
+                                <li><a class="dropdown-item" asp-area="Admin" asp-controller="Review" asp-action="Index"><i class="bi bi-chat-square-text me-2 text-success"></i>Отзывы</a></li>
                                 @if (isAdmin)
                                 {
                                     <li><a class="dropdown-item" asp-area="Admin" asp-controller="User" asp-action="Index"><i class="bi bi-people me-2 text-success"></i>Пользователи</a></li>
@@ -115,8 +116,8 @@
                             @foreach (var category in categories)
                             {
                                 <li>
-                                    <a class="dropdown-item" asp-area="" asp-controller="Catalog" asp-action="CurrentCategory"
-                                       asp-route-identityUrl="@category.IdentityUrl" asp-route-categoryId="@category.Id">
+                                    <a class="dropdown-item" asp-area="" asp-controller="Catalog" asp-action="Category"
+                                       asp-route-slug="@category.IdentityUrl">
                                         <span class="cat-ico"><i class="bi @UiHelper.CategoryIcon(category.IdentityUrl)"></i></span>
                                         @category.Name
                                     </a>
@@ -177,6 +178,7 @@
                                 <input class="form-check-input" type="checkbox" name="RememberMe" value="true" id="rememberMe" checked>
                                 <label class="form-check-label small" for="rememberMe">Запомнить меня</label>
                             </div>
+                            <a asp-area="" asp-controller="Authorization" asp-action="ForgotPassword" class="small fw-semibold text-decoration-none">Забыли пароль?</a>
                         </div>
                         <button type="submit" class="btn btn-success btn-lg w-100 mb-3 auth-submit-btn">
                             Войти <i class="bi bi-arrow-right ms-1"></i>

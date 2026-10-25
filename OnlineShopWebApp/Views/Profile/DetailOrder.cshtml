@@ -1,5 +1,7 @@
-﻿@model OrderViewModel
+@using OnlineShop.Db.Models
+@model OrderViewModel
 @{
+    var canPay = ViewBag.CanPay is true;
     var number = Model?.Id.ToString()[..8].ToUpperInvariant();
     ViewData["Title"] = Model != null ? $"Заказ № {number}" : "Заказ не найден";
     var steps = new[]
@@ -82,6 +84,13 @@
                     <div class="controls"><span class="line-total">@item.Cost.ToString("C0")</span></div>
                 </div>
             }
+            @if (Model.DiscountPercent > 0)
+            {
+                <div class="summary-line text-success">
+                    <span>Скидка @Model.DiscountPercent% <span class="promo-chip">@Model.PromoCode</span></span>
+                    <span>−@((Model.Subtotal - Model.TotalCost)?.ToString("C0"))</span>
+                </div>
+            }
             <div class="summary-total">
                 <span class="fw-bold">Итого</span>
                 <span class="price">@Model.TotalCost?.ToString("C0")</span>
@@ -102,11 +111,29 @@
                     </span>
                 </li>
                 <li><i class="bi bi-calendar-event"></i><span class="text-body">@Model.DeliveryUserInfo?.DeliveryDate.ToString("d MMMM yyyy")</span></li>
+                <li>
+                    <i class="bi @(Model.PaymentMethod == PaymentMethod.Online ? "bi-credit-card" : "bi-cash-coin")"></i>
+                    <span class="text-body">
+                        @(Model.PaymentMethod == PaymentMethod.Online ? "Онлайн-оплата" : "Оплата при получении")
+                        @if (Model.PaymentMethod == PaymentMethod.Online)
+                        {
+                            <span class="status-badge ms-1 @(Model.PaymentStatus switch { PaymentStatus.Paid => "status-Delivered", PaymentStatus.Failed => "status-Canceled", _ => "status-Delivering" })">
+                                @(Model.PaymentStatus switch { PaymentStatus.Paid => "Оплачено", PaymentStatus.Failed => "Не оплачено", _ => "Ожидает оплаты" })
+                            </span>
+                        }
+                    </span>
+                </li>
                 @if (!string.IsNullOrEmpty(Model.DeliveryUserInfo?.Comment))
                 {
                     <li><i class="bi bi-chat-left-text"></i><span>@Model.DeliveryUserInfo.Comment</span></li>
                 }
             </ul>
+            @if (canPay && Model.PaymentMethod == PaymentMethod.Online && Model.PaymentStatus != PaymentStatus.Paid && Model.Status != OrderStatusViewModel.Canceled)
+            {
+                <form asp-controller="Order" asp-action="Pay" asp-route-orderId="@Model.Id" method="post" class="mt-4">
+                    <button type="submit" class="btn btn-accent btn-lg w-100"><i class="bi bi-credit-card me-2"></i>Оплатить @Model.TotalCost?.ToString("C0")</button>
+                </form>
+            }
         </aside>
     </div>
 </div>

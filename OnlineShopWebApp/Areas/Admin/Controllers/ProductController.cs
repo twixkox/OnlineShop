@@ -12,10 +12,13 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
     [Authorize(Roles = "Admin,Manager")]
     public class ProductController : Controller
     {
+        private const string DefaultPhoto = "uploads/products/original/anyProduct.png";
+
         private readonly IProductStorages _products;
         private readonly IFileStorageService _fileProvider;
         private readonly ILogger<ProductController> _logger;
         private readonly ICategoryStorages _categories;
+
         public ProductController(IProductStorages products, IFileStorageService fileProvider, ILogger<ProductController> logger, ICategoryStorages categories)
         {
             _fileProvider = fileProvider;
@@ -26,13 +29,11 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            _logger.LogInformation("Получение списка всех товаров");
-            var products = await _products.GetAllAsync();
             try
             {
-                _logger.LogInformation("Получено {Count} товаров", products.Count);
-
-                return View(products.ToProductsViewModels());
+                var products = await _products.GetAllAsync();
+                var categories = await _categories.GetAll();
+                return View(products.OrderBy(p => p.Name).ToList().ToProductsViewModels().WithCategoryNames(categories));
             }
             catch (Exception ex)
             {
@@ -44,97 +45,69 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Remove(Guid Id)
         {
-            await _products.DeleteAsync(Id);
             try
             {
+                await _products.DeleteAsync(Id);
                 _logger.LogInformation("Выполнено удаление товара с Id - {Id}", Id);
-
+                TempData["InfoMessage"] = "Товар удалён";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Произошла ошибка при удалении товара в методе Product/Remove. Id - {Id}");
-                return View("Error");
+                // Товар, который уже есть в заказах, удалить нельзя — лучше обнулить остаток
+                _logger.LogError(ex, "Произошла ошибка при удалении товара. Id - {Id}", Id);
+                TempData["ErrorMessage"] = "Не удалось удалить товар: он уже есть в заказах. Поставьте остаток 0, чтобы снять его с продажи.";
+                return RedirectToAction("Index");
             }
         }
 
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            _logger.LogInformation("Получение списка всех категорий");
-            var category = await _categories.GetAll();
-            try
-            {
-                var productViewModel = new ProductViewModel
-                {
-                    AvailableCategory = category.ToListCategoryViewModels(),
-
-                };
-                return View(productViewModel);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Произошла ошибка получения товаров. Product/Add");
-                return View("Error");
-            }
+            var viewModel = new ProductViewModel();
+            await FillCategoriesAsync(viewModel);
+            return View(viewModel);
         }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Add(ProductViewModel product)
         {
+            var category = await _categories.TryGetById(product.CategoryId);
+            if (category == null) ModelState.AddModelError(nameof(product.CategoryId), "Выберите категорию");
+
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning($"Передана невалидная модель. Product/Add");
+                // Раньше при ошибке валидации список категорий пропадал
+                await FillCategoriesAsync(product);
                 return View(product);
             }
 
             try
             {
+                var productDb = new Product { CategoryName = category!.Name, PhotoPath = DefaultPhoto, ThumbnailPath = DefaultPhoto };
+                Apply(product, productDb);
+
                 if (product.UploadedFile != null)
                 {
-                    var path = await _fileProvider.SaveImageAsync(product.UploadedFile, "product");
-                    _logger.LogInformation($"Выполнено сохранение фото товара путь - {path}");
-                    var thumbnailImage = await _fileProvider.GenerateThumbnailImageAsync(path);
-                    _logger.LogInformation($"Выполнено сохранение уменьшенного фото товара путь - {thumbnailImage}");
-
-                    var category = await _categories.TryGetById(product.CategoryId);
-                    _logger.LogInformation($"Получена категория для присвоения {category.Name}");
-
-                    var productDb = new Product
-                    {
-                        Name = product.Name,
-                        Description = product.Description,
-                        Cost = product.Cost,
-                        PhotoPath = path,
-                        ThumbnailPath = thumbnailImage,
-                        CategoryId = product.CategoryId,
-                        CategoryName = category.Name,
-                    };
-
-                    await _products.AddAsync(productDb);
-
-                    _logger.LogInformation($"Выполнено добавление продукта {product.Id}");
+                    productDb.PhotoPath = await _fileProvider.SaveImageAsync(product.UploadedFile, "product");
+                    productDb.ThumbnailPath = await _fileProvider.GenerateThumbnailImageAsync(productDb.PhotoPath);
                 }
-                else
-                {
-                    var category = await _categories.TryGetById(product.CategoryId);
-                    _logger.LogInformation($"Получена категория для присвоения {category.Name}");
 
-                    var productDb = new Product
-                    {
-                        Name = product.Name,
-                        Description = product.Description,
-                        Cost = product.Cost,
-                        CategoryId = product.CategoryId,
-                        CategoryName = category.Name,
-                    };
-                    await _products.AddAsync(productDb);
-                    _logger.LogInformation($"Выполнено добавление продукта {product.Id}");
-                }
+                await _products.AddAsync(productDb);
+                _logger.LogInformation("Добавлен товар {Name}", productDb.Name);
+                TempData["SuccessMessage"] = $"Товар «{productDb.Name}» добавлен";
                 return RedirectToAction("Index");
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                await FillCategoriesAsync(product);
+                return View(product);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message, $"Ошибка добавления продукта {product.Id}. Product/Add");
+                _logger.LogError(ex, "Ошибка добавления продукта. Product/Add");
                 return View("Error");
             }
         }
@@ -142,93 +115,85 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            _logger.LogInformation($"Получение товара с Id - {id}");
             var product = await _products.TryGetProductByIdAsync(id);
-            _logger.LogInformation($"Получение категории товара Id - {id}");
+            if (product == null) return NotFound();
+
+            var viewModel = product.ToProductViewModel();
+            await FillCategoriesAsync(viewModel);
+            return View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(ProductViewModel product)
+        {
+            var existing = await _products.TryGetProductByIdAsync(product.Id);
+            if (existing == null) return NotFound();
+
             var category = await _categories.TryGetById(product.CategoryId);
+            if (category == null) ModelState.AddModelError(nameof(product.CategoryId), "Выберите категорию");
+
+            if (!ModelState.IsValid)
+            {
+                product.PhotoPath = existing.PhotoPath;
+                product.ThumbnailsPhotoPath = existing.ThumbnailPath;
+                await FillCategoriesAsync(product);
+                return View(product);
+            }
+
             try
             {
-                product.CategoryName = category.Name;
-                var productViewModel = product.ToProductViewModel();
-
-                var allCategories = await _categories.GetAll();
-                _logger.LogInformation($"Получение списка всех категории");
-                productViewModel.AvailableCategory = allCategories.Select(c => new CategoryViewModel
+                // Раньше без нового файла фото товара затиралось (PhotoPath = null)
+                var productDb = new Product
                 {
-                    Id = c.Id,
-                    Name = c.Name,
-                    Description = c.Description,
-                }).ToList();
+                    Id = existing.Id,
+                    PhotoPath = existing.PhotoPath,
+                    ThumbnailPath = existing.ThumbnailPath,
+                    CategoryName = category!.Name
+                };
+                Apply(product, productDb);
 
-                _logger.LogInformation($"Выполнено получение продукта для редактирования id - {product.Id}.");
+                if (product.UploadedFile != null)
+                {
+                    productDb.PhotoPath = await _fileProvider.SaveImageAsync(product.UploadedFile, "product");
+                    productDb.ThumbnailPath = await _fileProvider.GenerateThumbnailImageAsync(productDb.PhotoPath);
+                }
 
-                return View(productViewModel);
+                await _products.EditProductAsync(productDb);
+                TempData["SuccessMessage"] = $"Изменения в «{productDb.Name}» сохранены";
+                return RedirectToAction("Index");
+            }
+            catch (ArgumentException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                product.PhotoPath = existing.PhotoPath;
+                await FillCategoriesAsync(product);
+                return View(product);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка получения продукта для редактирования id - {id}. Product/Edit");
+                _logger.LogError(ex, "Произошла ошибка редактирования товара id - {Id}. Product/Edit", product.Id);
                 return View("Error");
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Edit(ProductViewModel product)
+        private static void Apply(ProductViewModel source, Product target)
         {
-            if (!ModelState.IsValid)
-            {
-                _logger.LogWarning($"Передана невалидная модель. Product/Edit");
-                return View(product);
-            }
-            try
-            {
-                if (product.UploadedFile != null)
-                {
-                    var path = await _fileProvider.SaveImageAsync(product.UploadedFile, "product");
-                    _logger.LogInformation($"Сохранение фото товара. Путь - {path}");
-                    var thumbnailImage = await _fileProvider.GenerateThumbnailImageAsync(path);
-                    _logger.LogInformation($"Сохранение уменьшенного фото товара. Путь - {thumbnailImage}");
-                    _logger.LogInformation($"Получение категории товара с Id - {product.CategoryId}");
-                    var existingCategory = await _categories.TryGetById(product.CategoryId);
-                    var productDb = new Product
-                    {
-                        Id = product.Id,
-                        Name = product.Name,
-                        Description = product.Description,
-                        Cost = product.Cost,
-                        PhotoPath = path,
-                        ThumbnailPath = thumbnailImage,
-                        CategoryId = product.CategoryId,
-                        CategoryName = existingCategory.Name,
-                    };
+            target.Name = source.Name.Trim();
+            target.Description = source.Description;
+            target.Cost = source.Cost;
+            target.CategoryId = source.CategoryId;
+            target.Stock = source.Stock;
+            target.Height = string.IsNullOrWhiteSpace(source.Height) ? null : source.Height.Trim();
+            target.FrostZone = source.FrostZone;
+            target.Light = source.Light;
+            target.Watering = source.Watering;
+            target.FloweringPeriod = string.IsNullOrWhiteSpace(source.FloweringPeriod) ? null : source.FloweringPeriod.Trim();
+        }
 
-                    await _products.EditProductAsync(productDb);
-                    _logger.LogInformation($"Выполнено изменение продукта id - {product.Id}.");
-                }
-                else
-                {
-                    _logger.LogInformation($"Получение категории товара с Id - {product.CategoryId}");
-                    var existingCategory = await _categories.TryGetById(product.CategoryId);
-                    var productDb = new Product
-                    {
-                        Id = product.Id,
-                        Name = product.Name,
-                        Description = product.Description,
-                        Cost = product.Cost,
-                        CategoryId = product.CategoryId,
-                        CategoryName = existingCategory.Name,
-                    };
-
-                    await _products.EditProductAsync(productDb);
-                    _logger.LogInformation($"Выполнено изменение продукта id - {product.Id}.");
-                }
-                return RedirectToAction("Index");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, $"Произошла ошибка редактирования товара id - {product.Id}. Product/Edit");
-
-                return View("Error");
-            }
+        private async Task FillCategoriesAsync(ProductViewModel viewModel)
+        {
+            viewModel.AvailableCategory = (await _categories.GetAll()).OrderBy(c => c.Name).ToList().ToListCategoryViewModels();
         }
     }
 }

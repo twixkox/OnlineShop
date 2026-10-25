@@ -49,6 +49,11 @@ namespace OnlineShop.Db.Storages
             await databaseContext.SaveChangesAsync();
         }
 
+        public async Task<Category?> TryGetByIdentityUrlAsync(string identityUrl)
+        {
+            return await databaseContext.Categories.FirstOrDefaultAsync(x => x.IdentityUrl == identityUrl);
+        }
+
         public async Task<Category> TryGetById(Guid categoryId)
         {
             return await databaseContext.Categories.FirstOrDefaultAsync(x => x.Id == categoryId);

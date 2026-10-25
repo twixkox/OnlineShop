@@ -1,4 +1,4 @@
-﻿@using OnlineShopWebApp.Areas.Client.Models
+@using OnlineShopWebApp.Areas.Client.Models
 @model List<ProductViewModel>
 @{
     ViewData["Title"] = "Управление товарами";
@@ -33,7 +33,9 @@
                             <tr>
                                 <th scope="col" class="ps-4">#</th>
                                 <th scope="col">Наименование</th>
+                                <th scope="col">Категория</th>
                                 <th scope="col">Цена (₽)</th>
+                                <th scope="col">Остаток</th>
                                 <th scope="col" class="text-end pe-4">Действия</th>
                             </tr>
                         </thead>
@@ -49,7 +51,11 @@
                                             @Model[i].Name
                                         </a>
                                     </td>
-                                    <td class="fw-bold text-success">@Model[i].Cost.ToString("N2") ₽</td>
+                                    <td class="text-muted small">@Model[i].CurrentCategoryName</td>
+                                    <td class="fw-bold text-success">@Model[i].Cost.ToString("N0") ₽</td>
+                                    <td>
+                                        <span class="status-badge @(Model[i].Stock == 0 ? "status-Canceled" : Model[i].Stock <= 3 ? "status-Delivering" : "status-Delivered")">@Model[i].Stock шт.</span>
+                                    </td>
                                     <td class="text-end pe-4">
                                         <div class="btn-group" role="group">
                                             <a asp-area="Admin" asp-controller="Product" asp-action="Edit"

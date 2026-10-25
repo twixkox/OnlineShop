@@ -114,8 +114,33 @@ namespace OnlineShopWebApp.Areas.Client.Models
         public string GetUserPhotoPath()
         {
             var fileName = "UserAvatar.png";
-            var relativePath = Path.Combine("uploads", "users", "avatars", fileName);
+            return $"uploads/users/avatars/{fileName}";
+        }
 
+        public async Task<string> SaveAvatarAsync(IFormFile file, string userId)
+        {
+            if (file == null || file.Length == 0) throw new ArgumentException("Пустой файл");
+            if (file.Length > 5 * 1024 * 1024) throw new ArgumentException("Файл больше 5 МБ");
+
+            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+            if (!new[] { ".jpg", ".jpeg", ".png", ".webp" }.Contains(extension))
+            {
+                throw new ArgumentException("Допустимы только изображения JPG, PNG или WEBP");
+            }
+
+            // Имя по id пользователя + метка времени, чтобы браузер не показывал старый аватар из кэша
+            var safeId = new string(userId.Where(char.IsLetterOrDigit).ToArray());
+            var fileName = $"{safeId}-{DateTime.UtcNow:yyyyMMddHHmmss}.jpg";
+            var relativePath = Path.Combine("uploads", "users", "avatars", fileName).Replace('\\', '/');
+            var physicalPath = Path.Combine(_appEnviroment.WebRootPath, "uploads", "users", "avatars", fileName);
+            Directory.CreateDirectory(Path.GetDirectoryName(physicalPath)!);
+
+            await using var stream = file.OpenReadStream();
+            using var image = await Image.LoadAsync(stream);
+            image.Mutate(x => x.Resize(new ResizeOptions { Size = new Size(256, 256), Mode = ResizeMode.Crop }));
+            await image.SaveAsJpegAsync(physicalPath);
+
+            _logger.LogInformation("Сохранён аватар {Path}", relativePath);
             return relativePath;
         }
     }

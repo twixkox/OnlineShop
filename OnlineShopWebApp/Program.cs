@@ -10,6 +10,7 @@ using OnlineShopWebApp.Areas.Client.Models;
 using Serilog;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
+using OnlineShopWebApp.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -70,7 +71,22 @@ builder.Services.AddTransient<ICartsStorages, CartsDbStorages>();
 builder.Services.AddTransient<IOrderStorages, OrdersDbStorages>();
 builder.Services.AddTransient<ICategoryStorages, CategoryDbStorages>();
 builder.Services.AddTransient<IFavoritesStorages, FavoritesDbStorages>();
+builder.Services.AddTransient<IReviewStorages, ReviewsDbStorages>();
+builder.Services.AddTransient<IPromoCodeStorages, PromoCodesDbStorages>();
 builder.Services.AddSingleton<ICookieManager, ChunkingCookieManager>();
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICartOwnerProvider, CartOwnerProvider>();
+builder.Services.AddScoped<PromoCodeService>();
+builder.Services.AddScoped<OrderNotificationService>();
+
+// Почта: пока не заполнен раздел Smtp, письма пишутся в лог
+builder.Services.Configure<SmtpOptions>(builder.Configuration.GetSection(SmtpOptions.SectionName));
+builder.Services.AddSingleton<IEmailService, SmtpEmailService>();
+
+// Онлайн-оплата ЮKassa: включается, когда заданы ShopId и SecretKey
+builder.Services.Configure<YooKassaOptions>(builder.Configuration.GetSection(YooKassaOptions.SectionName));
+builder.Services.AddHttpClient<IPaymentService, YooKassaPaymentService>();
 #endregion
 
 Log.Logger = new LoggerConfiguration()
@@ -94,8 +110,14 @@ using (var scope = app.Services.CreateScope())
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<User>>();
 
+        // Миграции применяются здесь, а не в конструкторах контекстов:
+        // иначе база «мигрировала» при каждом создании контекста, а dotnet ef не мог создать новую миграцию
+        var identityContext = services.GetRequiredService<IdentityContext>();
+        var context = services.GetRequiredService<DatabaseContext>();
+        await DatabaseMigrator.MigrateAsync(identityContext);
+        await DatabaseMigrator.MigrateAsync(context);
+
         await IdentityInitializer.InitializeAsync(userManager, roleManager);
-        var context = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
         await ShopDbInitilizer.InitializeAsync(context);
     }
     catch (Exception ex)
@@ -135,10 +157,23 @@ name: "MyArea",
 pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}")
 .WithStaticAssets();
 
+// Человекочитаемые адреса: /catalog, /catalog/rozy, /product/{id}
 app.MapControllerRoute(
-    name: "catalog",
-    pattern: "catalog/{identityUrl}/{categoryId}",
+    name: "catalog-all",
+    pattern: "catalog",
     defaults: new { controller = "Catalog", action = "AllProducts" });
+
+app.MapControllerRoute(
+    name: "catalog-category",
+    pattern: "catalog/{slug}",
+    defaults: new { controller = "Catalog", action = "Category" },
+    // Старые адреса /Catalog/AllProducts и /Catalog/CurrentCategory продолжают работать
+    constraints: new { slug = new Microsoft.AspNetCore.Routing.Constraints.RegexRouteConstraint("^(?!(allproducts|currentcategory|category|index)$)[a-z0-9-]+$") });
+
+app.MapControllerRoute(
+    name: "product",
+    pattern: "product/{id:guid}",
+    defaults: new { controller = "Product", action = "Index" });
 
 
 app.MapControllerRoute(
