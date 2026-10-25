@@ -1,0 +1,59 @@
+@model List<ProductViewModel>
+@{
+    var categories = (ViewBag.Categories as List<OnlineShop.Db.Models.Category>) ?? new();
+    var currentId = ViewBag.CurrentCategoryId as Guid?;
+}
+
+@if (categories.Any())
+{
+    <nav class="chip-scroll mb-3" aria-label="Категории" data-reveal>
+        <a class="chip @(currentId == null ? "active" : "")" asp-controller="Catalog" asp-action="AllProducts">
+            <i class="bi bi-grid-3x3-gap"></i> Все
+        </a>
+        @foreach (var c in categories.OrderBy(c => c.Name))
+        {
+            <a class="chip @(currentId == c.Id ? "active" : "")" asp-controller="Catalog" asp-action="CurrentCategory"
+               asp-route-identityUrl="@c.IdentityUrl" asp-route-categoryId="@c.Id">
+                <i class="bi @UiHelper.CategoryIcon(c.IdentityUrl)"></i> @c.Name
+            </a>
+        }
+    </nav>
+}
+
+@if (Model != null && Model.Any())
+{
+    <div class="toolbar" data-reveal>
+        <div class="segmented" role="group" aria-label="Сортировка">
+            <button type="button" class="active" data-sort="default">Популярные</button>
+            <button type="button" data-sort="price-asc"><i class="bi bi-sort-numeric-down"></i> Дешевле</button>
+            <button type="button" data-sort="price-desc"><i class="bi bi-sort-numeric-up-alt"></i> Дороже</button>
+            <button type="button" data-sort="name"><i class="bi bi-sort-alpha-down"></i> По названию</button>
+        </div>
+        <div class="d-flex align-items-center gap-3 flex-grow-1 justify-content-end">
+            <span class="result-count d-none d-md-inline">Найдено: <span data-catalog-count>@Model.Count</span></span>
+            <div class="search-pill search-local">
+                <i class="bi bi-funnel"></i>
+                <input type="search" class="form-control" placeholder="Фильтр по названию" data-catalog-search aria-label="Фильтр по названию">
+            </div>
+        </div>
+    </div>
+
+    <partial name="_ProductGrid" model="Model" view-data="ViewData" />
+
+    <div class="empty-state" data-catalog-empty hidden>
+        <div class="ico"><i class="bi bi-search"></i></div>
+        <h3>Ничего не нашлось</h3>
+        <p>Попробуйте изменить запрос или посмотрите другие категории.</p>
+    </div>
+}
+else
+{
+    <div class="surface empty-state" data-reveal>
+        <div class="ico"><i class="bi bi-flower2"></i></div>
+        <h3>Здесь пока пусто</h3>
+        <p>В этой категории ещё нет товаров — скоро мы их высадим. А пока загляните в общий каталог.</p>
+        <a asp-controller="Catalog" asp-action="AllProducts" class="btn btn-success btn-lg">
+            <i class="bi bi-grid me-2"></i>Весь каталог
+        </a>
+    </div>
+}

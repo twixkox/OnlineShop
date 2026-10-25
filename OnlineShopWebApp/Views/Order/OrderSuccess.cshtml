@@ -1,38 +1,48 @@
 ﻿@{
-    ViewData["Title"] = "Оплата заказа";
+    ViewData["Title"] = "Заказ оформлен";
+    var orderId = ViewData["OrderId"] as string;
 }
 
-<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
-    <div>
-        <h1 class="h3 mb-0">
-            <i class="bi bi-credit-card me-2"></i>@ViewData["Title"]
-        </h1>
-        <p class="mb-0 small opacity-75">Результат оплаты</p>
-    </div>
-    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-light">
-        <i class="bi bi-house-door me-1"></i>На главную
-    </a>
+<div class="steps justify-content-center mt-2" data-reveal>
+    <span class="step done"><span class="num"><i class="bi bi-check-lg"></i></span>Корзина</span>
+    <span class="line done"></span>
+    <span class="step done"><span class="num"><i class="bi bi-check-lg"></i></span>Доставка</span>
+    <span class="line done"></span>
+    <span class="step current"><span class="num">3</span>Готово</span>
 </div>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
-                        Статус оплаты
-                    </h5>
-                </div>
-                <div class="card-body text-center py-5">
-                    <i class="bi bi-check-circle-fill text-success" style="font-size: 4rem;"></i>
-                    <h2 class="mt-4 mb-3">Заказ успешно оплачен!</h2>
-                    <p class="text-muted">Благодарим за покупку!</p>
-                    <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg mt-3">
-                        <i class="bi bi-arrow-left me-1"></i>Продолжить покупки
-                    </a>
-                </div>
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="surface surface-pad text-center py-5" data-reveal>
+            <svg class="success-check" viewBox="0 0 120 120" aria-hidden="true">
+                <circle cx="60" cy="60" r="54" />
+                <path d="M36 62 L53 78 L86 44" />
+            </svg>
+            <h1 class="mb-3">Спасибо за заказ!</h1>
+            <p class="text-muted mb-1" style="font-size:1.05rem;">Мы получили ваш заказ и скоро свяжемся для подтверждения доставки.</p>
+            @if (!string.IsNullOrEmpty(orderId))
+            {
+                <p class="text-muted small mb-4">Номер заказа: <strong class="text-body">@orderId[..8].ToUpperInvariant()</strong></p>
+            }
+            else
+            {
+                <div class="mb-4"></div>
+            }
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <a asp-controller="Profile" asp-action="UserOrder" class="btn btn-success btn-lg">
+                    <i class="bi bi-bag-check me-2"></i>Мои заказы
+                </a>
+                <a asp-controller="Catalog" asp-action="AllProducts" class="btn btn-outline-success btn-lg">
+                    Продолжить покупки
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+@section Scripts {
+    @if (!string.IsNullOrEmpty(orderId))
+    {
+        <script>window.addEventListener('load', () => setTimeout(() => window.PlantShop?.confetti(), 600));</script>
+    }
+}

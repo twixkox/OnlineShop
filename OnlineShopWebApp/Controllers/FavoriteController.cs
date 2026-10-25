@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Helpers;
 using System.Security.Claims;
 
 namespace OnlineShopWebApp.Controllers
 {
+    [Authorize]
     public class FavoriteController : Controller
     {
         private readonly IProductStorages _productStorages;
@@ -18,66 +20,107 @@ namespace OnlineShopWebApp.Controllers
             _logger = logger;
         }
 
+        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
+
         public async Task<IActionResult> Index()
         {
-            _logger.LogInformation($"Получение пользователя");
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            _logger.LogInformation($"Получение списка избранного пользователя Id - {userId}");
-            var favorites = await _favoriteStorages.TryGetByUserIdAsync(userId);
             try
             {
+                _logger.LogInformation("Получение списка избранного пользователя");
+                var favorites = await _favoriteStorages.TryGetByUserIdAsync(UserId);
                 return View(favorites?.ToFavoriteViewModel());
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError($"Произошла ошибка при получении избранного. Favorite/Index");
+                _logger.LogError(ex, "Произошла ошибка при получении избранного. Favorite/Index");
                 return View("Error");
             }
         }
 
         public async Task<IActionResult> Add(Guid productId)
         {
-            _logger.LogInformation($"Получение id пользователя");
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-            if (userId == null)
-            {
-                TempData["InfoMessage"] = "Для продолжения необходимо авторизоваться";
-                return RedirectToAction("Authorization", "Authorization");
-            }
-            _logger.LogInformation($"Получение товара с Id - {productId}");
-            var product = await _productStorages.TryGetProductByIdAsync(productId);
             try
             {
-                if (product != null) await _favoriteStorages.AddAsync(product, userId);
+                var product = await _productStorages.TryGetProductByIdAsync(productId);
+                if (product != null) await _favoriteStorages.AddAsync(product, UserId);
+
+                if (Request.IsAjax())
+                {
+                    return Json(new { inFavorites = true, count = await CountAsync(), message = "Добавлено в избранное" });
+                }
 
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,$"Произошла ошибка при добавлении товара в избранное. Favorite/Add" +
-                    $"Id пользователя - {userId}" +
-                    $"Id товара - {productId}");
+                _logger.LogError(ex, "Произошла ошибка при добавлении товара в избранное. Id товара - {ProductId}", productId);
                 return View("Error");
             }
         }
-        public async Task<IActionResult> Delete(Guid productId, string userId)
+
+        // Добавляет товар, если его нет в избранном, и убирает, если он там уже есть (кнопка-сердечко на карточке)
+        public async Task<IActionResult> Toggle(Guid productId)
         {
-            _logger.LogError($"Удаление товара с Id - {productId}." +
-                $"Id пользователя - {userId}");
-            await _favoriteStorages.DeleteAsync(productId, userId);
             try
             {
+                var favorite = await _favoriteStorages.TryGetByUserIdAsync(UserId);
+                var isInFavorites = favorite?.Products?.Any(p => p.Id == productId) == true;
+
+                if (isInFavorites)
+                {
+                    await _favoriteStorages.DeleteAsync(productId, UserId);
+                }
+                else
+                {
+                    var product = await _productStorages.TryGetProductByIdAsync(productId);
+                    if (product == null) return NotFound();
+                    await _favoriteStorages.AddAsync(product, UserId);
+                }
+
+                if (Request.IsAjax())
+                {
+                    return Json(new
+                    {
+                        inFavorites = !isInFavorites,
+                        count = await CountAsync(),
+                        message = isInFavorites ? "Убрано из избранного" : "Добавлено в избранное"
+                    });
+                }
 
                 return RedirectToAction(nameof(Index));
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                _logger.LogError(ex,$"Произошла ошибка при удалении товара из избранонго" +
-                    $"Id пользователя - {userId}" +
-                    $"Id товара - {productId}");
+                _logger.LogError(ex, "Ошибка при изменении избранного. Id товара - {ProductId}", productId);
                 return View("Error");
             }
+        }
+
+        // userId берётся из авторизации, а не из адресной строки: раньше можно было удалять чужое избранное
+        public async Task<IActionResult> Delete(Guid productId)
+        {
+            try
+            {
+                await _favoriteStorages.DeleteAsync(productId, UserId);
+
+                if (Request.IsAjax())
+                {
+                    return Json(new { inFavorites = false, count = await CountAsync(), message = "Убрано из избранного" });
+                }
+
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Произошла ошибка при удалении товара из избранного. Id товара - {ProductId}", productId);
+                return View("Error");
+            }
+        }
+
+        private async Task<int> CountAsync()
+        {
+            var favorite = await _favoriteStorages.TryGetByUserIdAsync(UserId);
+            return favorite?.Products?.Count ?? 0;
         }
     }
 }

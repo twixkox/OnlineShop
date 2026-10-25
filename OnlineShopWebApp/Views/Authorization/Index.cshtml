@@ -1,149 +1,69 @@
-﻿@using OnlineShopWebApp.Areas.Client.Models
-@model AuthorizationUserViewModel
+﻿@model AuthorizationUserViewModel
 @{
-    ViewData["Title"] = "Вход в систему";
+    ViewData["Title"] = "Вход";
+    var returnUrl = ViewData["ReturnUrl"] as string;
 }
 
-<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
-    <div>
-        <h1 class="h3 mb-0">
-            <i class="bi bi-box-arrow-in-right me-2"></i>@ViewData["Title"]
-        </h1>
-    </div>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-light">
-        <i class="bi bi-house-door me-1"></i>На главную
-    </a>
-</div>
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
-    <div class="toast show bg-info text-white" role="alertdialog" aria-live="assertive" aria-atomic="false" data-bs-autohide="true" data-bs-delay="3000">
-    
-        <div class="toast-body">
-            @TempData["InfoMessage"]
-        </div>
-    </div>
-</div>
-
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-6 col-lg-5">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-lock text-success me-2"></i>
-                        Авторизация
-                    </h5>
+<div class="row justify-content-center py-lg-4">
+    <div class="col-xl-10">
+        <div class="auth-card">
+            <div class="row g-0">
+                <div class="col-md-5">
+                    <div class="auth-side d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="eyebrow" style="color:#ffd8a8">PlantShop</div>
+                            <h2 class="mb-3">С возвращением!</h2>
+                            <p>Войдите, чтобы оформлять заказы, следить за их статусом и сохранять понравившиеся растения.</p>
+                        </div>
+                        <ul class="list-unstyled d-grid gap-3 mt-4 mb-0">
+                            <li class="d-flex gap-2 align-items-center"><i class="bi bi-truck"></i> Доставка в удобный день</li>
+                            <li class="d-flex gap-2 align-items-center"><i class="bi bi-heart"></i> Избранное всегда под рукой</li>
+                            <li class="d-flex gap-2 align-items-center"><i class="bi bi-clock-history"></i> История заказов</li>
+                        </ul>
+                        <i class="bi bi-flower1 leaf-deco" aria-hidden="true"></i>
+                    </div>
                 </div>
+                <div class="col-md-7">
+                    <div class="p-4 p-lg-5">
+                        <h1 class="h2 mb-1">Вход в аккаунт</h1>
+                        <p class="text-muted mb-4">Нет аккаунта? <a asp-controller="Registration" asp-action="Index" class="fw-bold text-decoration-none">Зарегистрируйтесь</a></p>
 
-                <div class="card-body p-4">
-                    <form method="post" asp-controller="Authorization" asp-action="Authorization">
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-                        <div class="mb-4">
-                            <label asp-for="UserName" class="form-label fw-medium">
-                                <i class="bi bi-person text-success me-1"></i>Имя пользователя
-                            </label>
-                            <input asp-for="UserName" class="form-control form-control-lg"
-                                   placeholder="Введите имя пользователя" />
-                            <span asp-validation-for="UserName" class="text-danger small"></span>
-                        </div>
+                        <form method="post" asp-controller="Authorization" asp-action="Authorization" asp-route-returnUrl="@returnUrl">
+                            <div asp-validation-summary="ModelOnly" class="alert validation-summary-errors" role="alert"></div>
 
-                        <div class="mb-4">
-                            <label asp-for="Password" class="form-label fw-medium">
-                                <i class="bi bi-key text-success me-1"></i>Пароль
-                            </label>
-                            <div class="input-group">
-                                <input asp-for="Password" class="form-control form-control-lg"
-                                       placeholder="Введите пароль" type="password" id="password" />
-                                <button class="btn btn-outline-secondary" type="button"
-                                        onclick="togglePasswordVisibility()">
-                                    <i class="bi bi-eye" id="togglePasswordIcon"></i>
-                                </button>
+                            <div class="mb-3">
+                                <label asp-for="UserName" class="form-label">Email</label>
+                                <div class="form-icon-field">
+                                    <i class="bi bi-envelope"></i>
+                                    <input asp-for="UserName" class="form-control form-control-lg" placeholder="you@example.com" autocomplete="username" autofocus />
+                                </div>
+                                <span asp-validation-for="UserName" class="text-danger small"></span>
                             </div>
-                            <span asp-validation-for="Password" class="text-danger small"></span>
-                        </div>
 
-                        <div class="mb-4">
-                            <div class="form-check">
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label">Пароль</label>
+                                <div class="form-icon-field">
+                                    <i class="bi bi-lock"></i>
+                                    <input asp-for="Password" class="form-control form-control-lg" type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+                                    <button class="pass-toggle" type="button" onclick="togglePassword('password', this)" aria-label="Показать пароль"><i class="bi bi-eye"></i></button>
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="form-check mb-4">
                                 <input asp-for="RememberMe" class="form-check-input" type="checkbox" />
-                                <label asp-for="RememberMe" class="form-check-label">
-                                    Запомнить меня на этом устройстве
-                                </label>
+                                <label asp-for="RememberMe" class="form-check-label">Запомнить меня на этом устройстве</label>
                             </div>
-                        </div>
 
-                        <div class="d-grid gap-2">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                Войти <i class="bi bi-arrow-right ms-2"></i>
                             </button>
+                        </form>
 
-                            <div class="text-center mt-3">
-                                <p class="text-muted mb-2">Нет аккаунта?</p>
-                                <a asp-controller="Registration" asp-action="Index"
-                                       class="btn btn-outline-success">
-                                    <i class="bi bi-person-plus me-2"></i>Зарегистрироваться
-                                </a>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="card-footer bg-white py-3">
-                    <div class="small text-center text-muted">
-                        <i class="bi bi-shield-check text-success me-1"></i>
-                        Ваши данные защищены
-                    </div>
-                </div>
-            </div>
-
-            <div class="row g-3 mt-4">
-                <div class="col-4">
-                    <div class="text-center">
-                        <i class="bi bi-truck fs-1 text-success"></i>
-                        <p class="small text-muted mt-2">Быстрая доставка</p>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="text-center">
-                        <i class="bi bi-shield fs-1 text-success"></i>
-                        <p class="small text-muted mt-2">Гарантия качества</p>
-                    </div>
-                </div>
-                <div class="col-4">
-                    <div class="text-center">
-                        <i class="bi bi-arrow-repeat fs-1 text-success"></i>
-                        <p class="small text-muted mt-2">Легкий возврат</p>
+                        <p class="small text-muted text-center mt-4 mb-0"><i class="bi bi-shield-check text-success me-1"></i>Ваши данные надёжно защищены</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const toggleIcon = document.getElementById('togglePasswordIcon');
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('bi-eye');
-                toggleIcon.classList.add('bi-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('bi-eye-slash');
-                toggleIcon.classList.add('bi-eye');
-            }
-        }
-
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('blur', function() {
-                if (this.value) {
-                    this.classList.add('is-valid');
-                } else {
-                    this.classList.remove('is-valid');
-                }
-            });
-        });
-    </script>
-  
-}

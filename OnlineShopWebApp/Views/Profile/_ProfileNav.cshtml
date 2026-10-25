@@ -1,0 +1,20 @@
+@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString();
+    string Active(params string[] names) => names.Contains(action) ? "active" : "";
+}
+<aside class="surface p-3" data-reveal>
+    <div class="profile-head px-2 pt-2">
+        <img src="/uploads/users/avatars/UserAvatar.png" alt="">
+        <div class="min-w-0">
+            <div class="small text-muted">Личный кабинет</div>
+            <div class="fw-bold text-truncate" style="max-width: 12rem;">@User.Identity?.Name</div>
+        </div>
+    </div>
+    <nav class="profile-nav">
+        <a asp-controller="Profile" asp-action="ProfileEdit" class="@Active("ProfileEdit")"><i class="bi bi-person"></i>Личные данные</a>
+        <a asp-controller="Profile" asp-action="UserOrder" class="@Active("UserOrder", "DetailOrder")"><i class="bi bi-bag-check"></i>Мои заказы</a>
+        <a asp-controller="Favorite" asp-action="Index"><i class="bi bi-heart"></i>Избранное</a>
+        <a asp-controller="Profile" asp-action="EditPassword" class="@Active("EditPassword")"><i class="bi bi-key"></i>Смена пароля</a>
+        <a asp-controller="Authorization" asp-action="Logout" class="logout"><i class="bi bi-box-arrow-right"></i>Выйти</a>
+    </nav>
+</aside>

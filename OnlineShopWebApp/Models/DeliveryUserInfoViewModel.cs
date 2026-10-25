@@ -8,7 +8,7 @@ namespace OnlineShopWebApp.Areas.Client.Models
         public Guid Id { get; set; }
 
         [Display(Name = "Имя покупателя", Prompt = "Имя")]
-        [Required(ErrorMessage = "Не указанно имя")]
+        [Required(ErrorMessage = "Не указано имя")]
         [DataType(DataType.Text)]
         [StringLength(25, MinimumLength = 2, ErrorMessage = "Имя должно быть не более {1} символов")]
         public required string UserName { get; set; }
@@ -23,9 +23,9 @@ namespace OnlineShopWebApp.Areas.Client.Models
 
 
         [Display(Name = "Квартира", Prompt = "Квартира")]
-        [Required(ErrorMessage = "Не указан адрес доставки")]
+        [Required(ErrorMessage = "Не указана квартира")]
         [DataType(DataType.Text)]
-        [StringLength(200, MinimumLength = 1, ErrorMessage = "Адрес должен быть от {2} до {1} символов")]
+        [StringLength(200, MinimumLength = 1, ErrorMessage = "Квартира должна быть от {2} до {1} символов")]
         public required string Apartment { get; set; }
 
         [Display(Name = "Адрес доставки", Prompt = "Ленинградская область, Приозерский район, поселок Сосново, улица Вокзальная.")]

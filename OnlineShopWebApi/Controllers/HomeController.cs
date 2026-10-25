@@ -22,14 +22,14 @@ namespace OnlineShopWebApi.Controllers
         public async Task<IActionResult> Index()
         {
             var products = await _productStorage.GetAllAsync();
-            _logger.LogInformation($"Получение списка продуктов выполнено");
+            _logger.LogInformation($"РџРѕР»СѓС‡РµРЅРёРµ СЃРїРёСЃРєР° РїСЂРѕРґСѓРєС‚РѕРІ РІС‹РїРѕР»РЅРµРЅРѕ");
             try
             {
                 return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка получения продуктов");
+                _logger.LogError(ex, $"РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїСЂРѕРґСѓРєС‚РѕРІ");
 
                 return StatusCode(500);
             }
@@ -41,13 +41,13 @@ namespace OnlineShopWebApi.Controllers
             try
             {
                 var products = _productStorage.SearchAsync(query);
-                _logger.LogInformation($"Поиск продукта по параметрам выполнено");
+                _logger.LogInformation($"РџРѕРёСЃРє РїСЂРѕРґСѓРєС‚Р° РїРѕ РїР°СЂР°РјРµС‚СЂР°Рј РІС‹РїРѕР»РЅРµРЅРѕ");
 
                 return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка поиска продукта");
+                _logger.LogError(ex, $"РћС€РёР±РєР° РїРѕРёСЃРєР° РїСЂРѕРґСѓРєС‚Р°");
 
                 return StatusCode(500);
             }

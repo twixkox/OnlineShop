@@ -22,14 +22,14 @@ namespace OnlineShopWebApi.Controllers
         public async Task<IActionResult> Index(Guid id)
         {
             var product = await _productStorage.TryGetProductByIdAsync(id);
-            _logger.LogInformation($"Получение продукта с id - {id}");
+            _logger.LogInformation($"РџРѕР»СѓС‡РµРЅРёРµ РїСЂРѕРґСѓРєС‚Р° СЃ id - {id}");
             try
             {
                 return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка получения продукта id - {id}");
+                _logger.LogError(ex, $"РћС€РёР±РєР° РїРѕР»СѓС‡РµРЅРёСЏ РїСЂРѕРґСѓРєС‚Р° id - {id}");
 
                 return StatusCode(500);
             }

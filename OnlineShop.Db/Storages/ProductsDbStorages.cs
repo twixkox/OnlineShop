@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 
@@ -52,9 +52,20 @@ namespace OnlineShop.Db.Storages
         }
         public async Task<List<Product>> SearchAsync(string? query)
         {
-            if (query == null) return [];
+            if (string.IsNullOrWhiteSpace(query)) return [];
 
-            return await databaseContext.Products.Where(p => p.Name.Contains(query)).ToListAsync();
+            query = query.Trim();
+
+            return await databaseContext.Products
+                .Where(p => p.Name.Contains(query) || p.Description.Contains(query))
+                .ToListAsync();
+        }
+
+        public async Task<List<Product>> GetByCategoryIdAsync(Guid categoryId)
+        {
+            return await databaseContext.Products
+                .Where(p => p.CategoryId == categoryId)
+                .ToListAsync();
         }
 
         public async Task<List<Guid>> TryGetProductsByCategoryId(Guid categoryId)

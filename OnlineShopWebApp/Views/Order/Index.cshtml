@@ -1,187 +1,131 @@
-﻿@using OnlineShopWebApp.Areas.Client.Models
-@model OrderViewModel
+﻿@model OrderViewModel
 @{
     ViewData["Title"] = "Оформление заказа";
+    var minDate = DateTime.Today.ToString("yyyy-MM-dd");
+    var maxDate = DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd");
 }
-<head>
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=3e62edd6-687f-4cb4-990d-4710e34632a1&lang=ru_RU" type="text/javascript"></script>
-    <script src="~/js/index.js"></script>
-</head>
 
-<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+@section Head {
+    <script src="https://api-maps.yandex.ru/2.1/?apikey=3e62edd6-687f-4cb4-990d-4710e34632a1&lang=ru_RU" defer></script>
+}
+
+<section class="page-hero d-flex justify-content-between align-items-end">
     <div>
-        <h1 class="h3 mb-0">
-            <i class="bi bi-truck me-2"></i>@ViewData["Title"]
-        </h1>
-        <p class="mb-0 small opacity-75">Заполните данные для доставки</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Главная</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Cart" asp-action="Index">Корзина</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Оформление</li>
+            </ol>
+        </nav>
+        <h1>Оформление заказа</h1>
+        <p>Осталось указать, куда и когда привезти растения</p>
     </div>
     <a asp-controller="Cart" asp-action="Index" class="btn btn-light">
         <i class="bi bi-arrow-left me-1"></i>Назад в корзину
     </a>
+</section>
+
+<div class="steps" data-reveal>
+    <span class="step done"><span class="num"><i class="bi bi-check-lg"></i></span>Корзина</span>
+    <span class="line done"></span>
+    <span class="step current"><span class="num">2</span>Доставка</span>
+    <span class="line"></span>
+    <span class="step"><span class="num">3</span>Готово</span>
 </div>
 
-<div class="container">
-    @if (Model != null && Model.Items.Count > 0)
-    {
-        <div class="row justify-content-center">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
-                            Информация о заказе и покупателе
-                        </h5>
+<form asp-controller="Order" asp-action="Buy" method="post">
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="surface surface-pad mb-4" data-reveal>
+                <div asp-validation-summary="ModelOnly" class="alert validation-summary-errors" role="alert"></div>
+
+                <h5 class="mb-3"><i class="bi bi-person-circle text-success me-2"></i>Получатель</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label" asp-for="DeliveryUserInfo.UserName"></label>
+                        <div class="form-icon-field">
+                            <i class="bi bi-person"></i>
+                            <input class="form-control" asp-for="DeliveryUserInfo.UserName" placeholder="Иван Иванов" autocomplete="name" />
+                        </div>
+                        <span asp-validation-for="DeliveryUserInfo.UserName" class="text-danger small"></span>
                     </div>
-                    <div class="card-body">
-                        <form method="post">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <h6 class="fw-bold text-success mb-3">
-                                        <i class="bi bi-person-circle me-2"></i>Данные получателя
-                                    </h6>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium" asp-for="DeliveryUserInfo.UserName"></label>
-                                        <input class="form-control" asp-for="DeliveryUserInfo.UserName" placeholder="Иванов Иван" />
-                                        <span asp-validation-for="DeliveryUserInfo.UserName" class="text-danger small"></span>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium" asp-for="DeliveryUserInfo.Phone"></label>
-                                        <input class="form-control" asp-for="DeliveryUserInfo.Phone" id="phoneInput" placeholder="+7 (999) 999-99-99" />
-                                        <span asp-validation-for="DeliveryUserInfo.Phone" class="text-danger small"></span>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium" asp-for="DeliveryUserInfo.Adress"></label>
-                                        <input class="form-control" asp-for="DeliveryUserInfo.Adress" id="deliveryAddress" placeholder="ул. Садовая, д. 1" />
-                                        <span asp-validation-for="DeliveryUserInfo.Adress" class="text-danger small"></span>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium" asp-for="DeliveryUserInfo.Apartment"></label>
-                                        <input class="form-control" asp-for="DeliveryUserInfo.Apartment" placeholder="кв./офис" />
-                                        <span asp-validation-for="DeliveryUserInfo.Apartment" class="text-danger small"></span>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium" asp-for="DeliveryUserInfo.DeliveryDate"></label>
-                                        <input class="form-control" asp-for="DeliveryUserInfo.DeliveryDate" type="date" />
-                                        <span asp-validation-for="DeliveryUserInfo.DeliveryDate" class="text-danger small"></span>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label fw-medium" asp-for="DeliveryUserInfo.Comment"></label>
-                                        <textarea class="form-control" asp-for="DeliveryUserInfo.Comment" rows="3" placeholder="Комментарий к заказу"></textarea>
-                                        <span asp-validation-for="DeliveryUserInfo.Comment" class="text-danger small"></span>
-                                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" asp-for="DeliveryUserInfo.Phone"></label>
+                        <div class="form-icon-field">
+                            <i class="bi bi-telephone"></i>
+                            <input class="form-control phone-input" asp-for="DeliveryUserInfo.Phone" type="tel" placeholder="+7 (999) 999-99-99" autocomplete="tel" />
+                        </div>
+                        <span asp-validation-for="DeliveryUserInfo.Phone" class="text-danger small"></span>
+                    </div>
+                </div>
 
-                                    <h6 class="fw-bold text-success mt-4 mb-3">
-                                        <i class="bi bi-geo-alt-fill me-2"></i>Выберите точку на карте
-                                    </h6>
-                                    <div id="map" style="width: 100%; height: 300px; border-radius: 8px;"></div>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <h6 class="fw-bold text-success mb-3">
-                                        <i class="bi bi-basket me-2"></i>Состав заказа
-                                    </h6>
-                                    <div class="table-responsive">
-                                        <table class="table table-hover align-middle">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th scope="col">#</th>
-                                                    <th scope="col">Наименование</th>
-                                                    <th scope="col" class="text-end">Цена</th>
-                                                    <th scope="col" class="text-center">Кол-во</th>
-                                                    <th scope="col" class="text-end">Сумма</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @for (var i = 0; i < Model.Items.Count; i++)
-                                                {
-                                                    var item = Model.Items[i];
-                                                    <tr>
-                                                        <td class="fw-bold">@(i + 1)</td>
-                                                        <td>@item.Product.Name</td>
-                                                        <td class="text-end">@item.Product.Cost.ToString("C")</td>
-                                                        <td class="text-center">@item.Quantity</td>
-                                                        <td class="fw-bold text-end">@item.Cost.ToString("C")</td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                            <tfoot class="table-light">
-                                                <tr>
-                                                    <th colspan="4" class="text-end">Общая стоимость:</th>
-                                                    <th class="text-end text-success">@Model.TotalCost?.ToString("C")</th>
-                                                </tr>
-                                            </tfoot>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="d-flex justify-content-between align-items-center mt-4">
-                                <a asp-area="" asp-controller="Cart" asp-action="Index" class="btn btn-outline-secondary">
-                                    <i class="bi bi-x-circle me-1"></i>Вернуться в корзину
-                                </a>
-                                <button class="btn btn-outline-success" type="submit"
-                                        asp-controller="Order"
-                                        asp-action="Buy">
-                                    Оплатить заказ
-                                </button>
-                            </div>
-                        </form>
+                <h5 class="mb-3"><i class="bi bi-geo-alt text-success me-2"></i>Доставка</h5>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label class="form-label" asp-for="DeliveryUserInfo.Adress"></label>
+                        <div class="form-icon-field">
+                            <i class="bi bi-signpost-split"></i>
+                            <input class="form-control" asp-for="DeliveryUserInfo.Adress" id="deliveryAddress" placeholder="Город, улица, дом" autocomplete="street-address" />
+                        </div>
+                        <span asp-validation-for="DeliveryUserInfo.Adress" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label" asp-for="DeliveryUserInfo.Apartment"></label>
+                        <input class="form-control" asp-for="DeliveryUserInfo.Apartment" placeholder="кв./офис или «частный дом»" />
+                        <span asp-validation-for="DeliveryUserInfo.Apartment" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-text mb-2"><i class="bi bi-hand-index me-1"></i>Кликните по карте — адрес подставится автоматически</div>
+                        <div id="map" class="map-box"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" asp-for="DeliveryUserInfo.DeliveryDate"></label>
+                        <div class="form-icon-field">
+                            <i class="bi bi-calendar-event"></i>
+                            <input class="form-control" asp-for="DeliveryUserInfo.DeliveryDate" type="date" min="@minDate" max="@maxDate" />
+                        </div>
+                        <span asp-validation-for="DeliveryUserInfo.DeliveryDate" class="text-danger small"></span>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label" asp-for="DeliveryUserInfo.Comment"></label>
+                        <textarea class="form-control" asp-for="DeliveryUserInfo.Comment" rows="3" placeholder="Например: позвонить за час до приезда"></textarea>
+                        <span asp-validation-for="DeliveryUserInfo.Comment" class="text-danger small"></span>
                     </div>
                 </div>
             </div>
         </div>
-    }
-    else
-    {
-        <div class="text-center text-muted py-5">
-            <i class="bi bi-inbox" style="font-size: 3rem;"></i>
-            <p class="mt-3 mb-0">Нет заказа для оформления</p>
-            <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-success mt-3">
-                <i class="bi bi-shop me-1"></i>Перейти в каталог
-            </a>
+
+        <div class="col-lg-5">
+            <aside class="surface surface-pad summary" data-reveal style="--d:.1s">
+                <h5 class="mb-2">Ваш заказ</h5>
+                @foreach (var item in Model.Items)
+                {
+                    var image = UiHelper.ProductImage(item.Product.ThumbnailsPhotoPath, item.Product.PhotoPath);
+                    <div class="d-flex align-items-center gap-3 py-2">
+                        <div class="cart-thumb" style="width:56px;height:56px;border-radius:12px;">
+                            <img src="@image" alt="" class="@(image == UiHelper.PlaceholderImage ? "is-placeholder" : "")">
+                        </div>
+                        <div class="flex-grow-1 small">
+                            <div class="fw-semibold">@item.Product.Name</div>
+                            <div class="text-muted">@item.Quantity × @item.Product.Cost.ToString("C0")</div>
+                        </div>
+                        <div class="fw-bold text-nowrap">@item.Cost.ToString("C0")</div>
+                    </div>
+                }
+                <div class="summary-total mb-4">
+                    <span class="fw-bold">Итого (@Model.ItemsQuantity шт.)</span>
+                    <span class="price">@Model.TotalCost?.ToString("C0")</span>
+                </div>
+                <button class="btn btn-accent btn-lg w-100" type="submit">
+                    <i class="bi bi-check2-circle me-2"></i>Подтвердить заказ
+                </button>
+                <p class="small text-muted text-center mt-3 mb-0">Нажимая кнопку, вы соглашаетесь с <a asp-controller="Home" asp-action="Privacy">политикой конфиденциальности</a></p>
+            </aside>
         </div>
-    }
-</div>
+    </div>
+</form>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-
-    <script>
-        function formatPhone(input) {
-            let numbers = input.value.replace(/\D/g, '');
-            if (numbers.startsWith('7') || numbers.startsWith('8')) {
-                numbers = numbers.substring(1);
-            }
-            numbers = numbers.slice(0, 11);
-            let formatted = '';
-            if (numbers.length > 0) {
-                formatted = '+7';
-                if (numbers.length > 0) {
-                    formatted += ' (' + numbers.substring(0, 3);
-                }
-                if (numbers.length >= 4) {
-                    formatted += ') ' + numbers.substring(3, 6);
-                }
-                if (numbers.length >= 7) {
-                    formatted += '-' + numbers.substring(6, 8);
-                }
-                if (numbers.length >= 9) {
-                    formatted += '-' + numbers.substring(8, 10);
-                }
-            }
-            input.value = formatted;
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const phoneInput = document.getElementById('phoneInput');
-            if (phoneInput) {
-                formatPhone(phoneInput);
-                phoneInput.addEventListener('input', function() {
-                    formatPhone(this);
-                });
-            }
-        });
-    </script>
+    <script src="~/js/index.js" asp-append-version="true"></script>
 }

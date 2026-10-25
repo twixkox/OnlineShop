@@ -1,129 +1,94 @@
-﻿@using OnlineShopWebApp.Areas.Client.Models
-@model RegistrationUser
+﻿@model RegistrationUser
 @{
     ViewData["Title"] = "Регистрация";
 }
 
-<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
-    <div>
-        <h1 class="h3 mb-0">
-            <i class="bi bi-person-plus me-2"></i>@ViewData["Title"]
-        </h1>
-        <p class="mb-0 small opacity-75">Создание новой учетной записи</p>
-    </div>
-    <a asp-controller="Home" asp-action="Index" class="btn btn-light">
-        <i class="bi bi-arrow-left me-1"></i>На главную
-    </a>
-</div>
-
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-sm">
-                <div class="card-header bg-white py-3">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
-                        Форма регистрации
-                    </h5>
+<div class="row justify-content-center py-lg-4">
+    <div class="col-xl-10">
+        <div class="auth-card">
+            <div class="row g-0">
+                <div class="col-md-5">
+                    <div class="auth-side d-flex flex-column justify-content-between">
+                        <div>
+                            <div class="eyebrow" style="color:#ffd8a8">PlantShop</div>
+                            <h2 class="mb-3">Добро пожаловать в сад!</h2>
+                            <p>Создайте аккаунт — и заказывайте растения в пару кликов, отслеживайте доставку и копите избранное.</p>
+                        </div>
+                        <ul class="list-unstyled d-grid gap-3 mt-4 mb-0">
+                            <li class="d-flex gap-2 align-items-center"><i class="bi bi-lightning-charge"></i> Быстрое оформление</li>
+                            <li class="d-flex gap-2 align-items-center"><i class="bi bi-chat-heart"></i> Советы по уходу</li>
+                            <li class="d-flex gap-2 align-items-center"><i class="bi bi-shield-check"></i> Данные под защитой</li>
+                        </ul>
+                        <i class="bi bi-flower3 leaf-deco" aria-hidden="true"></i>
+                    </div>
                 </div>
+                <div class="col-md-7">
+                    <div class="p-4 p-lg-5">
+                        <h1 class="h2 mb-1">Регистрация</h1>
+                        <p class="text-muted mb-4">Уже есть аккаунт? <a asp-controller="Authorization" asp-action="Index" class="fw-bold text-decoration-none">Войдите</a></p>
 
-                <div class="card-body">
+                        <form asp-controller="Registration" asp-action="Registration" method="post">
+                            <div asp-validation-summary="ModelOnly" class="alert validation-summary-errors" role="alert"></div>
 
-                    <form asp-controller="Registration" asp-action="Registration" method="post">
-
-                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
-
-                        <div class="mb-3">
-                            <label class="form-label fw-medium" asp-for="UserName">
-                                <i class="bi bi-envelope text-success me-1"></i>Email (логин)
-                            </label>
-                            <input class="form-control" asp-for="UserName" placeholder="user@example.com" />
-                            <span asp-validation-for="UserName" class="text-danger small"></span>
-                            <div class="form-text text-muted small">Будет использоваться для входа</div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium" asp-for="Password">
-                                    <i class="bi bi-lock text-success me-1"></i>Пароль
-                                </label>
-                                <div class="input-group">
-                                    <input class="form-control" asp-for="Password" type="password" id="passwordField" placeholder="********" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('passwordField', this)">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <label class="form-label" asp-for="FirstName">Имя</label>
+                                    <input class="form-control" asp-for="FirstName" placeholder="Иван" autocomplete="given-name" />
+                                    <span asp-validation-for="FirstName" class="text-danger small"></span>
                                 </div>
-                                <span asp-validation-for="Password" class="text-danger small"></span>
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium" asp-for="ReplayPassword">
-                                    <i class="bi bi-lock-fill text-success me-1"></i>Подтверждение
-                                </label>
-                                <div class="input-group">
-                                    <input class="form-control" asp-for="ReplayPassword" type="password" id="confirmPasswordField" placeholder="********" />
-                                    <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirmPasswordField', this)">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
+                                <div class="col-sm-6">
+                                    <label class="form-label" asp-for="LastName">Фамилия</label>
+                                    <input class="form-control" asp-for="LastName" placeholder="Иванов" autocomplete="family-name" />
+                                    <span asp-validation-for="LastName" class="text-danger small"></span>
                                 </div>
-                                <span asp-validation-for="ReplayPassword" class="text-danger small"></span>
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium" asp-for="FirstName">
-                                    <i class="bi bi-person text-success me-1"></i>Имя
-                                </label>
-                                <input class="form-control" asp-for="FirstName" placeholder="Введите имя" />
-                                <span asp-validation-for="FirstName" class="text-danger small"></span>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-medium" asp-for="LastName">
-                                    <i class="bi bi-person text-success me-1"></i>Фамилия
-                                </label>
-                                <input class="form-control" asp-for="LastName" placeholder="Введите фамилию" />
-                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="UserName">Email</label>
+                                <div class="form-icon-field">
+                                    <i class="bi bi-envelope"></i>
+                                    <input class="form-control" asp-for="UserName" placeholder="you@example.com" autocomplete="email" />
+                                </div>
+                                <span asp-validation-for="UserName" class="text-danger small"></span>
                             </div>
-                        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label fw-medium" asp-for="Phone">
-                                <i class="bi bi-telephone text-success me-1"></i>Телефон
-                            </label>
-                            <input class="form-control phone-input" asp-for="Phone" placeholder="+7 (999) 999-99-99" />
-                            <span asp-validation-for="Phone" class="text-danger small"></span>
-                        </div>
+                            <div class="mb-3">
+                                <label class="form-label" asp-for="Phone">Телефон</label>
+                                <div class="form-icon-field">
+                                    <i class="bi bi-telephone"></i>
+                                    <input class="form-control phone-input" asp-for="Phone" type="tel" placeholder="+7 (999) 999-99-99" autocomplete="tel" />
+                                </div>
+                                <span asp-validation-for="Phone" class="text-danger small"></span>
+                            </div>
 
-                        <div class="d-flex justify-content-between align-items-center mt-4">
-                            <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">
-                                <i class="bi bi-x-circle me-1"></i>Отмена
-                            </a>
-                           
-                            <button type="submit" class="btn btn-success px-4" id="submitBtn">
-                                <i class="bi bi-check-circle me-2"></i>Зарегистрироваться
+                            <div class="row g-3 mb-4">
+                                <div class="col-sm-6">
+                                    <label class="form-label" asp-for="Password">Пароль</label>
+                                    <div class="form-icon-field">
+                                        <i class="bi bi-lock"></i>
+                                        <input class="form-control" asp-for="Password" type="password" id="passwordField" autocomplete="new-password" />
+                                        <button class="pass-toggle" type="button" onclick="togglePassword('passwordField', this)" aria-label="Показать пароль"><i class="bi bi-eye"></i></button>
+                                    </div>
+                                    <span asp-validation-for="Password" class="text-danger small"></span>
+                                </div>
+                                <div class="col-sm-6">
+                                    <label class="form-label" asp-for="ReplayPassword">Повторите пароль</label>
+                                    <div class="form-icon-field">
+                                        <i class="bi bi-lock-fill"></i>
+                                        <input class="form-control" asp-for="ReplayPassword" type="password" id="confirmPasswordField" autocomplete="new-password" />
+                                        <button class="pass-toggle" type="button" onclick="togglePassword('confirmPasswordField', this)" aria-label="Показать пароль"><i class="bi bi-eye"></i></button>
+                                    </div>
+                                    <span asp-validation-for="ReplayPassword" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-success btn-lg w-100">
+                                Создать аккаунт <i class="bi bi-arrow-right ms-2"></i>
                             </button>
-                        </div>
-                    </form>
-                </div>
-
- 
-                <div class="card-footer bg-white py-3 text-center">
-                    <p class="mb-0 small">
-                        Уже есть аккаунт?
-                        <a asp-controller="Authorization" asp-action="Index" class="text-success fw-medium">
-                            Войдите <i class="bi bi-box-arrow-in-right ms-1"></i>
-                        </a>
-                    </p>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

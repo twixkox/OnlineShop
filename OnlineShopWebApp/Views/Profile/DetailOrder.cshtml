@@ -1,148 +1,112 @@
-﻿@using OnlineShopWebApp.Areas.Client.Models
-@model OrderViewModel
+﻿@model OrderViewModel
 @{
-    ViewData["Title"] = $"Заказ № {Model?.Id}";
+    var number = Model?.Id.ToString()[..8].ToUpperInvariant();
+    ViewData["Title"] = Model != null ? $"Заказ № {number}" : "Заказ не найден";
+    var steps = new[]
+    {
+        (OrderStatusViewModel.Created, "Создан"),
+        (OrderStatusViewModel.Processed, "В обработке"),
+        (OrderStatusViewModel.Delivering, "В пути"),
+        (OrderStatusViewModel.Delivered, "Доставлен")
+    };
 }
 
-<div class="d-flex justify-content-between align-items-center bg-success text-white p-4 mb-4 rounded-3">
+<section class="page-hero d-flex justify-content-between align-items-end">
     <div>
-        <h1 class="h3 mb-0">
-            <i class="bi bi-truck me-2"></i>Детали заказа
-        </h1>
-        <p class="mb-0 small opacity-75">Просмотр информации о заказе №@Model?.Id</p>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a asp-controller="Profile" asp-action="ProfileEdit">Личный кабинет</a></li>
+                <li class="breadcrumb-item"><a asp-controller="Profile" asp-action="UserOrder">Мои заказы</a></li>
+                <li class="breadcrumb-item active" aria-current="page">@ViewData["Title"]</li>
+            </ol>
+        </nav>
+        <h1>@ViewData["Title"]</h1>
+        @if (Model != null)
+        {
+            <p>от @Model.CreationDateOrder.ToString("d MMMM yyyy, HH:mm")</p>
+        }
     </div>
-    <a asp-controller="Profile" asp-action="UserOrder" class="btn btn-light">
-        <i class="bi bi-arrow-left me-1"></i>Назад к списку
-    </a>
-</div>
+    <a asp-controller="Profile" asp-action="UserOrder" class="btn btn-light"><i class="bi bi-arrow-left me-1"></i>Все заказы</a>
+</section>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-12">
-            @if (Model != null)
+@if (Model == null)
+{
+    <div class="surface empty-state" data-reveal>
+        <div class="ico"><i class="bi bi-question-lg"></i></div>
+        <h3>Заказ не найден</h3>
+        <p>Возможно, ссылка устарела или заказ принадлежит другому пользователю.</p>
+        <a asp-controller="Profile" asp-action="UserOrder" class="btn btn-success btn-lg">К списку заказов</a>
+    </div>
+    return;
+}
+
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="surface surface-pad mb-4" data-reveal>
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <h5 class="mb-0">Статус</h5>
+                <span class="status-badge status-@Model.Status">@Html.DisplayFor(m => m.Status)</span>
+            </div>
+            @if (Model.Status != OrderStatusViewModel.Canceled)
             {
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-                        <h5 class="card-title mb-0">
-                            <i class="bi bi-grid-3x3-gap-fill text-success me-2"></i>
-                            Информация о заказе
-                        </h5>
-                        <span class="badge @(Model.Status switch
-                              {
-                                  OrderStatusViewModel.Created => "bg-secondary",
-                                  OrderStatusViewModel.Processed => "bg-info",
-                                  OrderStatusViewModel.Delivering => "bg-warning",
-                                  OrderStatusViewModel.Delivered => "bg-success",
-                                  OrderStatusViewModel.Canceled => "bg-danger",
-                                  _ => "bg-secondary"
-                              }) p-2">
-                            @Html.DisplayFor(m => m.Status)
-                        </span>
-                    </div>
-
-                    <div class="card-body">
-                        <div class="row mb-4">
-                            <div class="col-md-6">
-                                <table class="table table-sm table-borderless">
-                                    <tr>
-                                        <td class="fw-medium" style="width: 40%;">Номер заказа</td>
-                                        <td>@Model.Id</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-medium">Дата создания</td>
-                                        <td>@Model.CreationDateOrder.ToString("dd.MM.yyyy HH:mm")</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-medium">Общая сумма</td>
-                                        <td class="fw-bold text-success">@Model.TotalCost?.ToString("C")</td>
-                                    </tr>
-                                </table>
-                            </div>
-                            <div class="col-md-6">
-                                <table class="table table-sm table-borderless">
-                                    <tr>
-                                        <td class="fw-medium" style="width: 40%;">Получатель</td>
-                                        <td>@Model.DeliveryUserInfo?.UserName</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-medium">Телефон</td>
-                                        <td>@Model.DeliveryUserInfo?.Phone</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-medium">Адрес доставки</td>
-                                        <td>
-                                            @Model.DeliveryUserInfo?.Adress
-                                            @if (!string.IsNullOrEmpty(Model.DeliveryUserInfo?.Apartment))
-                                            {
-                                                <span>, кв. @Model.DeliveryUserInfo.Apartment</span>
-                                            }
-                                        </td>
-                                    </tr>
-                                    @if (!string.IsNullOrEmpty(Model.DeliveryUserInfo?.Comment))
-                                    {
-                                        <tr>
-                                            <td class="fw-medium">Комментарий</td>
-                                            <td>@Model.DeliveryUserInfo.Comment</td>
-                                        </tr>
-                                    }
-                                </table>
-                            </div>
+                <div class="order-timeline">
+                    @for (var i = 0; i < steps.Length; i++)
+                    {
+                        var done = (int)Model.Status >= (int)steps[i].Item1;
+                        <div class="t-step @(done ? "done" : "")" style="--d: @(i * .25)s">
+                            <div class="t-bar"></div>
+                            @steps[i].Item2
                         </div>
-
-                        <h6 class="fw-bold text-success mb-3">
-                            <i class="bi bi-basket me-2"></i>Состав заказа
-                        </h6>
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th scope="col">#</th>
-                                        <th scope="col">Наименование</th>
-                                        <th scope="col" class="text-end">Цена</th>
-                                        <th scope="col" class="text-center">Количество</th>
-                                        <th scope="col" class="text-end">Сумма</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @for (var i = 0; i < Model.Items.Count; i++)
-                                    {
-                                        var item = Model.Items[i];
-                                        <tr>
-                                            <td class="fw-bold">@(i + 1)</td>
-                                            <td>@item.Product?.Name</td>
-                                            <td class="text-end">@item.Product?.Cost.ToString("C")</td>
-                                            <td class="text-center">@item.Quantity</td>
-                                            <td class="fw-bold text-end">@item.Cost.ToString("C")</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                                <tfoot class="table-light">
-                                    <tr>
-                                        <th colspan="4" class="text-end">Итого:</th>
-                                        <th class="text-end text-success">@Model.TotalCost?.ToString("C")</th>
-                                    </tr>
-                                </tfoot>
-                            </table>
-                        </div>
-
-                        <div class="d-flex justify-content-end mt-4">
-                            <a asp-controller="Profile" asp-action="UserOrder" class="btn btn-outline-secondary">
-                                <i class="bi bi-arrow-left me-1"></i>Вернуться к списку заказов
-                            </a>
-                        </div>
-                    </div>
+                    }
                 </div>
             }
             else
             {
-                <div class="text-center text-muted py-5">
-                    <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
-                    <p class="mt-3 mb-0">Заказ не найден</p>
-                    <a asp-controller="Profile" asp-action="UserOrder" class="btn btn-success mt-3">
-                        <i class="bi bi-arrow-left me-1"></i>Вернуться к списку
-                    </a>
-                </div>
+                <p class="text-muted mt-3 mb-0">Заказ был отменён. Если это ошибка — позвоните нам: <a href="tel:+78129250508">+7 (812) 925-05-08</a></p>
             }
         </div>
+
+        <div class="surface surface-pad" data-reveal style="--d:.1s">
+            <h5 class="mb-2">Состав заказа</h5>
+            @foreach (var item in Model.Items)
+            {
+                var image = UiHelper.ProductImage(item.Product?.ThumbnailsPhotoPath, item.Product?.PhotoPath);
+                <div class="cart-row">
+                    <a class="cart-thumb" asp-controller="Product" asp-action="Index" asp-route-id="@item.Product?.Id">
+                        <img src="@image" alt="@item.Product?.Name" class="@(image == UiHelper.PlaceholderImage ? "is-placeholder" : "")" loading="lazy">
+                    </a>
+                    <div>
+                        <a class="name" asp-controller="Product" asp-action="Index" asp-route-id="@item.Product?.Id">@item.Product?.Name</a>
+                        <div class="text-muted small mt-1">@item.Quantity × @item.Product?.Cost.ToString("C0")</div>
+                    </div>
+                    <div class="controls"><span class="line-total">@item.Cost.ToString("C0")</span></div>
+                </div>
+            }
+            <div class="summary-total">
+                <span class="fw-bold">Итого</span>
+                <span class="price">@Model.TotalCost?.ToString("C0")</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <aside class="surface surface-pad summary" data-reveal style="--d:.15s">
+            <h5 class="mb-3">Доставка</h5>
+            <ul class="info-list">
+                <li><i class="bi bi-person"></i><span class="text-body">@Model.DeliveryUserInfo?.UserName</span></li>
+                <li><i class="bi bi-telephone"></i><span class="text-body">@Model.DeliveryUserInfo?.Phone</span></li>
+                <li>
+                    <i class="bi bi-geo-alt"></i>
+                    <span class="text-body">
+                        @Model.DeliveryUserInfo?.Adress@(string.IsNullOrEmpty(Model.DeliveryUserInfo?.Apartment) ? "" : $", {Model.DeliveryUserInfo.Apartment}")
+                    </span>
+                </li>
+                <li><i class="bi bi-calendar-event"></i><span class="text-body">@Model.DeliveryUserInfo?.DeliveryDate.ToString("d MMMM yyyy")</span></li>
+                @if (!string.IsNullOrEmpty(Model.DeliveryUserInfo?.Comment))
+                {
+                    <li><i class="bi bi-chat-left-text"></i><span>@Model.DeliveryUserInfo.Comment</span></li>
+                }
+            </ul>
+        </aside>
     </div>
 </div>

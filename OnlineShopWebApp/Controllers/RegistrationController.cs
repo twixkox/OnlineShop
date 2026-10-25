@@ -22,56 +22,76 @@ namespace OnlineShopWebApp.Controllers
 
         public IActionResult Index()
         {
+            if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Home");
+
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> Registration(RegistrationUser user)
         {
             if (user.UserName == user.Password) ModelState.AddModelError("", "Логин и пароль должны отличаться");
 
-            var existingUser = await _userManager.FindByNameAsync(user.UserName);
-
-            if (existingUser != null)
+            if (!string.IsNullOrWhiteSpace(user.UserName))
             {
-                ModelState.AddModelError("", "Пользователь с таким Email уже существует");
+                var existingUser = await _userManager.FindByNameAsync(user.UserName.Trim());
+
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("", "Пользователь с таким Email уже существует");
+                }
             }
 
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning($"Попытка передачи невалидной модели для регистрации");
+                _logger.LogWarning("Попытка передачи невалидной модели для регистрации");
                 return View("Index", user);
             }
 
-            var currentUser = new User()
-            {
-                Email = user.UserName,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PhoneNumber = user.Phone,
-                CreationDateTime = DateTime.Now,
-                UserName = user.UserName,
-                ProfileImage = _fileStorageService.GetUserPhotoPath()
-            };
-            _logger.LogInformation($"Создание нового пользователя");
-            await _userManager.CreateAsync(currentUser, user.Password);
-            _logger.LogInformation($"Присвоение роли пользователю");
-            var addRole = await _userManager.AddToRoleAsync(currentUser, "User");
             try
             {
-                await _signInManager.SignInAsync(currentUser, true);
+                var currentUser = new User()
+                {
+                    Email = user.UserName.Trim(),
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    PhoneNumber = user.Phone,
+                    CreationDateTime = DateTime.Now,
+                    UserName = user.UserName.Trim(),
+                    ProfileImage = _fileStorageService.GetUserPhotoPath()
+                };
 
+                _logger.LogInformation("Создание нового пользователя");
+                var createResult = await _userManager.CreateAsync(currentUser, user.Password);
+
+                // Раньше результат не проверялся: при ошибке Identity пользователь «входил» в несуществующий аккаунт
+                if (!createResult.Succeeded)
+                {
+                    foreach (var error in createResult.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                    return View("Index", user);
+                }
+
+                _logger.LogInformation("Присвоение роли пользователю");
+                await _userManager.AddToRoleAsync(currentUser, Constants.UserRoleName);
+
+                await _signInManager.SignInAsync(currentUser, isPersistent: true);
+
+                TempData["SuccessMessage"] = $"Добро пожаловать, {currentUser.FirstName}! Аккаунт создан";
                 return RedirectToAction("Index", "Home");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Произошла ошибка при регистрации нового пользователя. Registration/Registration");
+                _logger.LogError(ex, "Произошла ошибка при регистрации нового пользователя. Registration/Registration");
                 return View("Error");
             }
         }
 
         public IActionResult Success()
         {
-            return View("Index");
+            return RedirectToAction(nameof(Index));
         }
     }
 }

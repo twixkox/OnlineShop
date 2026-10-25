@@ -1,0 +1,40 @@
+@model ProductViewModel
+@{
+    var favoriteIds = ViewData["FavoriteIds"] as HashSet<Guid> ?? new HashSet<Guid>();
+    var isFavorite = favoriteIds.Contains(Model.Id);
+    var image = UiHelper.ProductImage(Model.ThumbnailsPhotoPath, Model.PhotoPath);
+    var isPlaceholder = image == UiHelper.PlaceholderImage;
+    var showCategory = ViewData["HideCategory"] is not true && !string.IsNullOrEmpty(Model.CurrentCategoryName);
+}
+
+<article class="product-card" data-product>
+    <a href="@Url.Action("Toggle", "Favorite", new { area = "", productId = Model.Id })"
+       class="fav-btn @(isFavorite ? "is-active" : "")" data-fav-toggle data-id="@Model.Id"
+       aria-pressed="@(isFavorite ? "true" : "false")" aria-label="Избранное" title="В избранное">
+        <i class="bi @(isFavorite ? "bi-heart-fill" : "bi-heart")"></i>
+    </a>
+
+    <a class="product-media" asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@Model.Id" tabindex="-1">
+        <img src="@image" alt="@Model.Name" loading="lazy"
+             class="@(isPlaceholder ? "is-placeholder" : "")" style="--hue: @(UiHelper.Hue(Model.Id))deg">
+        <span class="quick"><i class="bi bi-eye me-1"></i>Подробнее</span>
+    </a>
+
+    <div class="product-body">
+        @if (showCategory)
+        {
+            <div class="product-cat">@Model.CurrentCategoryName</div>
+        }
+        <a class="product-title" asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@Model.Id">@Model.Name</a>
+        @if (!string.IsNullOrEmpty(Model.Description))
+        {
+            <p class="product-desc">@Model.Description</p>
+        }
+        <div class="product-foot">
+            <span class="price">@Model.Cost.ToString("C0")</span>
+            <a href="@Url.Action("Add", "Cart", new { area = "", productId = Model.Id })" class="cart-btn" data-add-to-cart aria-label="Добавить в корзину">
+                <i class="bi bi-bag-plus"></i><span class="label d-none d-sm-inline">В корзину</span>
+            </a>
+        </div>
+    </div>
+</article>
