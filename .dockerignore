@@ -1,0 +1,9 @@
+**/bin
+**/obj
+**/Logs
+**/*.db
+.git
+.github
+.vs
+docs
+OnlineShop.Tests
