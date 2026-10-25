@@ -1,126 +1,181 @@
-# Интернет-магазин растений "PlantShop"
-### Полнофункциональный интернет-магазин с административной панелью, системой заказов, корзиной, избранным и интеграцией карт. Проект реализован на ASP.NET Core MVC.
+# 🌿 PlantShop — интернет-магазин растений
 
-# Демо
-## http://91.122.60.254:8080/
+Полнофункциональный интернет-магазин питомника растений на **ASP.NET Core MVC**: каталог с мгновенной сортировкой и поиском, корзина и избранное без перезагрузки страницы, оформление заказа с выбором точки на карте, личный кабинет и административная панель.
 
-# Основные возможности
-## Для покупателей
-### Возможность авторизации/регистрации через ASP.Identity. Выполнено в модальных окнах.
-<img width="1915" height="917" alt="image" src="https://github.com/user-attachments/assets/4e97cba9-27df-4c92-9f9d-376222084fe2" />
+**Демо:** http://91.122.60.254:8080/
 
-<img width="1911" height="921" alt="image" src="https://github.com/user-attachments/assets/698f4e5f-00f7-4a5b-8e59-5daf9e2acd61" />
+![Главная страница](docs/screenshots/home.jpg)
 
+---
 
+## Содержание
+- [Возможности](#возможности)
+- [Скриншоты](#скриншоты)
+- [Дизайн и анимации](#дизайн-и-анимации)
+- [Безопасность](#безопасность)
+- [Технологии](#технологии)
+- [Структура проекта](#структура-проекта)
+- [Установка и запуск](#установка-и-запуск)
+- [Тестовые данные](#тестовые-данные)
+- [Контакты](#контакты)
 
-### Каталог товаров – динамическая сортировка (по цене, названию) и поиск без перезагрузки страницы.
-<img width="1902" height="901" alt="image" src="https://github.com/user-attachments/assets/9b8ebbd6-4649-4345-80de-1a2d12a15494" />
+---
 
+## Возможности
 
-### Корзина – добавление/удаление товаров, изменение количества, оформление заказа.
-<img width="1197" height="566" alt="image" src="https://github.com/user-attachments/assets/dbc75923-f768-441e-b217-c6dad2933df5" />
+### Для покупателей
+- **Каталог** — категории-«чипы», сортировка по цене и названию с плавной анимацией перестановки карточек, мгновенный фильтр по названию.
+- **Поиск** по названию и описанию товаров из любой страницы.
+- **Корзина** — добавление, изменение количества и удаление товаров без перезагрузки страницы; счётчик в шапке обновляется сразу.
+- **Избранное** — сердечко на каждой карточке товара.
+- **Оформление заказа** — форма с валидацией, выбор даты доставки и точки на Яндекс.Картах (адрес подставляется автоматически).
+- **Личный кабинет** — личные данные, история заказов с таймлайном статуса, смена пароля с индикатором надёжности.
+- **Вход и регистрация** — в модальных окнах или на отдельных страницах; после входа пользователь возвращается туда, откуда пришёл.
+- Всплывающие уведомления, страницы 404 и «Нет доступа».
 
+### Для администратора
+- **Товары** — CRUD, загрузка изображений, автоматическое создание миниатюр 300×300.
+- **Категории** — CRUD с изображениями.
+- **Пользователи** — просмотр, редактирование данных, смена пароля, назначение ролей.
+- **Заказы** — просмотр и смена статуса: Создан → В обработке → В пути → Доставлен → Отменён.
+- Доступ разграничен по ролям: **Admin** — всё, **Manager** — товары, категории и заказы.
 
+---
 
-### Избранное – сохранение понравившихся товаров.
-<img width="1302" height="766" alt="image" src="https://github.com/user-attachments/assets/e2f94671-a0e9-4978-8c3d-870dee1ca47c" />
+## Скриншоты
 
+### Главная
+![Категории и популярные товары](docs/screenshots/home-sections.jpg)
 
-### Личный кабинет – просмотр профиля, истории заказов, смена пароля, редактирование данных.
-<img width="1650" height="628" alt="image" src="https://github.com/user-attachments/assets/fdbacf96-07ee-41a1-96a6-d81a3aebc0f0" />
+### Каталог
+| Каталог | Меню категорий |
+|---|---|
+| ![Каталог](docs/screenshots/catalog.jpg) | ![Меню каталога](docs/screenshots/catalog-menu.jpg) |
 
+| Сортировка и фильтр | Карточка товара |
+|---|---|
+| ![Фильтр](docs/screenshots/catalog-filter.jpg) | ![Товар](docs/screenshots/product.jpg) |
 
-### Оформление заказа – форма с адресом, телефоном, датой доставки, комментарием и интеграцией Яндекс.Карт для выбора точки на карте.
-<img width="1031" height="881" alt="image" src="https://github.com/user-attachments/assets/068dec7f-0954-41fd-a383-25efcbfcb3bc" />
+### Покупка
+| Добавление в корзину | Избранное |
+|---|---|
+| ![Добавление в корзину](docs/screenshots/add-to-cart.jpg) | ![Избранное](docs/screenshots/favorites.jpg) |
 
+| Корзина | Оформление заказа |
+|---|---|
+| ![Корзина](docs/screenshots/cart.jpg) | ![Оформление](docs/screenshots/checkout.jpg) |
 
+![Заказ оформлен](docs/screenshots/order-success.jpg)
 
-## Для администратора
-### Управление товарами – CRUD, загрузка изображений, автоматическое создание миниатюр (300×300).
-<img width="1303" height="518" alt="image" src="https://github.com/user-attachments/assets/62d96fa4-8710-446a-acfa-2754936eae2b" />
-<img width="845" height="913" alt="image" src="https://github.com/user-attachments/assets/964eeed4-0bdd-4037-b5f6-5e0a1acaac01" />
+### Личный кабинет
+| Мои заказы | Детали заказа |
+|---|---|
+| ![Мои заказы](docs/screenshots/orders.jpg) | ![Детали заказа](docs/screenshots/order-details.jpg) |
 
+| Личные данные | Вход |
+|---|---|
+| ![Профиль](docs/screenshots/profile.jpg) | ![Окно входа](docs/screenshots/login-modal.jpg) |
 
+### Административная панель
+| Заказы | Товары |
+|---|---|
+| ![Админ: заказы](docs/screenshots/admin-orders.jpg) | ![Админ: товары](docs/screenshots/admin-products.jpg) |
 
-### Управление категориями – CRUD, древовидная структура.
-<img width="1306" height="730" alt="image" src="https://github.com/user-attachments/assets/746f6ebf-7ae7-481d-9630-d7519410c67a" />
+### Мобильная версия
+![Мобильная версия](docs/screenshots/mobile.jpg)
 
+### Страница 404
+![404](docs/screenshots/not-found.jpg)
 
-### Управление пользователями – просмотр списка, редактирование данных, смена пароля, назначение ролей.
-<img width="1375" height="545" alt="image" src="https://github.com/user-attachments/assets/7579ef50-4716-4382-ab5b-df0bf0e59a4b" />
+---
 
+## Дизайн и анимации
+- Собственная дизайн-система поверх Bootstrap 5: лесной зелёный, кремовый фон и терракотовый акцент, шрифты **Lora** и **Manrope**.
+- Адаптивная вёрстка — от телефона до широкого монитора.
+- Анимации: появление блоков при прокрутке, «полёт» товара в корзину, пульсирующее сердечко избранного, плавная сортировка (FLIP), увеличение фото товара под курсором, рисующаяся галочка и конфетти после заказа, прогресс прокрутки.
+- Учитывается системная настройка «уменьшить движение» (`prefers-reduced-motion`).
+- Если у товара нет фото, вместо заглушки показывается аккуратная иллюстрация.
 
-### Управление заказами – просмотр списка, изменение статуса (Создан → В обработке → В пути → Доставлен → Отменён).
-<img width="1176" height="505" alt="image" src="https://github.com/user-attachments/assets/439bd107-74c4-4545-957c-137d50924556" />
-<img width="1285" height="789" alt="image" src="https://github.com/user-attachments/assets/977fd0dc-d030-49ee-9177-dc686e56f681" />
+## Безопасность
+- Административная панель закрыта атрибутом `[Authorize]` с разграничением по ролям.
+- Корзина, избранное, заказы и профиль доступны только авторизованным пользователям; идентификатор пользователя берётся из авторизации, а не из запроса.
+- Пользователь видит только свои заказы.
+- Формы заказа, профиля и смены пароля защищены от CSRF.
+- Пароли хранятся в виде хеша (ASP.NET Core Identity).
 
+---
 
+## Технологии
 
-
-# Технологии
 ### Backend
-ASP.NET Core MVC (.NET 8).
-
-ASP.NET Core Web API – отдельный проект для REST API.
-
-Entity Framework Core (Code First, миграции).
-
-ASP.NET Core Identity (аутентификация, авторизация, роли).
-
-SixLabors.ImageSharp – создание миниатюр.
-
-Serilog / ILogger – логирование.
-
-Dependency Injection – внедрение сервисов.
+- ASP.NET Core MVC (.NET 10)
+- ASP.NET Core Web API — отдельный проект для REST API (JWT, Swagger)
+- Entity Framework Core (Code First, миграции), SQL Server
+- ASP.NET Core Identity — аутентификация, авторизация, роли
+- SixLabors.ImageSharp — создание миниатюр
+- Serilog — логирование
+- Dependency Injection
 
 ### Frontend
-Bootstrap 5 + Bootstrap Icons
-
-JavaScript – модальные окна, сортировка, поиск, форматирование телефона.
-
-Yandex.Maps API – выбор адреса на карте
+- Bootstrap 5 + Bootstrap Icons
+- JavaScript без фреймворков: AJAX-корзина и избранное, анимации, мгновенная сортировка и фильтр, форматирование телефона
+- Yandex.Maps API — выбор адреса доставки на карте
 
 ### Развёртывание
-IIS (Windows Server) с .NET Hosting Bundle
+- IIS (Windows Server) с .NET Hosting Bundle
+- Права на запись в папку `wwwroot/uploads`
 
-Настроены права доступа к папке wwwroot/uploads
+---
 
-Статические файлы с кэшированием
+## Структура проекта
+```
+OnlineShop.sln
+├── OnlineShop.Db        — модели, контексты EF Core, хранилища, миграции
+├── OnlineShopWebApp     — сайт (MVC): контроллеры, представления, wwwroot
+│   └── Areas/Admin      — административная панель
+└── OnlineShopWebApi     — REST API
+```
 
-# Установка и запуск
-## Локально
-### Клонировать репозиторий
+---
 
-### [git clone https://github.com/twixkox/OnlineShopWebApp.git](https://github.com/twixkox/OnlineShop)
+## Установка и запуск
 
-### cd OnlineShopWebApp
+1. Клонируйте репозиторий:
+   ```bash
+   git clone https://github.com/twixkox/OnlineShop.git
+   cd OnlineShop
+   ```
 
-Настроить базу данных (по умолчанию SQL Server Express)
-Измените строку подключения в appsettings.json:
+2. Укажите строку подключения к SQL Server в `OnlineShopWebApp/appsettings.json` (по умолчанию LocalDB):
+   ```json
+   "ConnectionStrings": {
+     "OnlineShop": "Server=(localdb)\\MSSQLLocalDB;Database=OnlineShop;Trusted_Connection=True;"
+   }
+   ```
 
-json
-"ConnectionStrings": {
-  "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=OnlineShop;Trusted_Connection=True;"
-}
+3. Запустите сайт — миграции применятся автоматически, а база заполнится тестовыми категориями и товарами:
+   ```bash
+   cd OnlineShopWebApp
+   dotnet run
+   ```
 
-Применить миграции
+4. Откройте в браузере http://localhost:5078 (или https://localhost:5001 с профилем `https`).
 
-dotnet ef database update
-Запустить приложение
+> Требуется [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
-dotnet run
-Открыть в браузере https://localhost:5001
+---
 
-# Тестовые данные
-## Администратор:
+## Тестовые данные
 
-### Email: admin@gmail.com
+**Администратор**
+- Email: `admin@gmail.com`
+- Пароль: `Admin12345!`
 
-### Пароль: Admin12345!
+**Пользователь** — зарегистрируйтесь на сайте.
 
-## Пользователь - путем регистрации нового пользователя
+---
 
-# Контакты
-### Email: twixkox@gmail.com
-### Telegram: @twixkox
-### GitHub: twixkox
+## Контакты
+- Email: twixkox@gmail.com
+- Telegram: [@twixkox](https://t.me/twixkox)
+- GitHub: [twixkox](https://github.com/twixkox)
