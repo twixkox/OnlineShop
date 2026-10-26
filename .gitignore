@@ -371,3 +371,6 @@ secrets.json
 # User uploaded files (avoid committing images)
 wwwroot/uploads/
 wwwroot/user-images/
+
+# Журнал и письма, сохранённые без SMTP
+/OnlineShopWebApp/App_Data/

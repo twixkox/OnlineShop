@@ -1,0 +1,8 @@
+@model double
+<span class="stars" aria-label="Оценка @Model.ToString("0.0") из 5">
+    @for (var i = 1; i <= 5; i++)
+    {
+        var icon = Model >= i - 0.25 ? "bi-star-fill" : Model >= i - 0.75 ? "bi-star-half" : "bi-star";
+        <i class="bi @icon"></i>
+    }
+</span>

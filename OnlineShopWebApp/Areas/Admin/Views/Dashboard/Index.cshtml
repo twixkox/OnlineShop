@@ -1,0 +1,201 @@
+@using OnlineShop.Db.Models
+@using OnlineShopWebApp.Services
+@model OnlineShopWebApp.Areas.Admin.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Сводка";
+    var maxRevenue = Model.Points.Count == 0 ? 0 : Model.Points.Max(p => p.Revenue);
+    var labelStep = Math.Max(1, Model.Points.Count / 10);
+    string Change(double? value) => value == null ? "" : (value >= 0 ? "+" : "−") + Math.Abs(value.Value).ToString("0") + "%";
+    var statusNames = new Dictionary<OrderStatus, string> { [OrderStatus.Created] = "Создан", [OrderStatus.Processed] = "В обработке", [OrderStatus.Delivering] = "В пути", [OrderStatus.Delivered] = "Доставлен", [OrderStatus.Canceled] = "Отменён" };
+    var totalStatus = Math.Max(1, Model.StatusCounts.Values.Sum());
+}
+
+<section class="page-hero d-flex justify-content-between align-items-end">
+    <div>
+        <h1>Сводка магазина</h1>
+        <p>Продажи и заказы за последние @Model.Days дн.</p>
+    </div>
+    <div class="segmented segmented-light">
+        @foreach (var d in new[] { 7, 30, 90, 365 })
+        {
+            <a class="@(d == Model.Days ? "active" : "")" asp-action="Index" asp-route-days="@d">@(d == 365 ? "Год" : $"{d} дн.")</a>
+        }
+    </div>
+</section>
+
+@{
+    var isAdmin = User.IsInRole("Admin");
+}
+<div class="health-bar @(Model.ErrorsLastDay > 0 ? "has-errors" : Model.WarningsLastDay > 0 ? "has-warnings" : "ok") mb-4" data-reveal>
+    <i class="bi @(Model.ErrorsLastDay > 0 ? "bi-exclamation-octagon" : Model.WarningsLastDay > 0 ? "bi-exclamation-triangle" : "bi-check-circle")"></i>
+    <div class="flex-grow-1 min-w-0">
+        @if (Model.ErrorsLastDay > 0)
+        {
+            <strong>Ошибок за сутки: @Model.ErrorsLastDay</strong>
+            <span class="text-truncate d-block small">Последняя @Model.LastError!.Timestamp.ToString("HH:mm") — @(Model.LastError.ExceptionTitle ?? Model.LastError.Message)</span>
+        }
+        else if (Model.WarningsLastDay > 0)
+        {
+            <strong>Ошибок за сутки нет</strong><span class="d-block small">Предупреждений: @Model.WarningsLastDay</span>
+        }
+        else
+        {
+            <strong>Сайт работает без ошибок</strong><span class="d-block small">За последние 24 часа в журнале нет ошибок и предупреждений</span>
+        }
+    </div>
+    @if (isAdmin && (Model.ErrorsLastDay > 0 || Model.WarningsLastDay > 0))
+    {
+        <a class="btn btn-sm btn-light" asp-controller="Journal" asp-action="Index" asp-route-level="@(Model.ErrorsLastDay > 0 ? "Error" : "Warning")">Открыть журнал</a>
+    }
+</div>
+
+<div class="row g-3 g-lg-4 mb-4" data-stagger=".06">
+    <div class="col-6 col-xl-3">
+        <div class="kpi">
+            <span class="kpi-label"><i class="bi bi-cash-stack"></i>Выручка</span>
+            <strong>@Model.Revenue.ToString("C0")</strong>
+            @if (Model.RevenueChange != null)
+            {
+                <span class="kpi-change @(Model.RevenueChange >= 0 ? "up" : "down")">@Change(Model.RevenueChange) к прошлому периоду</span>
+            }
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi">
+            <span class="kpi-label"><i class="bi bi-bag-check"></i>Заказы</span>
+            <strong>@Model.OrdersCount</strong>
+            @if (Model.OrdersChange != null)
+            {
+                <span class="kpi-change @(Model.OrdersChange >= 0 ? "up" : "down")">@Change(Model.OrdersChange) к прошлому периоду</span>
+            }
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi">
+            <span class="kpi-label"><i class="bi bi-receipt"></i>Средний чек</span>
+            <strong>@Model.AverageCheck.ToString("C0")</strong>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="kpi">
+            <span class="kpi-label"><i class="bi bi-person-plus"></i>Новые покупатели</span>
+            <strong>@Model.NewUsers</strong>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-8" data-reveal>
+        <div class="surface surface-pad h-100">
+            <h5 class="mb-4">Выручка по @(Model.Days > 90 ? "месяцам" : "дням")</h5>
+            @if (maxRevenue == 0)
+            {
+                <div class="empty-state py-4"><p class="mb-0">За этот период заказов пока нет.</p></div>
+            }
+            else
+            {
+                <div class="bar-chart" role="img" aria-label="Выручка по @(Model.Days > 90 ? "месяцам" : "дням")">
+                    @for (var i = 0; i < Model.Points.Count; i++)
+                    {
+                        var p = Model.Points[i];
+                        var h = maxRevenue == 0 ? 0 : (double)(p.Revenue / maxRevenue * 100);
+                        <div class="bar-col" title="@p.Label: @p.Revenue.ToString("C0"), заказов: @p.Orders">
+                            <div class="bar" style="--h: @(h.ToString(System.Globalization.CultureInfo.InvariantCulture))%; --d: @((i * 0.02).ToString(System.Globalization.CultureInfo.InvariantCulture))s"></div>
+                            <span class="bar-label">@(i % labelStep == 0 ? p.Label : "")</span>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-lg-4" data-reveal style="--d:.1s">
+        <div class="surface surface-pad h-100">
+            <h5 class="mb-4">Заказы по статусам</h5>
+            @foreach (var (status, name) in statusNames)
+            {
+                var count = Model.StatusCounts.GetValueOrDefault(status);
+                <div class="status-row">
+                    <div class="d-flex justify-content-between mb-1"><span class="status-badge status-@status">@name</span><strong>@count</strong></div>
+                    <div class="progress" style="height:6px;"><div class="progress-bar" style="width:@(count * 100 / totalStatus)%"></div></div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6" data-reveal>
+        <div class="surface surface-pad h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Последние заказы</h5>
+                <a asp-controller="Order" asp-action="Index" class="link-arrow small">Все <i class="bi bi-arrow-right"></i></a>
+            </div>
+            @if (!Model.LatestOrders.Any())
+            {
+                <p class="text-muted mb-0">Заказов пока нет.</p>
+            }
+            @foreach (var order in Model.LatestOrders)
+            {
+                <a class="dash-row" asp-controller="Order" asp-action="Detail" asp-route-orderId="@order.Id">
+                    <span class="fw-bold">№ @OrderNotificationService.Number(order)</span>
+                    <span class="text-muted small">@order.CreationDateOrder.ToString("d MMM, HH:mm")</span>
+                    <span class="status-badge status-@order.Status ms-auto">@statusNames[order.Status]</span>
+                    <strong>@OrderNotificationService.Total(order).ToString("C0")</strong>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="col-lg-3" data-reveal style="--d:.05s">
+        <div class="surface surface-pad h-100">
+            <h5 class="mb-3">Хиты продаж</h5>
+            @if (!Model.TopProducts.Any())
+            {
+                <p class="text-muted mb-0">Нет продаж за период.</p>
+            }
+            <ol class="top-list">
+                @foreach (var p in Model.TopProducts)
+                {
+                    <li><span>@p.Name</span><small>@p.Quantity шт. · @p.Revenue.ToString("C0")</small></li>
+                }
+            </ol>
+        </div>
+    </div>
+    <div class="col-lg-3" data-reveal style="--d:.1s">
+        <div class="surface surface-pad h-100">
+            <h5 class="mb-3">Заканчиваются</h5>
+            @if (!Model.LowStock.Any())
+            {
+                <p class="text-muted mb-0">Всего достаточно 👍</p>
+            }
+            @foreach (var p in Model.LowStock)
+            {
+                <a class="dash-row" asp-controller="Product" asp-action="Edit" asp-route-id="@p.Id">
+                    <span class="text-truncate">@p.Name</span>
+                    <span class="status-badge ms-auto @(p.Stock == 0 ? "status-Canceled" : "status-Delivering")">@p.Stock шт.</span>
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+@if (Model.LatestReviews.Any())
+{
+    <div class="surface surface-pad mt-4" data-reveal>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">Свежие отзывы</h5>
+            <a asp-controller="Review" asp-action="Index" class="link-arrow small">Все <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="row g-3">
+            @foreach (var r in Model.LatestReviews)
+            {
+                <div class="col-md-6 col-xl-3">
+                    <div class="review-card h-100">
+                        <div class="d-flex justify-content-between mb-1"><strong>@r.UserName</strong><partial name="_Stars" model="(double)r.Rating" /></div>
+                        <div class="small text-muted mb-2">@r.Product?.Name</div>
+                        <p class="small mb-0">@r.Text</p>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}

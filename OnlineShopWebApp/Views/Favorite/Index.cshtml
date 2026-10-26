@@ -23,14 +23,8 @@
 
 @if (items.Any())
 {
-    <div class="row g-3 g-md-4 row-cols-2 row-cols-md-3 row-cols-xl-4" data-stagger=".06">
-        @foreach (var product in items)
-        {
-            <div class="col product-item" data-remove-on-unfav>
-                <partial name="_ProductCard" model="product" view-data="ViewData" />
-            </div>
-        }
-    </div>
+    ViewData["RemoveOnUnfav"] = true;
+    <partial name="_ProductGrid" model="items" view-data="ViewData" />
 }
 else
 {

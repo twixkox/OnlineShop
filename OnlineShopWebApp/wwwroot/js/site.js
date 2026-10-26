@@ -168,7 +168,11 @@
             err.unauthorized = true;
             throw err;
         }
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+            const err = new Error(`HTTP ${response.status}`);
+            try { err.serverMessage = (await response.json()).message; } catch { /* не JSON */ }
+            throw err;
+        }
         return response.json();
     }
 
@@ -210,7 +214,7 @@
             }, 1800);
         } catch (err) {
             if (err.unauthorized) askToLogin();
-            else toast('Не удалось добавить товар. Попробуйте ещё раз', 'error');
+            else toast(err.serverMessage || 'Не удалось добавить товар. Попробуйте ещё раз', 'error');
         } finally {
             btn.classList.remove('is-loading');
         }
@@ -279,14 +283,18 @@
                     const c = row.querySelector('[data-line-total]');
                     if (q) q.textContent = data.itemQuantity;
                     if (c) c.textContent = data.itemCost;
+                    row.querySelector('[aria-label="Увеличить"]')?.classList.toggle('disabled', !!data.maxReached);
                 }
             }
             $$('[data-cart-total]').forEach(n => n.textContent = data.total);
+            $$('[data-cart-subtotal]').forEach(n => n.textContent = data.subtotal);
+            $$('[data-cart-discount]').forEach(n => n.textContent = '−' + data.discount);
             $$('[data-cart-count]').forEach(n => n.textContent = data.count);
             updateFreeShipping(data.total);
             if (data.itemQuantity === 0) toast('Товар удалён из корзины', 'info', 2500);
-        } catch {
-            window.location.href = btn.href;
+        } catch (err) {
+            if (err.serverMessage) toast(err.serverMessage, 'error');
+            else window.location.href = btn.href;
         }
     });
 
@@ -306,68 +314,15 @@
         }
     }
 
-    /* ---------- Каталог: сортировка и мгновенный поиск ---------- */
-    const grid = $('[data-catalog-grid]');
-    if (grid) {
-        const items = $$('.product-item', grid);
-        items.forEach((item, idx) => item.dataset.index = idx);
-        const search = $('[data-catalog-search]');
-        const counter = $('[data-catalog-count]');
-        const empty = $('[data-catalog-empty]');
-        let currentSort = 'default';
-
-        function apply() {
-            const q = (search?.value || '').trim().toLowerCase();
-            let visible = 0;
-
-            const sorted = [...items].sort((a, b) => {
-                const pa = parseFloat(a.dataset.price), pb = parseFloat(b.dataset.price);
-                switch (currentSort) {
-                    case 'price-asc': return pa - pb;
-                    case 'price-desc': return pb - pa;
-                    case 'name': return a.dataset.name.localeCompare(b.dataset.name, 'ru');
-                    default: return a.dataset.index - b.dataset.index;
-                }
-            });
-
-            // FLIP-анимация: карточки плавно «переезжают» на новые места
-            const first = new Map(items.map(i => [i, i.getBoundingClientRect()]));
-            sorted.forEach(i => grid.appendChild(i));
-
-            sorted.forEach(item => {
-                const match = !q || item.dataset.name.includes(q);
-                item.hidden = !match;
-                if (match) visible++;
-            });
-
-            if (!reduceMotion) {
-                sorted.forEach(item => {
-                    if (item.hidden) return;
-                    const a = first.get(item);
-                    const b = item.getBoundingClientRect();
-                    const dx = a.left - b.left, dy = a.top - b.top;
-                    if (!a.width || (!dx && !dy)) return;
-                    item.animate(
-                        [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'none' }],
-                        { duration: 500, easing: 'cubic-bezier(.22,1,.36,1)' }
-                    );
-                });
-            }
-
-            if (counter) counter.textContent = visible;
-            if (empty) empty.hidden = visible !== 0;
-        }
-
-        $$('[data-sort]').forEach(btn => btn.addEventListener('click', () => {
-            $$('[data-sort]').forEach(b => b.classList.toggle('active', b === btn));
-            currentSort = btn.dataset.sort;
-            apply();
-        }));
-
-        let t;
-        search?.addEventListener('input', () => {
-            clearTimeout(t);
-            t = setTimeout(apply, 120);
+    /* ---------- Каталог: фильтры применяются сразу (на компьютере) ---------- */
+    const filterForm = $('[data-filter-form]');
+    // Пустые поля не попадают в адрес: /catalog?light=Sun вместо /catalog?q=&min=&max=&light=Sun
+    filterForm?.addEventListener('submit', () => {
+        filterForm.querySelectorAll('input, select').forEach(el => { if (!el.value) el.disabled = true; });
+    });
+    if (filterForm && window.matchMedia('(min-width: 992px)').matches) {
+        filterForm.addEventListener('change', e => {
+            if (e.target.matches('input[type=checkbox], select')) filterForm.requestSubmit();
         });
     }
 

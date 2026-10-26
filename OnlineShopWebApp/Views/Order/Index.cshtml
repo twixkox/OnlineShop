@@ -1,12 +1,19 @@
-﻿@model OrderViewModel
+﻿@using OnlineShop.Db.Models
+@model OrderViewModel
+@inject IConfiguration Configuration
 @{
+    var mapsKey = Configuration["YandexMaps:ApiKey"];
+    var onlineEnabled = ViewBag.OnlinePaymentEnabled is true;
     ViewData["Title"] = "Оформление заказа";
     var minDate = DateTime.Today.ToString("yyyy-MM-dd");
     var maxDate = DateTime.Today.AddMonths(3).ToString("yyyy-MM-dd");
 }
 
 @section Head {
-    <script src="https://api-maps.yandex.ru/2.1/?apikey=3e62edd6-687f-4cb4-990d-4710e34632a1&lang=ru_RU" defer></script>
+    @if (!string.IsNullOrWhiteSpace(mapsKey))
+    {
+        <script src="https://api-maps.yandex.ru/2.1/?apikey=@mapsKey&lang=ru_RU" defer></script>
+    }
 }
 
 <section class="page-hero d-flex justify-content-between align-items-end">
@@ -88,6 +95,19 @@
                         <span asp-validation-for="DeliveryUserInfo.DeliveryDate" class="text-danger small"></span>
                     </div>
                     <div class="col-12">
+                        <span class="form-label d-block">Способ оплаты</span>
+                        <div class="pay-options">
+                            <label class="pay-option">
+                                <input type="radio" name="PaymentMethod" value="@PaymentMethod.OnDelivery" checked="@(Model.PaymentMethod == PaymentMethod.OnDelivery || !onlineEnabled)">
+                                <span><i class="bi bi-cash-coin"></i><strong>При получении</strong><small>Наличными или картой курьеру</small></span>
+                            </label>
+                            <label class="pay-option @(onlineEnabled ? "" : "is-disabled")" title="@(onlineEnabled ? "" : "Онлайн-оплата скоро появится")">
+                                <input type="radio" name="PaymentMethod" value="@PaymentMethod.Online" checked="@(onlineEnabled && Model.PaymentMethod == PaymentMethod.Online)" disabled="@(!onlineEnabled)">
+                                <span><i class="bi bi-credit-card"></i><strong>Онлайн</strong><small>@(onlineEnabled ? "Картой или СБП через ЮKassa" : "Скоро появится")</small></span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-12">
                         <label class="form-label" asp-for="DeliveryUserInfo.Comment"></label>
                         <textarea class="form-control" asp-for="DeliveryUserInfo.Comment" rows="3" placeholder="Например: позвонить за час до приезда"></textarea>
                         <span asp-validation-for="DeliveryUserInfo.Comment" class="text-danger small"></span>
@@ -111,6 +131,13 @@
                             <div class="text-muted">@item.Quantity × @item.Product.Cost.ToString("C0")</div>
                         </div>
                         <div class="fw-bold text-nowrap">@item.Cost.ToString("C0")</div>
+                    </div>
+                }
+                @if (Model.DiscountPercent > 0)
+                {
+                    <div class="summary-line text-success mt-2">
+                        <span>Скидка @Model.DiscountPercent% <span class="promo-chip">@Model.PromoCode</span></span>
+                        <span>−@((Model.Subtotal - Model.TotalCost)?.ToString("C0"))</span>
                     </div>
                 }
                 <div class="summary-total mb-4">

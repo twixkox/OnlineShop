@@ -1,0 +1,262 @@
+@using OnlineShopWebApp.Logging
+@model LogQueryResult
+@{
+    ViewData["Title"] = "Журнал";
+    var q = (LogQuery)ViewBag.Query;
+    var days = (List<DateOnly>)ViewBag.Days;
+    var files = (List<LogFileInfo>)ViewBag.Files;
+    var isToday = ViewBag.IsToday is true;
+    var levels = new[] { (LogLevelFilter.All, "Все"), (LogLevelFilter.Information, "Обычные"), (LogLevelFilter.Warning, "Предупреждения"), (LogLevelFilter.Error, "Ошибки") };
+    string LevelName(string level) => level switch { "Fatal" => "Критично", "Error" => "Ошибка", "Warning" => "Внимание", "Information" => "Инфо", "Debug" => "Отладка", _ => level };
+    string LevelClass(string level) => level switch { "Fatal" or "Error" => "lv-error", "Warning" => "lv-warn", "Debug" or "Verbose" => "lv-debug", _ => "lv-info" };
+    string Size(long bytes) => bytes switch { < 1024 => $"{bytes} Б", < 1024 * 1024 => $"{bytes / 1024.0:0.#} КБ", _ => $"{bytes / 1024.0 / 1024.0:0.#} МБ" };
+
+    string Link(int? page = null, LogLevelFilter? level = null, string? traceId = null, bool clearText = false, bool keepDate = true)
+    {
+        var values = new Dictionary<string, string?>
+        {
+            ["date"] = keepDate ? q.Date?.ToString("yyyy-MM-dd") : null,
+            ["level"] = (level ?? q.Level).ToString(),
+            ["q"] = clearText ? null : q.Q,
+            ["traceId"] = traceId ?? (clearText ? null : q.TraceId),
+            ["page"] = page?.ToString()
+        };
+        return Url.Action("Index", values.Where(v => !string.IsNullOrEmpty(v.Value)).ToDictionary(v => v.Key, v => (object?)v.Value))!;
+    }
+}
+
+<section class="page-hero d-flex justify-content-between align-items-end">
+    <div>
+        <h1>Журнал сайта</h1>
+        <p>Ошибки, предупреждения и действия пользователей — без доступа к файлам на сервере</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        @if (q.Date.HasValue)
+        {
+            <a class="btn btn-light" asp-action="Download" asp-route-date="@q.Date.Value.ToString("yyyy-MM-dd")"><i class="bi bi-download me-1"></i>Скачать день</a>
+        }
+    </div>
+</section>
+
+<form method="get" asp-action="Index" class="surface p-3 p-lg-4 mb-3 log-filters" data-reveal data-no-loader>
+    <div class="row g-2 g-lg-3 align-items-end">
+        <div class="col-6 col-lg-2">
+            <label class="form-label small" for="ldate">День</label>
+            <select id="ldate" name="date" class="form-select">
+                @if (!days.Any())
+                {
+                    <option value="">Нет записей</option>
+                }
+                @foreach (var d in days)
+                {
+                    <option value="@d.ToString("yyyy-MM-dd")" selected="@(q.Date == d)">@(d == DateOnly.FromDateTime(DateTime.Now) ? "Сегодня" : d == DateOnly.FromDateTime(DateTime.Now.AddDays(-1)) ? "Вчера" : d.ToString("d MMMM"))</option>
+                }
+            </select>
+        </div>
+        <div class="col-6 col-lg-2">
+            <label class="form-label small" for="llevel">Уровень</label>
+            <select id="llevel" name="level" class="form-select">
+                <option value="@LogLevelFilter.All" selected="@(q.Level == LogLevelFilter.All)">Все, включая отладку</option>
+                <option value="@LogLevelFilter.Information" selected="@(q.Level == LogLevelFilter.Information)">Обычные и выше</option>
+                <option value="@LogLevelFilter.Warning" selected="@(q.Level == LogLevelFilter.Warning)">Предупреждения и ошибки</option>
+                <option value="@LogLevelFilter.Error" selected="@(q.Level == LogLevelFilter.Error)">Только ошибки</option>
+            </select>
+        </div>
+        <div class="col-12 col-lg-4">
+            <label class="form-label small" for="lq">Поиск</label>
+            <div class="search-pill w-100 mw-100">
+                <i class="bi bi-search"></i>
+                <input id="lq" type="search" name="q" value="@q.Q" class="form-control" placeholder="Текст, адрес страницы, тип ошибки…">
+            </div>
+        </div>
+        <div class="col-8 col-lg-3">
+            <label class="form-label small" for="ltrace">Код запроса</label>
+            <input id="ltrace" type="search" name="traceId" value="@q.TraceId" class="form-control font-monospace" placeholder="со страницы ошибки">
+        </div>
+        <div class="col-4 col-lg-1">
+            <button type="submit" class="btn btn-success w-100" title="Показать"><i class="bi bi-funnel"></i></button>
+        </div>
+    </div>
+</form>
+
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3" data-reveal>
+    @foreach (var (level, label) in levels)
+    {
+        <a class="chip @(q.Level == level ? "active" : "")" href="@Link(level: level)">@label</a>
+    }
+    <span class="mx-1 text-muted">·</span>
+    @foreach (var lv in new[] { "Error", "Warning", "Information", "Debug" })
+    {
+        var count = Model.LevelCounts.GetValueOrDefault(lv) + (lv == "Error" ? Model.LevelCounts.GetValueOrDefault("Fatal") : 0);
+        <span class="log-count @LevelClass(lv)">@LevelName(lv): <strong>@count</strong></span>
+    }
+    <div class="ms-auto d-flex align-items-center gap-3">
+        @if (isToday)
+        {
+            <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="autorefresh">
+                <label class="form-check-label small" for="autorefresh">Обновлять каждые 10 с</label>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(q.Q) || !string.IsNullOrEmpty(q.TraceId))
+        {
+            <a class="small" href="@Link(clearText: true)">Сбросить поиск</a>
+        }
+    </div>
+</div>
+
+@if (!string.IsNullOrEmpty(q.TraceId))
+{
+    <div class="alert alert-light border mb-3" data-reveal>
+        <i class="bi bi-diagram-3 me-1"></i> Все записи одного запроса с кодом <code>@q.TraceId</code>
+        @if (Model.SearchedDays.Count > 0 && !q.Date.HasValue)
+        {
+            <span class="text-muted small">— найдено за @Model.SearchedDays.Last().ToString("d MMMM")</span>
+        }
+    </div>
+}
+
+@if (!Model.Entries.Any())
+{
+    <div class="surface empty-state" data-reveal>
+        <div class="ico"><i class="bi bi-journal-check"></i></div>
+        <h3>@(q.Level >= LogLevelFilter.Warning ? "Ошибок нет" : "Записей не найдено")</h3>
+        <p>@(q.Level >= LogLevelFilter.Warning ? "За выбранный день сайт работал без ошибок и предупреждений." : "Попробуйте выбрать другой день или изменить фильтры.")</p>
+    </div>
+}
+else
+{
+    <div class="surface p-0 overflow-hidden log-table" data-reveal>
+        @foreach (var e in Model.Entries)
+        {
+            <details class="log-row @LevelClass(e.Level)">
+                <summary>
+                    <span class="log-time">@e.Timestamp.ToString("HH:mm:ss")<small>.@e.Timestamp.ToString("fff")</small></span>
+                    <span class="log-level">@LevelName(e.Level)</span>
+                    <span class="log-msg">
+                        @e.Message
+                        @if (e.ExceptionTitle != null)
+                        {
+                            <span class="log-ex">@e.ExceptionTitle</span>
+                        }
+                    </span>
+                    <span class="log-src d-none d-md-inline" title="@e.SourceContext">@e.Source</span>
+                </summary>
+                <div class="log-details">
+                    <dl>
+                        <dt>Время</dt><dd>@e.Timestamp.ToString("dd.MM.yyyy HH:mm:ss.fff zzz")</dd>
+                        @if (e.TraceId != null)
+                        {
+                            <dt>Код запроса</dt>
+                            <dd><code>@e.TraceId</code> <a class="ms-2 small" href="@Link(traceId: e.TraceId, keepDate: true, clearText: true)">все записи этого запроса →</a></dd>
+                        }
+                        @if (e.SourceContext != null)
+                        {
+                            <dt>Источник</dt><dd><code>@e.SourceContext</code></dd>
+                        }
+                        @foreach (var p in e.Properties.Where(p => p.Key is not ("MachineName" or "Application" or "EventId" or "ConnectionId" or "RequestId")).OrderBy(p => p.Key))
+                        {
+                            <dt>@p.Key</dt>
+                            <dd>
+                                @if (p.Key == "UserId")
+                                {
+                                    <a asp-controller="User" asp-action="Detail" asp-route-userId="@p.Value"><code>@p.Value</code></a>
+                                }
+                                else
+                                {
+                                    <code>@p.Value</code>
+                                }
+                            </dd>
+                        }
+                    </dl>
+                    @if (e.Exception != null)
+                    {
+                        <div class="d-flex justify-content-between align-items-center mt-3 mb-1">
+                            <strong class="small">Исключение</strong>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-copy="ex-@e.Line-@e.Timestamp.Ticks"><i class="bi bi-clipboard me-1"></i>Скопировать</button>
+                        </div>
+                        <pre id="ex-@e.Line-@e.Timestamp.Ticks" class="log-exception">@e.Exception</pre>
+                    }
+                </div>
+            </details>
+        }
+    </div>
+
+    @if (Model.Truncated)
+    {
+        <p class="small text-muted mt-2"><i class="bi bi-info-circle me-1"></i>Совпадений слишком много — показаны последние записи. Уточните поиск или уровень.</p>
+    }
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav class="mt-4" aria-label="Страницы журнала">
+            <ul class="pagination pagination-ps justify-content-center flex-wrap">
+                <li class="page-item @(Model.Page <= 1 ? "disabled" : "")"><a class="page-link" href="@Link(Model.Page - 1)"><i class="bi bi-chevron-left"></i></a></li>
+                @for (var p = 1; p <= Model.TotalPages; p++)
+                {
+                    if (p == 1 || p == Model.TotalPages || Math.Abs(p - Model.Page) <= 2)
+                    {
+                        <li class="page-item @(p == Model.Page ? "active" : "")"><a class="page-link" href="@Link(p)">@p</a></li>
+                    }
+                    else if (Math.Abs(p - Model.Page) == 3)
+                    {
+                        <li class="page-item disabled"><span class="page-link">…</span></li>
+                    }
+                }
+                <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")"><a class="page-link" href="@Link(Model.Page + 1)"><i class="bi bi-chevron-right"></i></a></li>
+            </ul>
+        </nav>
+    }
+}
+
+<details class="surface p-3 p-lg-4 mt-4">
+    <summary class="fw-bold">Файлы журнала · @files.Count шт., @Size((long)ViewBag.TotalSize)</summary>
+    <p class="small text-muted mt-2">Файлы хранятся 30 дней, затем удаляются автоматически. Отдельный файл <code>errors-ГГГГММ.log</code> с ошибками хранится 12 месяцев.</p>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light"><tr><th>День</th><th>Файл</th><th class="text-end">Размер</th><th></th></tr></thead>
+            <tbody>
+                @foreach (var f in files)
+                {
+                    <tr>
+                        <td>@f.Date.ToString("d MMMM yyyy")</td>
+                        <td><code>@f.Name</code></td>
+                        <td class="text-end">@Size(f.Size)</td>
+                        <td class="text-end"><a asp-action="Index" asp-route-date="@f.Date.ToString("yyyy-MM-dd")" class="small">открыть</a></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</details>
+
+@section Scripts {
+    <script>
+        (function () {
+            // Применять фильтр сразу при смене дня или уровня
+            document.querySelectorAll('.log-filters select').forEach(s => s.addEventListener('change', () => s.form.requestSubmit()));
+
+            // Копирование стека исключения
+            document.addEventListener('click', e => {
+                const btn = e.target.closest('[data-copy]');
+                if (!btn) return;
+                navigator.clipboard?.writeText(document.getElementById(btn.dataset.copy).textContent)
+                    .then(() => window.PlantShop?.toast('Скопировано', 'success', 1500));
+            });
+
+            // Автообновление (только для сегодняшнего дня), настройка запоминается в браузере
+            const toggle = document.getElementById('autorefresh');
+            if (!toggle) return;
+            let timer;
+            const key = 'ps-log-autorefresh';
+            try { toggle.checked = localStorage.getItem(key) === '1'; } catch { }
+            const schedule = () => {
+                clearTimeout(timer);
+                if (toggle.checked && !document.querySelector('.log-row[open]')) timer = setTimeout(() => location.reload(), 10000);
+            };
+            toggle.addEventListener('change', () => { try { localStorage.setItem(key, toggle.checked ? '1' : '0'); } catch { } schedule(); });
+            document.addEventListener('toggle', schedule, true);
+            schedule();
+        })();
+    </script>
+}

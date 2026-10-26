@@ -55,5 +55,23 @@ namespace OnlineShop.Db.Storages
             }
             await databaseContext.SaveChangesAsync();
         }
+
+        public async Task<Order?> TryGetByPaymentIdAsync(string paymentId)
+        {
+            return await databaseContext.Order
+                .Include(x => x.Items).ThenInclude(x => x.Product)
+                .Include(x => x.DeliveryUserInfo)
+                .FirstOrDefaultAsync(o => o.PaymentId == paymentId);
+        }
+
+        public async Task UpdatePaymentAsync(Guid orderId, PaymentStatus status, string? paymentId = null)
+        {
+            var order = await databaseContext.Order.FirstOrDefaultAsync(o => o.Id == orderId);
+            if (order == null) return;
+
+            order.PaymentStatus = status;
+            if (paymentId != null) order.PaymentId = paymentId;
+            await databaseContext.SaveChangesAsync();
+        }
     }
 }

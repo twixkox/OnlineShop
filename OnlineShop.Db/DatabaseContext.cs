@@ -15,9 +15,12 @@ namespace OnlineShop.Db
 
         public DbSet<Category> Categories { get; set; }
 
+        public DbSet<Review> Reviews { get; set; }
+
+        public DbSet<PromoCode> PromoCodes { get; set; }
+
         public DatabaseContext(DbContextOptions<DatabaseContext> options) : base(options)
         {
-            Database.Migrate();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -33,6 +36,28 @@ namespace OnlineShop.Db
             modelBuilder.Entity<Category>()
                 .HasIndex(c => c.IdentityUrl)
                 .IsUnique();
+
+            modelBuilder.Entity<Product>()
+                .Property(p => p.Stock)
+                .HasDefaultValue(10);
+
+            modelBuilder.Entity<Review>()
+                .HasOne(r => r.Product)
+                .WithMany(p => p.Reviews)
+                .HasForeignKey(r => r.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Review>()
+                .HasIndex(r => new { r.ProductId, r.UserId })
+                .IsUnique();
+
+            modelBuilder.Entity<PromoCode>()
+                .HasIndex(p => p.Code)
+                .IsUnique();
+
+            modelBuilder.Entity<PromoCode>()
+                .Property(p => p.MinOrderAmount)
+                .HasPrecision(18, 2);
         }
     }
 }

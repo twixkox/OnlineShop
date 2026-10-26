@@ -1,0 +1,33 @@
+name: Сборка и тесты
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Установка .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Восстановление пакетов
+        run: dotnet restore OnlineShop.sln
+
+      - name: Сборка
+        run: dotnet build OnlineShop.sln --configuration Release --no-restore
+
+      - name: Тесты
+        run: dotnet test OnlineShop.Tests --configuration Release --no-build --logger "trx;LogFileName=results.trx"
+
+      - name: Результаты тестов
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: OnlineShop.Tests/TestResults/*.trx

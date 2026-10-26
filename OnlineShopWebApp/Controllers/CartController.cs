@@ -1,61 +1,92 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Helpers;
-using System.Security.Claims;
+using OnlineShopWebApp.Services;
+using System.Globalization;
 
 namespace OnlineShopWebApp.Controllers
 {
-    [Authorize]
+    /// <summary>
+    /// Корзина работает и для гостей (по cookie): после входа гостевая корзина переносится в аккаунт.
+    /// </summary>
     public class CartController : Controller
     {
+        private static readonly CultureInfo Ru = CultureInfo.GetCultureInfo("ru-RU");
+
         private readonly ICartsStorages _cartsStorage;
         private readonly IProductStorages _productStorage;
+        private readonly ICartOwnerProvider _owner;
+        private readonly PromoCodeService _promo;
         private readonly ILogger<CartController> _logger;
 
-        public CartController(ICartsStorages cartsStorage, IProductStorages productStorage, ILogger<CartController> logger)
+        public CartController(ICartsStorages cartsStorage, IProductStorages productStorage, ICartOwnerProvider owner,
+            PromoCodeService promo, ILogger<CartController> logger)
         {
             _cartsStorage = cartsStorage;
             _productStorage = productStorage;
+            _owner = owner;
+            _promo = promo;
             _logger = logger;
         }
-
-        private string UserId => User.FindFirstValue(ClaimTypes.NameIdentifier)!;
 
         public async Task<IActionResult> Index()
         {
             try
             {
-                _logger.LogInformation("Получение корзины пользователя");
-                var cart = await _cartsStorage.TryGetByUserIdAsync(UserId);
+                var cart = await _cartsStorage.TryGetByUserIdAsync(_owner.GetOwnerId(createIfMissing: false));
+                var viewModel = cart.ToCartViewModel();
 
-                return View(cart.ToCartViewModel());
+                // Промокод мог стать недействительным (истёк, сумма уменьшилась) — пересчитываем
+                if (viewModel != null && !string.IsNullOrEmpty(viewModel.PromoCode))
+                {
+                    var check = await _promo.CheckAsync(viewModel.PromoCode, viewModel.Subtotal);
+                    if (!check.IsValid)
+                    {
+                        await _cartsStorage.SetPromoCodeAsync(cart!.UserId!, null, 0);
+                        viewModel.PromoCode = null;
+                        viewModel.Discount = 0;
+                        TempData["InfoMessage"] = $"Промокод снят: {check.Message.ToLower(Ru)}";
+                    }
+                }
+
+                return View(viewModel);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Произошла ошибка получения корзины пользователя. Cart/Index");
+                _logger.LogError(ex, "Произошла ошибка получения корзины. Cart/Index");
                 return View("Error");
             }
         }
 
-        public async Task<IActionResult> Add(Guid productId, int quantity = 1)
+        public async Task<IActionResult> Add(Guid productId)
         {
             try
             {
-                _logger.LogInformation("Добавление товара в корзину пользователя");
                 var product = await _productStorage.TryGetProductByIdAsync(productId);
-
                 if (product == null)
                 {
                     return Request.IsAjax() ? NotFound() : RedirectToAction("AllProducts", "Catalog");
                 }
 
-                await _cartsStorage.AddAsync(product, UserId);
+                var added = await _cartsStorage.AddAsync(product, _owner.GetOwnerId());
 
-                if (Request.IsAjax())
+                if (!added)
                 {
-                    return Json(await GetCartStateAsync(productId, $"«{product.Name}» в корзине"));
+                    var message = product.Stock <= 0
+                        ? $"«{product.Name}» сейчас нет в наличии"
+                        : $"Больше нет на складе: доступно {product.Stock} шт.";
+
+                    if (Request.IsAjax())
+                    {
+                        Response.StatusCode = StatusCodes.Status409Conflict;
+                        return Json(new { message });
+                    }
+
+                    TempData["ErrorMessage"] = message;
+                    return RedirectToAction(nameof(Index));
                 }
+
+                if (Request.IsAjax()) return Json(await GetCartStateAsync(productId, $"«{product.Name}» в корзине"));
 
                 return RedirectToAction(nameof(Index));
             }
@@ -70,8 +101,7 @@ namespace OnlineShopWebApp.Controllers
         {
             try
             {
-                _logger.LogInformation("Изменение кол-ва товаров в корзине");
-                await _cartsStorage.SubtractAsync(productId, UserId);
+                await _cartsStorage.SubtractAsync(productId, _owner.GetOwnerId(createIfMissing: false));
 
                 if (Request.IsAjax()) return Json(await GetCartStateAsync(productId));
 
@@ -88,7 +118,7 @@ namespace OnlineShopWebApp.Controllers
         {
             try
             {
-                await _cartsStorage.RemoveAsync(productId, UserId);
+                await _cartsStorage.RemoveAsync(productId, _owner.GetOwnerId(createIfMissing: false));
 
                 if (Request.IsAjax()) return Json(await GetCartStateAsync(productId, "Товар удалён из корзины"));
 
@@ -101,13 +131,11 @@ namespace OnlineShopWebApp.Controllers
             }
         }
 
-        // userId больше не принимается из адресной строки: раньше любой мог очистить чужую корзину
         public async Task<IActionResult> Clear()
         {
             try
             {
-                _logger.LogInformation("Очистка корзины пользователя");
-                await _cartsStorage.ClearAsync(UserId);
+                await _cartsStorage.ClearAsync(_owner.GetOwnerId(createIfMissing: false));
                 TempData["InfoMessage"] = "Корзина очищена";
                 return RedirectToAction(nameof(Index));
             }
@@ -118,18 +146,51 @@ namespace OnlineShopWebApp.Controllers
             }
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApplyPromo(string? code)
+        {
+            var ownerId = _owner.GetOwnerId(createIfMissing: false);
+            var cart = (await _cartsStorage.TryGetByUserIdAsync(ownerId)).ToCartViewModel();
+            if (cart == null || cart.Items.Count == 0) return RedirectToAction(nameof(Index));
+
+            var check = await _promo.CheckAsync(code, cart.Subtotal);
+            if (check.IsValid)
+            {
+                await _cartsStorage.SetPromoCodeAsync(ownerId, check.Code, check.DiscountPercent);
+                TempData["SuccessMessage"] = check.Message;
+            }
+            else
+            {
+                TempData["ErrorMessage"] = check.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemovePromo()
+        {
+            await _cartsStorage.SetPromoCodeAsync(_owner.GetOwnerId(createIfMissing: false), null, 0);
+            TempData["InfoMessage"] = "Промокод удалён";
+            return RedirectToAction(nameof(Index));
+        }
+
         private async Task<object> GetCartStateAsync(Guid productId, string? message = null)
         {
-            var cart = (await _cartsStorage.TryGetByUserIdAsync(UserId)).ToCartViewModel();
+            var cart = (await _cartsStorage.TryGetByUserIdAsync(_owner.GetOwnerId(createIfMissing: false))).ToCartViewModel();
             var item = cart?.Items.FirstOrDefault(i => i.Product.Id == productId);
-            var culture = System.Globalization.CultureInfo.GetCultureInfo("ru-RU");
 
             return new
             {
                 count = cart?.Quantity ?? 0,
-                total = (cart?.TotalCost ?? 0).ToString("C0", culture),
+                subtotal = (cart?.Subtotal ?? 0).ToString("C0", Ru),
+                discount = (cart?.DiscountAmount ?? 0).ToString("C0", Ru),
+                total = (cart?.TotalCost ?? 0).ToString("C0", Ru),
                 itemQuantity = item?.Quantity ?? 0,
-                itemCost = (item?.Cost ?? 0).ToString("C0", culture),
+                itemCost = (item?.Cost ?? 0).ToString("C0", Ru),
+                maxReached = item != null && item.Quantity >= item.Product.Stock,
                 message
             };
         }

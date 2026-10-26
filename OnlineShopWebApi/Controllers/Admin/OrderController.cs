@@ -22,7 +22,7 @@ namespace OnlineShopWebApi.Controllers.Admin
             var orders = await _orders.GetAllAsync();
             try
             {
-                _logger.LogInformation("Получение списка заказов успешно");
+                _logger.LogDebug("Получение списка заказов успешно");
                 return Ok(orders);
             }
             catch (Exception ex)
@@ -40,17 +40,17 @@ namespace OnlineShopWebApi.Controllers.Admin
             {
                 if (order == null)
                 {
-                    _logger.LogWarning($"Заказ с ID {orderId} не найден");
+                    _logger.LogWarning("Заказ с ID {OrderId} не найден", orderId);
                     return NotFound();
                 }
 
-                _logger.LogInformation($"Заказ пользователя {orderId} получен");
+                _logger.LogInformation("Заказ пользователя {OrderId} получен", orderId);
 
                 return Ok(order);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка получения заказа от пользователя.Id заказа - {orderId}");
+                _logger.LogError(ex, "Ошибка получения заказа от пользователя.Id заказа - {OrderId}", orderId);
                 return StatusCode(500, "Произошла ошибка получения заказа");
             } 
         }
@@ -66,7 +66,7 @@ namespace OnlineShopWebApi.Controllers.Admin
             {
                 if (currentOrder == null)
                 {
-                    _logger.LogWarning($"Заказ с ID {orderId} не найден");
+                    _logger.LogWarning("Заказ с ID {OrderId} не найден", orderId);
                     return NotFound();
                 }
 
@@ -74,7 +74,7 @@ namespace OnlineShopWebApi.Controllers.Admin
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка обновления статуса заказа. Id заказа - {orderId}");
+                _logger.LogError(ex, "Ошибка обновления статуса заказа. Id заказа - {OrderId}", orderId);
                 return BadRequest();
             }
         }

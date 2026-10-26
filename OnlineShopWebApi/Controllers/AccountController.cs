@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using OnlineShopWebApp.Logging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -36,10 +37,10 @@ namespace OnlineShopWebApi.Controllers
             if (isValid)
             {
                 var tokenString = GenerateJwtToken(user.UserName);
-                _logger.LogInformation($"Выполнен вход пользователя {user.UserName}");
+                _logger.LogInformation("Выполнен вход пользователя {UserName}", LogMask.Email(user.UserName));
                 return Ok(new { Token = tokenString, Message = "Вход выполнен" });
             }
-            _logger.LogError($"Ошибка авторизации пользователя {user.UserName}");
+            _logger.LogWarning("Неудачная попытка входа: {UserName}", LogMask.Email(user.UserName));
             return BadRequest();
         }
 
@@ -51,11 +52,11 @@ namespace OnlineShopWebApi.Controllers
             if (isValid)
             {
                 var tokenString = GenerateJwtToken(user.UserName);
-                _logger.LogInformation($"Регистрация пользователя {user.UserName} успешно выполнена");
+                _logger.LogInformation("Регистрация пользователя {UserName} успешно выполнена", LogMask.Email(user.UserName));
                 return Ok(new { Token = tokenString, Message = "Регистрация успешна!" });
             }
 
-            _logger.LogError($"Ошибка регистрации пользователя {user.UserName}");
+            _logger.LogWarning("Не удалось зарегистрировать пользователя {UserName}", LogMask.Email(user.UserName));
             return BadRequest();
         }
 

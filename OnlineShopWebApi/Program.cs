@@ -12,13 +12,39 @@ using OnlineShop.Db.Storages;
 using OnlineShopWebApi;
 using OnlineShopWebApi.Middleware;
 using Serilog;
+using OnlineShopWebApp.Logging;
 using System.Text;
 using System.Text.Json.Serialization;
 public partial class Program
 {
     private static void Main(string[] args)
     {
+        LoggingSetup.CreateBootstrapLogger();
+        try
+        {
+            Run(args);
+        }
+        catch (Exception ex) when (ex is not HostAbortedException)
+        {
+            Log.Fatal(ex, "Web API не смог запуститься");
+            throw;
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
+
+    private static void Run(string[] args)
+    {
         var builder = WebApplication.CreateBuilder(args);
+
+        // Секретный ключ JWT не хранится в репозитории: задайте его переменной окружения Jwt__Key
+        // (или в appsettings.Development.json для локальной разработки)
+        if (string.IsNullOrWhiteSpace(builder.Configuration["Jwt:Key"]) || builder.Configuration["Jwt:Key"]!.Length < 32)
+        {
+            throw new InvalidOperationException("Не задан ключ Jwt:Key (минимум 32 символа). Установите переменную окружения Jwt__Key.");
+        }
 
         string connection = builder.Configuration.GetConnectionString("OnlineShop");
 
@@ -41,13 +67,8 @@ public partial class Program
         builder.Services.AddTransient<IFavoritesStorages, FavoritesDbStorages>();
         builder.Services.AddScoped<IUserService, UserService>();
 
-        Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.Console()
-    .WriteTo.File(path: "Logs/log.json")
-    .CreateLogger();
-
-        builder.Host.UseSerilog();
+        // Журнал: настройки в разделе "Serilog" файла appsettings.json (файлы Logs/api-ГГГГММДД.log)
+        builder.AddAppLogging();
 
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
@@ -98,6 +119,13 @@ public partial class Program
 
         var app = builder.Build();
 
+        // Миграции больше не запускаются в конструкторах контекстов — применяем их при старте
+        using (var scope = app.Services.CreateScope())
+        {
+            DatabaseMigrator.MigrateAsync(scope.ServiceProvider.GetRequiredService<IdentityContext>()).GetAwaiter().GetResult();
+            DatabaseMigrator.MigrateAsync(scope.ServiceProvider.GetRequiredService<DatabaseContext>()).GetAwaiter().GetResult();
+        }
+
         if (app.Environment.IsDevelopment())
         {
            
@@ -109,7 +137,7 @@ public partial class Program
             });
         }
 
-        app.UseSerilogRequestLogging();
+        app.UseAppRequestLogging();
         app.UseHttpsRedirection();
         app.UseRouting();
 

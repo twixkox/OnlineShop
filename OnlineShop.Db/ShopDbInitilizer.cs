@@ -1,24 +1,88 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OnlineShop.Db.Models;
 
 namespace OnlineShop.Db
 {
     public static class ShopDbInitilizer
     {
-        public static async Task InitializeAsync(DatabaseContext context)
+        public static async Task InitializeAsync(DatabaseContext context, ILogger? logger = null)
         {
-            await context.Database.EnsureCreatedAsync();
-
-            if (await context.Categories.AnyAsync() && await context.Products.AnyAsync())
+            logger ??= NullLogger.Instance;
+            if (!await context.Categories.AnyAsync() || !await context.Products.AnyAsync())
             {
-                Console.WriteLine("База данных уже заполнена");
-                return;
+                logger.LogInformation("Первый запуск: заполняем базу тестовыми категориями и товарами");
+
+                var categories = await CreateCategoriesAsync(context);
+                var productsCount = await CreateProductsAsync(context, categories);
+                logger.LogInformation("Создано категорий: {CategoriesCount}, товаров: {ProductsCount}", categories.Count, productsCount);
             }
 
-            Console.WriteLine("Инициализация базы данных магазина растений...");
+            // Для уже существующих баз: дополняем характеристики стандартных товаров и создаём промокоды
+            await EnrichKnownProductsAsync(context);
+            await CreatePromoCodesAsync(context);
+        }
 
-            var categories = await CreateCategoriesAsync(context);
-            await CreateProductsAsync(context, categories);
+        private record PlantInfo(string Height, int? Zone, LightRequirement? Light, WateringLevel? Watering, string? Period, int Stock);
+
+        // Характеристики стандартных товаров каталога (по началу названия)
+        private static readonly Dictionary<string, PlantInfo> KnownPlants = new()
+        {
+            ["Яблоня 'Антоновка'"] = new("до 6 м", 3, LightRequirement.Sun, WateringLevel.Medium, "сентябрь–октябрь", 12),
+            ["Груша 'Конференция'"] = new("до 5 м", 5, LightRequirement.Sun, WateringLevel.Medium, "сентябрь", 8),
+            ["Смородина черная 'Добрыня'"] = new("до 1,7 м", 3, LightRequirement.Sun, WateringLevel.High, "июль", 25),
+            ["Клен остролистный 'Globosum'"] = new("5–6 м", 4, LightRequirement.Sun, WateringLevel.Medium, null, 5),
+            ["Береза повислая 'Youngii'"] = new("до 4 м", 2, LightRequirement.Sun, WateringLevel.Medium, null, 4),
+            ["Гортензия древовидная 'Annabelle'"] = new("1–1,5 м", 3, LightRequirement.PartShade, WateringLevel.High, "июль–сентябрь", 18),
+            ["Ель голубая 'Hoopsii'"] = new("10–15 м", 2, LightRequirement.Sun, WateringLevel.Low, null, 3),
+            ["Сосна горная 'Mughus'"] = new("2–3 м", 2, LightRequirement.Sun, WateringLevel.Low, null, 7),
+            ["Туя западная 'Smaragd'"] = new("4–5 м", 4, LightRequirement.PartShade, WateringLevel.Medium, null, 30),
+            ["Петуния каскадная 'Рамблин'"] = new("до 0,4 м", null, LightRequirement.Sun, WateringLevel.High, "июнь–сентябрь", 60),
+            ["Бархатцы отклоненные 'Бонита'"] = new("до 0,3 м", null, LightRequirement.Sun, WateringLevel.Low, "июнь–октябрь", 80),
+            ["Цинния изящная 'Дримленд'"] = new("до 0,3 м", null, LightRequirement.Sun, WateringLevel.Medium, "июль–сентябрь", 50),
+            ["Пион молочноцветковый 'Sarah Bernhardt'"] = new("0,8–1 м", 3, LightRequirement.Sun, WateringLevel.Medium, "июнь", 15),
+            ["Лилия азиатская 'Tiny Diamond'"] = new("до 0,4 м", 4, LightRequirement.Sun, WateringLevel.Medium, "июнь–июль", 40),
+            ["Хоста гибридная 'Blue Angel'"] = new("до 0,9 м", 3, LightRequirement.Shade, WateringLevel.High, "июль–август", 20),
+            ["Роза чайно-гибридная 'Black Magic'"] = new("1–1,2 м", 6, LightRequirement.Sun, WateringLevel.Medium, "июнь–сентябрь", 0),
+            ["Роза флорибунда 'Leonardo da Vinci'"] = new("0,8–1 м", 5, LightRequirement.Sun, WateringLevel.Medium, "июнь–сентябрь", 14),
+            ["Роза плетистая 'Flammentanz'"] = new("3–5 м", 4, LightRequirement.Sun, WateringLevel.Medium, "июнь–июль", 9),
+            ["Грунт универсальный 10л"] = new("", null, null, null, null, 100),
+            ["Удобрение для роз 1кг"] = new("", null, null, null, null, 45),
+            ["Секатор профессиональный"] = new("", null, null, null, null, 12),
+        };
+
+        private static async Task EnrichKnownProductsAsync(DatabaseContext context)
+        {
+            var products = await context.Products.ToListAsync();
+            var changed = false;
+
+            foreach (var product in products)
+            {
+                if (!KnownPlants.TryGetValue(product.Name, out var info)) continue;
+                if (product.Height != null || product.Light != null || product.FrostZone != null) continue;
+
+                product.Height = string.IsNullOrEmpty(info.Height) ? null : info.Height;
+                product.FrostZone = info.Zone;
+                product.Light = info.Light;
+                product.Watering = info.Watering;
+                product.FloweringPeriod = info.Period;
+                product.Stock = info.Stock;
+                changed = true;
+            }
+
+            if (changed) await context.SaveChangesAsync();
+        }
+
+        private static async Task CreatePromoCodesAsync(DatabaseContext context)
+        {
+            if (await context.PromoCodes.AnyAsync()) return;
+
+            context.PromoCodes.AddRange(
+                new PromoCode { Code = "SPRING10", DiscountPercent = 10, Description = "Весенняя скидка 10% на любой заказ" },
+                new PromoCode { Code = "GARDEN15", DiscountPercent = 15, MinOrderAmount = 5000, Description = "15% на заказ от 5 000 ₽" });
+
+            await context.SaveChangesAsync();
         }
 
         private static async Task<Dictionary<string, Category>> CreateCategoriesAsync(DatabaseContext context)
@@ -94,11 +158,10 @@ namespace OnlineShop.Db
                 categories[cat.IdentityUrl] = cat;
             }
 
-            Console.WriteLine($" Создано категорий: {categories.Count}");
             return categories;
         }
 
-        private static async Task CreateProductsAsync(DatabaseContext context, Dictionary<string, Category> categories)
+        private static async Task<int> CreateProductsAsync(DatabaseContext context, Dictionary<string, Category> categories)
         {
             var products = new List<Product>
     {
@@ -316,7 +379,7 @@ namespace OnlineShop.Db
             context.Products.AddRange(products);
             await context.SaveChangesAsync();
 
-            Console.WriteLine($" Создано продуктов: {products.Count}");
+            return products.Count;
         }
     }
 }

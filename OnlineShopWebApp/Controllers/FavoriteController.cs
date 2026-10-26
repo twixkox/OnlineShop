@@ -26,7 +26,7 @@ namespace OnlineShopWebApp.Controllers
         {
             try
             {
-                _logger.LogInformation("Получение списка избранного пользователя");
+                _logger.LogDebug("Получение списка избранного пользователя");
                 var favorites = await _favoriteStorages.TryGetByUserIdAsync(UserId);
                 return View(favorites?.ToFavoriteViewModel());
             }

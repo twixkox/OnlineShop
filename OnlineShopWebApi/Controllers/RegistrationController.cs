@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OnlineShopWebApp.Logging;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -35,17 +36,17 @@ namespace OnlineShopWebApi.Controllers
             };
 
             await _userManager.CreateAsync(currentUser, user.Password);
-            _logger.LogInformation($"Создание пользователя выполнено");
+            _logger.LogInformation("Создание пользователя выполнено");
 
             await _signInManager.SignInAsync(currentUser, true);
-            _logger.LogInformation($"Авторизация пользователя выполнена");
+            _logger.LogInformation("Авторизация пользователя выполнена");
             try
             {
                 return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,$"Ошибка создания пользователя {user.UserName}");
+                _logger.LogError(ex, "Ошибка создания пользователя {UserName}", LogMask.Email(user.UserName));
 
                 return StatusCode(500);
             }

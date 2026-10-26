@@ -7,12 +7,21 @@
     var showCategory = ViewData["HideCategory"] is not true && !string.IsNullOrEmpty(Model.CurrentCategoryName);
 }
 
-<article class="product-card" data-product>
+<article class="product-card @(Model.InStock ? "" : "is-out")" data-product>
     <a href="@Url.Action("Toggle", "Favorite", new { area = "", productId = Model.Id })"
        class="fav-btn @(isFavorite ? "is-active" : "")" data-fav-toggle data-id="@Model.Id"
        aria-pressed="@(isFavorite ? "true" : "false")" aria-label="Избранное" title="В избранное">
         <i class="bi @(isFavorite ? "bi-heart-fill" : "bi-heart")"></i>
     </a>
+
+    @if (!Model.InStock)
+    {
+        <span class="product-tag is-muted">Нет в наличии</span>
+    }
+    else if (Model.Stock <= 3)
+    {
+        <span class="product-tag">Осталось @Model.Stock шт.</span>
+    }
 
     <a class="product-media" asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@Model.Id" tabindex="-1">
         <img src="@image" alt="@Model.Name" loading="lazy"
@@ -21,20 +30,48 @@
     </a>
 
     <div class="product-body">
-        @if (showCategory)
-        {
-            <div class="product-cat">@Model.CurrentCategoryName</div>
-        }
+        <div class="d-flex justify-content-between align-items-center gap-2">
+            @if (showCategory)
+            {
+                <div class="product-cat">@Model.CurrentCategoryName</div>
+            }
+            @if (Model.ReviewsCount > 0)
+            {
+                <div class="rating-mini ms-auto" title="@Model.ReviewsCount @UiHelper.Plural(Model.ReviewsCount, "отзыв", "отзыва", "отзывов")">
+                    <i class="bi bi-star-fill"></i> @Model.Rating.ToString("0.0") <span>(@Model.ReviewsCount)</span>
+                </div>
+            }
+        </div>
         <a class="product-title" asp-area="" asp-controller="Product" asp-action="Index" asp-route-id="@Model.Id">@Model.Name</a>
-        @if (!string.IsNullOrEmpty(Model.Description))
+        @if (Model.Light != null || Model.FrostZone != null)
+        {
+            <div class="product-traits">
+                @if (Model.Light != null)
+                {
+                    <span title="Освещение"><i class="bi @UiHelper.LightIcon(Model.Light.Value)"></i>@UiHelper.LightName(Model.Light.Value)</span>
+                }
+                @if (Model.FrostZone != null)
+                {
+                    <span title="Зона морозостойкости"><i class="bi bi-snow"></i>зона @Model.FrostZone</span>
+                }
+            </div>
+        }
+        else if (!string.IsNullOrEmpty(Model.Description))
         {
             <p class="product-desc">@Model.Description</p>
         }
         <div class="product-foot">
             <span class="price">@Model.Cost.ToString("C0")</span>
-            <a href="@Url.Action("Add", "Cart", new { area = "", productId = Model.Id })" class="cart-btn" data-add-to-cart aria-label="Добавить в корзину">
-                <i class="bi bi-bag-plus"></i><span class="label d-none d-sm-inline">В корзину</span>
-            </a>
+            @if (Model.InStock)
+            {
+                <a href="@Url.Action("Add", "Cart", new { area = "", productId = Model.Id })" class="cart-btn" data-add-to-cart aria-label="Добавить в корзину">
+                    <i class="bi bi-bag-plus"></i><span class="label d-none d-sm-inline">В корзину</span>
+                </a>
+            }
+            else
+            {
+                <span class="cart-btn is-disabled" aria-disabled="true"><i class="bi bi-bag-x"></i><span class="label d-none d-sm-inline">Нет</span></span>
+            }
         </div>
     </div>
 </article>

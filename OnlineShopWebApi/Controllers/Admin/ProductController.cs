@@ -24,13 +24,13 @@ namespace OnlineShopWebApi.Controllers.Admin
             var products = await _products.GetAllAsync();
             try
             {
-                _logger.LogInformation($"Получение списка продуктов успешно");
+                _logger.LogDebug("Получение списка продуктов успешно");
 
                 return Ok(products);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка получения списка продуктов");
+                _logger.LogError(ex, "Ошибка получения списка продуктов");
                 return StatusCode(500, "Произошла ошибка получения продуктов");
             }
         }
@@ -40,13 +40,13 @@ namespace OnlineShopWebApi.Controllers.Admin
             await _products.DeleteAsync(id);
             try
             {
-                _logger.LogInformation($"Удаление товара {id} выполнено");
+                _logger.LogInformation("Удаление товара {Id} выполнено", id);
 
                 return NoContent();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка при удалении продукта id - {id}");
+                _logger.LogError(ex, "Ошибка при удалении продукта id - {Id}", id);
 
                 return StatusCode(500, "Произошла ошибка удаления продукта");
             }
@@ -65,13 +65,13 @@ namespace OnlineShopWebApi.Controllers.Admin
             await _products.AddAsync(productDb);
             try
             {   
-                _logger.LogInformation($"Продукт успешно добавлен. id - {productDb.Id}");
+                _logger.LogInformation("Продукт успешно добавлен. id - {ProductDbId}", productDb.Id);
 
                 return Created();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка добавления продукта");
+                _logger.LogError(ex, "Ошибка добавления продукта");
 
                 return StatusCode(500, "Произошла ошибка добавления продукта");
             }
@@ -84,7 +84,7 @@ namespace OnlineShopWebApi.Controllers.Admin
             {
                 if (product == null)
                 {
-                    _logger.LogWarning($"Продукт с id - {id} не найден");
+                    _logger.LogWarning("Продукт с id - {Id} не найден", id);
                     return NotFound();
                 }
 
@@ -93,7 +93,7 @@ namespace OnlineShopWebApi.Controllers.Admin
 
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка изменения (получения) продукта id - {id}");
+                _logger.LogError(ex, "Ошибка изменения (получения) продукта id - {Id}", id);
 
                 return StatusCode(500, "Произошла ошибка изменения продукта");
             }
@@ -113,13 +113,13 @@ namespace OnlineShopWebApi.Controllers.Admin
             await _products.EditProductAsync(productDb);
             try
             {
-                _logger.LogInformation($"Изменение продукта с id {product.Id} успешно");
+                _logger.LogInformation("Изменение продукта с id {ProductId} успешно", product.Id);
 
                 return Ok(productDb);
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка изменения продукта id - {product.Id}");
+                _logger.LogError(ex, "Ошибка изменения продукта id - {ProductId}", product.Id);
 
                 return BadRequest();
             }

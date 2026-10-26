@@ -1,4 +1,4 @@
-﻿@model HomeViewModel
+@model HomeViewModel
 @{
     ViewData["Title"] = "Главная";
     var categories = Model.MainCategories ?? new();
@@ -112,8 +112,8 @@
                     : "";
                 <div class="@span">
                     <a class="category-card" style="--tint: @UiHelper.Tint(category.Id)"
-                       asp-controller="Catalog" asp-action="CurrentCategory"
-                       asp-route-identityUrl="@category.IdentityUrl" asp-route-categoryId="@category.Id">
+                       asp-controller="Catalog" asp-action="Category"
+                       asp-route-slug="@category.IdentityUrl">
                         @if (hasPhoto)
                         {
                             <img src="@UiHelper.ImageUrl(category.PhotoPath)" alt="@category.Name" loading="lazy">

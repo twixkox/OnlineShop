@@ -58,7 +58,7 @@ namespace OnlineShopWebApi.Middleware
             }
             catch(Exception ex) 
             {
-                _logger.LogError(ex, $"Проиозшла ошибка авторизации");                
+                _logger.LogError(ex, "Проиозшла ошибка авторизации");                
             }
         }
     }

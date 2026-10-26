@@ -25,14 +25,14 @@ namespace OnlineShopWebApi.Controllers
         public async Task<IActionResult> Index(string userId)
         {
             var cart = await _cartsStorage.TryGetByUserIdAsync(userId);
-            _logger.LogInformation($"Получение корзины пользователя id - {userId}");
+            _logger.LogDebug("Получение корзины пользователя id - {UserId}", userId);
             try
             {
                 return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка получения корзины пользователя id - {userId}");
+                _logger.LogError(ex, "Ошибка получения корзины пользователя id - {UserId}", userId);
 
                 return StatusCode(500);
             }
@@ -43,17 +43,17 @@ namespace OnlineShopWebApi.Controllers
         public async Task<IActionResult> Add(Guid productId)
         {
             var product = await _productStorage.TryGetProductByIdAsync(productId);
-            _logger.LogInformation($"Получение продукта с id - {productId}");
+            _logger.LogDebug("Получение продукта с id - {ProductId}", productId);
 
             await _cartsStorage.AddAsync(product, Constants.UserId);
-            _logger.LogInformation($"Продукт был успешно добавлен в корзину");
+            _logger.LogInformation("Продукт был успешно добавлен в корзину");
             try
             {
                 return Created();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Произошла ошибка добавления продукта. Id - {productId}");
+                _logger.LogError(ex, "Произошла ошибка добавления продукта. Id - {ProductId}", productId);
 
                 return StatusCode(500);
             }
@@ -63,7 +63,7 @@ namespace OnlineShopWebApi.Controllers
         public IActionResult Clear(string userId)
         {
             _cartsStorage.ClearAsync(userId);
-            _logger.LogInformation($"Очистка корзыины пользователя id - {userId} выполнена");
+            _logger.LogInformation("Очистка корзыины пользователя id - {UserId} выполнена", userId);
 
             try
             {
@@ -71,7 +71,7 @@ namespace OnlineShopWebApi.Controllers
             }
             catch(Exception ex)
             {
-                _logger.LogError(ex,$"Ошибка очистки корзины пользователя id - {userId}");
+                _logger.LogError(ex, "Ошибка очистки корзины пользователя id - {UserId}", userId);
 
                 return StatusCode(500);
             }
@@ -87,7 +87,7 @@ namespace OnlineShopWebApi.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка подписки на количество id - {userId}");
+                _logger.LogError(ex, "Ошибка подписки на количество id - {UserId}", userId);
 
                 return StatusCode(500);
             }

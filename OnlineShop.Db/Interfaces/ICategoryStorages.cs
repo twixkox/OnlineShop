@@ -9,5 +9,6 @@ namespace OnlineShop.Db.Interfaces
         Task Edit(Category category);
         Task<List<Category>> GetAll();
         Task<Category> TryGetById(Guid categoryId);
+        Task<Category?> TryGetByIdentityUrlAsync(string identityUrl);
     }
 }

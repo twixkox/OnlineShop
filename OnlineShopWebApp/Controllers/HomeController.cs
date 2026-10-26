@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShopWebApp.Areas.Client.Models;
@@ -23,7 +22,7 @@ namespace OnlineShopWebApp.Controllers
         {
             try
             {
-                _logger.LogInformation("Получение данных для главной страницы");
+                _logger.LogDebug("Получение данных для главной страницы");
                 var products = await _productStorage.GetAllAsync();
                 var categories = await _categoryStorages.GetAll();
 
@@ -52,7 +51,7 @@ namespace OnlineShopWebApp.Controllers
         {
             try
             {
-                _logger.LogInformation("Поиск товаров по запросу {Query}", query);
+                _logger.LogDebug("Поиск товаров по запросу {Query}", query);
                 var products = await _productStorage.SearchAsync(query);
                 var categories = await _categoryStorages.GetAll();
                 ViewBag.Query = query;
@@ -73,13 +72,10 @@ namespace OnlineShopWebApp.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            var feature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
-            if (feature?.Error != null)
-            {
-                _logger.LogError(feature.Error, "Необработанное исключение на {Path}", feature.Path);
-            }
-
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            // Само исключение уже записано в журнал средой ASP.NET (ExceptionHandlerMiddleware) —
+            // раньше оно логировалось здесь второй раз.
+            // Код запроса совпадает с TraceId в журнале: по нему администратор найдёт ошибку в «Журнале»
+            return View(new ErrorViewModel { RequestId = Activity.Current?.TraceId.ToString() ?? HttpContext.TraceIdentifier });
         }
 
         // Красивые страницы для 404/403 и прочих кодов ответа

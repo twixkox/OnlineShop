@@ -27,14 +27,14 @@ namespace OnlineShopWebApi.Controllers
         public async Task<IActionResult> Index(string userId)
         {
             await _cartsStorages.TryGetByUserIdAsync(userId);
-            _logger.LogInformation($"Получение корзины пользователя id - {userId}");
+            _logger.LogDebug("Получение корзины пользователя id - {UserId}", userId);
             try
             {
                 return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка получения корзины пользователя id - {userId}");
+                _logger.LogError(ex, "Ошибка получения корзины пользователя id - {UserId}", userId);
 
                 return StatusCode(500);
             }
@@ -43,7 +43,7 @@ namespace OnlineShopWebApi.Controllers
         public async Task<IActionResult> Buy(OrderViewModel orders,string userId)
         {
             var cart = await _cartsStorages.TryGetByUserIdAsync(userId);
-            _logger.LogInformation($"Получение корзины пользователя id - {userId}");
+            _logger.LogDebug("Получение корзины пользователя id - {UserId}", userId);
 
             var order = new Order
             {
@@ -52,17 +52,17 @@ namespace OnlineShopWebApi.Controllers
             };
 
             await _orderStorages.AddAsync(order);
-            _logger.LogInformation($"Добавление корзины к заказу");
+            _logger.LogInformation("Добавление корзины к заказу");
 
             await _cartsStorages.ClearAsync(userId);
-            _logger.LogInformation($"Очистка корзины");
+            _logger.LogInformation("Очистка корзины");
             try
             {
                 return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Ошибка формирования заказа");
+                _logger.LogError(ex, "Ошибка формирования заказа");
 
                 return StatusCode(500);
             }

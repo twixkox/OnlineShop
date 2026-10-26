@@ -151,6 +151,12 @@ namespace OnlineShopWebApp.Helpers
                 ThumbnailsPhotoPath = product.ThumbnailPath!,
                 CategoryId = product.CategoryId,
                 CurrentCategoryName = product.CategoryName,
+                Stock = product.Stock,
+                Height = product.Height,
+                FrostZone = product.FrostZone,
+                Light = product.Light,
+                Watering = product.Watering,
+                FloweringPeriod = product.FloweringPeriod,
             };
         }
 
@@ -166,6 +172,12 @@ namespace OnlineShopWebApp.Helpers
                 ThumbnailPath = productViewModel.ThumbnailsPhotoPath,
                 CategoryId = productViewModel.CategoryId,
                 CategoryName = productViewModel.CurrentCategoryName,
+                Stock = productViewModel.Stock,
+                Height = productViewModel.Height,
+                FrostZone = productViewModel.FrostZone,
+                Light = productViewModel.Light,
+                Watering = productViewModel.Watering,
+                FloweringPeriod = productViewModel.FloweringPeriod,
             };
         }
 
@@ -183,6 +195,19 @@ namespace OnlineShopWebApp.Helpers
         /// <summary>
         /// Category.Name у товара не хранится в БД ([NotMapped]), поэтому подставляем названия категорий для карточек.
         /// </summary>
+        public static List<ProductViewModel> WithRatings(this List<ProductViewModel> products, Dictionary<Guid, (double Average, int Count)> ratings)
+        {
+            foreach (var product in products)
+            {
+                if (ratings.TryGetValue(product.Id, out var r))
+                {
+                    product.Rating = r.Average;
+                    product.ReviewsCount = r.Count;
+                }
+            }
+            return products;
+        }
+
         public static List<ProductViewModel> WithCategoryNames(this List<ProductViewModel> products, IEnumerable<Category> categories)
         {
             var names = categories.ToDictionary(c => c.Id, c => c.Name);
@@ -221,6 +246,8 @@ namespace OnlineShopWebApp.Helpers
                 Id = cart.Id,
                 UserId = cart.UserId,
                 Items = ToCartViewModels(cart.Items),
+                PromoCode = cart.PromoCode,
+                Discount = cart.Discount,
             };
         }
 
@@ -302,6 +329,10 @@ namespace OnlineShopWebApp.Helpers
                 CreationDateOrder = order.CreationDateOrder,
                 Status = (OrderStatusViewModel)(int)order.Status,
                 Items = ToCartViewModels(order.Items),
+                PromoCode = order.PromoCode,
+                DiscountPercent = order.DiscountPercent,
+                PaymentMethod = order.PaymentMethod,
+                PaymentStatus = order.PaymentStatus,
             };
             return viewModel;
         }
