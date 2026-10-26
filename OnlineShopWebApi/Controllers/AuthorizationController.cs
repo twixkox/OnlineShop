@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using OnlineShopWebApp.Logging;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Models;
@@ -26,7 +27,7 @@ namespace OnlineShopWebApi.Controllers
             if (user.UserName == user.Password) return Conflict($"Имя и пароль не должны совпадать");
 
             var result = await _signInManager.PasswordSignInAsync(user.UserName, user.Password, user.RememberMe, false);
-            _logger.LogInformation($"Авторизация пользователя - {user.UserName}");
+            _logger.LogInformation("Авторизация пользователя - {UserName}", LogMask.Email(user.UserName));
             try
             {
                 if (result.Succeeded)
@@ -41,7 +42,7 @@ namespace OnlineShopWebApi.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка авторизации пользователя {user.UserName}");
+                _logger.LogError(ex, "Ошибка авторизации пользователя {UserName}", LogMask.Email(user.UserName));
 
                 return StatusCode(500);
             }
@@ -53,12 +54,12 @@ namespace OnlineShopWebApi.Controllers
             try
             {
                 await _signInManager.SignOutAsync();
-                _logger.LogInformation($"Выполнен выход пользователя");
+                _logger.LogInformation("Выполнен выход пользователя");
                 return Ok();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex,$"Ошибка выхода пользователя");
+                _logger.LogError(ex, "Ошибка выхода пользователя");
                 return StatusCode(500);
             }
         }

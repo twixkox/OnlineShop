@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Interfaces;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp.Areas.Admin.Models;
+using OnlineShopWebApp.Logging;
 using OnlineShopWebApp.Services;
 
 namespace OnlineShopWebApp.Areas.Admin.Controllers
@@ -16,9 +17,11 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         private readonly IProductStorages _products;
         private readonly IReviewStorages _reviews;
         private readonly UserManager<User> _users;
+        private readonly LogReader _logs;
 
-        public DashboardController(IOrderStorages orders, IProductStorages products, IReviewStorages reviews, UserManager<User> users)
+        public DashboardController(IOrderStorages orders, IProductStorages products, IReviewStorages reviews, UserManager<User> users, LogReader logs)
         {
+            _logs = logs;
             _orders = orders;
             _products = products;
             _reviews = reviews;
@@ -86,6 +89,11 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                 LatestReviews = await _reviews.GetLatestAsync(4),
                 ProductsCount = products.Count
             };
+
+            var problems = _logs.CountProblems(TimeSpan.FromHours(24));
+            model.ErrorsLastDay = problems.Errors;
+            model.WarningsLastDay = problems.Warnings;
+            model.LastError = problems.Last;
 
             return View(model);
         }

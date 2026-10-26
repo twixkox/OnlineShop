@@ -22,5 +22,8 @@ namespace OnlineShopWebApp.Areas.Admin.Models
         public List<Product> LowStock { get; set; } = new();
         public List<Order> LatestOrders { get; set; } = new();
         public List<Review> LatestReviews { get; set; } = new();
+        public int ErrorsLastDay { get; set; }
+        public int WarningsLastDay { get; set; }
+        public OnlineShopWebApp.Logging.LogEntry? LastError { get; set; }
     }
 }

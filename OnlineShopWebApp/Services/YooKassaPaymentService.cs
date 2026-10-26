@@ -82,7 +82,7 @@ namespace OnlineShopWebApp.Services
             var body = await response.Content.ReadAsStringAsync();
             if (!response.IsSuccessStatusCode)
             {
-                _logger.LogError("ЮKassa: ошибка создания платежа {Status}: {Body}", (int)response.StatusCode, body);
+                _logger.LogError("ЮKassa: ошибка создания платежа {Status}: {Body}", (int)response.StatusCode, OnlineShopWebApp.Logging.LogMask.Text(body.Length > 1000 ? body[..1000] : body));
                 throw new InvalidOperationException("Не удалось создать платёж");
             }
 

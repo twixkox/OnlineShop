@@ -26,7 +26,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             var orders = await _orders.GetAllAsync();
             try
             {
-                _logger.LogInformation($"Получение списка заказов. Всего {orders.Count} заказов.");
+                _logger.LogDebug("Получение списка заказов. Всего {OrdersCount} заказов.", orders.Count);
 
                 return View(orders.OrderByDescending(o => o.CreationDateOrder).ToList().ToOrdersViewModels());
             }
@@ -40,7 +40,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> DetailAsync(Guid orderId)
         {
-            _logger.LogInformation($"Получение заказа с Id - {orderId}");
+            _logger.LogDebug("Получение заказа с Id - {OrderId}", orderId);
             var order = await _orders.TryGetByIdAsync(orderId);
             try
             {
@@ -48,7 +48,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Произошла ошибка при получении заказа с Id - {orderId}. Order/DetailAsync");
+                _logger.LogError(ex, "Произошла ошибка при получении заказа с Id - {OrderId}. Order/DetailAsync", orderId);
                 return View("Error");
             }
         }
@@ -79,7 +79,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка обновления статуса заказа Id - {orderId}. Order/UpdateOrderStatus");
+                _logger.LogError(ex, "Ошибка обновления статуса заказа Id - {OrderId}. Order/UpdateOrderStatus", orderId);
                 return View("Error");
             }
         }

@@ -55,13 +55,13 @@ namespace OnlineShopWebApp.Areas.Client.Models
                     await file.CopyToAsync(stream);
                 }
 
-                _logger.LogInformation($"Файл сохранен. Путь к файлу - {physicalPath}");
+                _logger.LogInformation("Файл сохранен. Путь к файлу - {PhysicalPath}", physicalPath);
 
                 return relativePath.Replace('\\', '/');
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка сохранения файла");
+                _logger.LogError(ex, "Ошибка сохранения файла");
                 return ex.Message;
             }
         }
@@ -72,7 +72,7 @@ namespace OnlineShopWebApp.Areas.Client.Models
 
             if (!File.Exists(path))
             {
-                _logger.LogError($"Исходный файл не найден");
+                _logger.LogError("Исходный файл не найден");
 
                 throw new ArgumentException($"Исходный файл не найден");
             }
@@ -106,7 +106,7 @@ namespace OnlineShopWebApp.Areas.Client.Models
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка сохранения файла");
+                _logger.LogError(ex, "Ошибка сохранения файла");
                 return ex.Message;
             }
         }

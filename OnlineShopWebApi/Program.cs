@@ -12,11 +12,30 @@ using OnlineShop.Db.Storages;
 using OnlineShopWebApi;
 using OnlineShopWebApi.Middleware;
 using Serilog;
+using OnlineShopWebApp.Logging;
 using System.Text;
 using System.Text.Json.Serialization;
 public partial class Program
 {
     private static void Main(string[] args)
+    {
+        LoggingSetup.CreateBootstrapLogger();
+        try
+        {
+            Run(args);
+        }
+        catch (Exception ex) when (ex is not HostAbortedException)
+        {
+            Log.Fatal(ex, "Web API не смог запуститься");
+            throw;
+        }
+        finally
+        {
+            Log.CloseAndFlush();
+        }
+    }
+
+    private static void Run(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
 
@@ -48,13 +67,8 @@ public partial class Program
         builder.Services.AddTransient<IFavoritesStorages, FavoritesDbStorages>();
         builder.Services.AddScoped<IUserService, UserService>();
 
-        Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .WriteTo.Console()
-    .WriteTo.File(path: "Logs/log.json")
-    .CreateLogger();
-
-        builder.Host.UseSerilog();
+        // Журнал: настройки в разделе "Serilog" файла appsettings.json (файлы Logs/api-ГГГГММДД.log)
+        builder.AddAppLogging();
 
         builder.Services.AddControllers();
         builder.Services.AddOpenApi();
@@ -123,7 +137,7 @@ public partial class Program
             });
         }
 
-        app.UseSerilogRequestLogging();
+        app.UseAppRequestLogging();
         app.UseHttpsRedirection();
         app.UseRouting();
 

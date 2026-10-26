@@ -23,6 +23,32 @@
     </div>
 </section>
 
+@{
+    var isAdmin = User.IsInRole("Admin");
+}
+<div class="health-bar @(Model.ErrorsLastDay > 0 ? "has-errors" : Model.WarningsLastDay > 0 ? "has-warnings" : "ok") mb-4" data-reveal>
+    <i class="bi @(Model.ErrorsLastDay > 0 ? "bi-exclamation-octagon" : Model.WarningsLastDay > 0 ? "bi-exclamation-triangle" : "bi-check-circle")"></i>
+    <div class="flex-grow-1 min-w-0">
+        @if (Model.ErrorsLastDay > 0)
+        {
+            <strong>Ошибок за сутки: @Model.ErrorsLastDay</strong>
+            <span class="text-truncate d-block small">Последняя @Model.LastError!.Timestamp.ToString("HH:mm") — @(Model.LastError.ExceptionTitle ?? Model.LastError.Message)</span>
+        }
+        else if (Model.WarningsLastDay > 0)
+        {
+            <strong>Ошибок за сутки нет</strong><span class="d-block small">Предупреждений: @Model.WarningsLastDay</span>
+        }
+        else
+        {
+            <strong>Сайт работает без ошибок</strong><span class="d-block small">За последние 24 часа в журнале нет ошибок и предупреждений</span>
+        }
+    </div>
+    @if (isAdmin && (Model.ErrorsLastDay > 0 || Model.WarningsLastDay > 0))
+    {
+        <a class="btn btn-sm btn-light" asp-controller="Journal" asp-action="Index" asp-route-level="@(Model.ErrorsLastDay > 0 ? "Error" : "Warning")">Открыть журнал</a>
+    }
+</div>
+
 <div class="row g-3 g-lg-4 mb-4" data-stagger=".06">
     <div class="col-6 col-xl-3">
         <div class="kpi">

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Options;
+using OnlineShopWebApp.Logging;
 using System.Net;
 using System.Net.Mail;
 
@@ -22,6 +23,12 @@ namespace OnlineShopWebApp.Services
         /// <summary>Куда отправлять уведомления о новых заказах</summary>
         public string? ManagerEmail { get; set; }
 
+        /// <summary>
+        /// Папка для писем, когда SMTP не настроен (удобно при разработке): каждое письмо сохраняется файлом .eml.
+        /// Раньше такие письма целиком писались в журнал — вместе со ссылками для сброса пароля.
+        /// </summary>
+        public string? PickupDirectory { get; set; }
+
         public bool IsConfigured => !string.IsNullOrWhiteSpace(Host) && !string.IsNullOrWhiteSpace(From);
     }
 
@@ -38,11 +45,19 @@ namespace OnlineShopWebApp.Services
     {
         private readonly SmtpOptions _options;
         private readonly ILogger<SmtpEmailService> _logger;
+        private readonly string? _pickupDirectory;
 
-        public SmtpEmailService(IOptions<SmtpOptions> options, ILogger<SmtpEmailService> logger)
+        public SmtpEmailService(IOptions<SmtpOptions> options, ILogger<SmtpEmailService> logger, IWebHostEnvironment environment)
         {
             _options = options.Value;
             _logger = logger;
+
+            if (!string.IsNullOrWhiteSpace(_options.PickupDirectory))
+            {
+                _pickupDirectory = Path.IsPathRooted(_options.PickupDirectory)
+                    ? _options.PickupDirectory
+                    : Path.Combine(environment.ContentRootPath, _options.PickupDirectory);
+            }
         }
 
         public bool IsConfigured => _options.IsConfigured;
@@ -51,9 +66,12 @@ namespace OnlineShopWebApp.Services
         {
             if (string.IsNullOrWhiteSpace(to)) return;
 
-            if (!_options.IsConfigured)
+            // В журнал попадают только тема и замаскированный адрес — без текста письма
+            var maskedTo = LogMask.Email(to);
+
+            if (!_options.IsConfigured && _pickupDirectory == null)
             {
-                _logger.LogInformation("SMTP не настроен. Письмо для {To} «{Subject}» не отправлено. Текст: {Body}", to, subject, htmlBody);
+                _logger.LogWarning("SMTP не настроен: письмо «{Subject}» для {To} не отправлено", subject, maskedTo);
                 return;
             }
 
@@ -61,28 +79,36 @@ namespace OnlineShopWebApp.Services
             {
                 using var message = new MailMessage
                 {
-                    From = new MailAddress(_options.From!, _options.FromName),
+                    From = new MailAddress(_options.IsConfigured ? _options.From! : "noreply@plantshop.local", _options.FromName),
                     Subject = subject,
                     Body = htmlBody,
                     IsBodyHtml = true
                 };
                 message.To.Add(to);
 
-                using var client = new SmtpClient(_options.Host, _options.Port)
-                {
-                    EnableSsl = _options.EnableSsl,
-                    Credentials = string.IsNullOrEmpty(_options.UserName)
-                        ? CredentialCache.DefaultNetworkCredentials
-                        : new NetworkCredential(_options.UserName, _options.Password)
-                };
+                using var client = _options.IsConfigured
+                    ? new SmtpClient(_options.Host, _options.Port)
+                    {
+                        EnableSsl = _options.EnableSsl,
+                        Credentials = string.IsNullOrEmpty(_options.UserName)
+                            ? CredentialCache.DefaultNetworkCredentials
+                            : new NetworkCredential(_options.UserName, _options.Password)
+                    }
+                    : new SmtpClient
+                    {
+                        DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
+                        PickupDirectoryLocation = Directory.CreateDirectory(_pickupDirectory!).FullName
+                    };
 
                 await client.SendMailAsync(message);
-                _logger.LogInformation("Письмо «{Subject}» отправлено на {To}", subject, to);
+                _logger.LogInformation(_options.IsConfigured
+                    ? "Письмо «{Subject}» отправлено на {To}"
+                    : "Письмо «{Subject}» для {To} сохранено в папку писем (SMTP не настроен)", subject, maskedTo);
             }
             catch (Exception ex)
             {
                 // Ошибка почты не должна ломать оформление заказа
-                _logger.LogError(ex, "Не удалось отправить письмо «{Subject}» на {To}", subject, to);
+                _logger.LogError(ex, "Не удалось отправить письмо «{Subject}» на {To}", subject, maskedTo);
             }
         }
     }

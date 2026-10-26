@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Что-то пошло не так";
     var code = ViewData["StatusCode"] as int?;
     var err = Model as ErrorViewModel;
@@ -20,7 +20,13 @@
             }
             @if (err?.ShowRequestId == true)
             {
-                <p class="small text-muted">Код запроса: <code>@err.RequestId</code></p>
+                <p class="small text-muted">
+                    Если ошибка повторяется, сообщите нам код запроса: <code class="user-select-all">@err.RequestId</code>
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <br /><a asp-area="Admin" asp-controller="Journal" asp-action="Index" asp-route-traceId="@err.RequestId" asp-route-level="All">Открыть в журнале →</a>
+                    }
+                </p>
             }
             <div class="d-flex flex-wrap justify-content-center gap-2">
                 <a asp-area="" asp-controller="Home" asp-action="Index" class="btn btn-success btn-lg"><i class="bi bi-house me-2"></i>На главную</a>

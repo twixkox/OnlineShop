@@ -11,8 +11,12 @@ using Serilog;
 using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using OnlineShopWebApp.Services;
+using OnlineShopWebApp.Logging;
 
+LoggingSetup.CreateBootstrapLogger();
 
+try
+{
 var builder = WebApplication.CreateBuilder(args);
 
 string connection = builder.Configuration.GetConnectionString("OnlineShop");
@@ -89,23 +93,16 @@ builder.Services.Configure<YooKassaOptions>(builder.Configuration.GetSection(Yoo
 builder.Services.AddHttpClient<IPaymentService, YooKassaPaymentService>();
 #endregion
 
-Log.Logger = new LoggerConfiguration()
-    .MinimumLevel.Information()
-    .MinimumLevel.Override("Microsoft.EntityFrameworkCore", Serilog.Events.LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.AspNetCore", Serilog.Events.LogEventLevel.Warning)
-    .MinimumLevel.Override("Microsoft.AspNetCore.StaticFiles", Serilog.Events.LogEventLevel.Error)
-    .WriteTo.Console()
-    .WriteTo.File("Logs/log.json")
-    .CreateLogger();
-
-builder.Host.UseSerilog();
+// Журнал: настройки в разделе "Serilog" файла appsettings.json
+builder.AddAppLogging();
+builder.Services.Configure<LogViewerOptions>(builder.Configuration.GetSection(LogViewerOptions.SectionName));
+builder.Services.AddSingleton<LogReader>();
 builder.Services.AddControllersWithViews();
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
-    try
     {
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<User>>();
@@ -118,13 +115,10 @@ using (var scope = app.Services.CreateScope())
         await DatabaseMigrator.MigrateAsync(context);
 
         await IdentityInitializer.InitializeAsync(userManager, roleManager);
-        await ShopDbInitilizer.InitializeAsync(context);
+        await ShopDbInitilizer.InitializeAsync(context, services.GetRequiredService<ILoggerFactory>().CreateLogger("ShopDbInitializer"));
     }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, ex.Message);
-    }
+    // Ошибка подготовки базы больше не «проглатывается»: сайт без базы не запускается,
+    // а причина попадает в журнал (см. catch в конце файла)
 }
 // Цены выводятся через ToString("C"): без явной культуры на сервере с английской локалью
 // вместо рублей показывались доллары
@@ -136,6 +130,10 @@ app.UseRequestLocalization(new RequestLocalizationOptions
     SupportedUICultures = new[] { ruCulture }
 });
 
+// Журнал запросов подключается до обработчика ошибок: иначе повторный проход по /Home/Error
+// и /Home/Status/404 давал вторую строку на тот же запрос
+app.UseAppRequestLogging();
+
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -145,9 +143,9 @@ app.UseStatusCodePagesWithReExecute("/Home/Status/{0}");
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-app.UseSerilogRequestLogging();
 app.UseRouting();
 app.UseAuthentication();
+app.UseUserLogContext();
 app.UseAuthorization();
 
 app.MapStaticAssets();
@@ -181,4 +179,16 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}")
     .WithStaticAssets();
 
+Log.Information("Сайт запущен, окружение {Environment}", app.Environment.EnvironmentName);
 app.Run();
+}
+catch (Exception ex) when (ex is not HostAbortedException)
+{
+    Log.Fatal(ex, "Сайт не смог запуститься");
+    throw;
+}
+finally
+{
+    Log.CloseAndFlush();
+}
+

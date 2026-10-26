@@ -34,7 +34,9 @@ services:
       YooKassa__SecretKey: "${YOOKASSA_SECRET_KEY:-}"
     volumes:
       - uploads:/app/wwwroot/uploads
+      - logs:/app/Logs
 
 volumes:
   sqldata:
   uploads:
+  logs:

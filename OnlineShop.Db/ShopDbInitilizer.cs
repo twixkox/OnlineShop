@@ -1,18 +1,22 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using OnlineShop.Db.Models;
 
 namespace OnlineShop.Db
 {
     public static class ShopDbInitilizer
     {
-        public static async Task InitializeAsync(DatabaseContext context)
+        public static async Task InitializeAsync(DatabaseContext context, ILogger? logger = null)
         {
+            logger ??= NullLogger.Instance;
             if (!await context.Categories.AnyAsync() || !await context.Products.AnyAsync())
             {
-                Console.WriteLine("Инициализация базы данных магазина растений...");
+                logger.LogInformation("Первый запуск: заполняем базу тестовыми категориями и товарами");
 
                 var categories = await CreateCategoriesAsync(context);
-                await CreateProductsAsync(context, categories);
+                var productsCount = await CreateProductsAsync(context, categories);
+                logger.LogInformation("Создано категорий: {CategoriesCount}, товаров: {ProductsCount}", categories.Count, productsCount);
             }
 
             // Для уже существующих баз: дополняем характеристики стандартных товаров и создаём промокоды
@@ -154,11 +158,10 @@ namespace OnlineShop.Db
                 categories[cat.IdentityUrl] = cat;
             }
 
-            Console.WriteLine($" Создано категорий: {categories.Count}");
             return categories;
         }
 
-        private static async Task CreateProductsAsync(DatabaseContext context, Dictionary<string, Category> categories)
+        private static async Task<int> CreateProductsAsync(DatabaseContext context, Dictionary<string, Category> categories)
         {
             var products = new List<Product>
     {
@@ -376,7 +379,7 @@ namespace OnlineShop.Db
             context.Products.AddRange(products);
             await context.SaveChangesAsync();
 
-            Console.WriteLine($" Создано продуктов: {products.Count}");
+            return products.Count;
         }
     }
 }

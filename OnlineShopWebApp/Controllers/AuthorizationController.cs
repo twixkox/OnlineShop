@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
+using OnlineShopWebApp.Logging;
 using Microsoft.AspNetCore.Mvc;
 using OnlineShop.Db.Models;
 using OnlineShop.Db.Interfaces;
@@ -59,18 +60,19 @@ namespace OnlineShopWebApp.Controllers
 
             try
             {
-                _logger.LogInformation("Проверка авторизации пользователя {UserName}", user.UserName);
+                _logger.LogDebug("Проверка авторизации пользователя {UserName}", LogMask.Email(user.UserName));
                 var result = await _signInManager.PasswordSignInAsync(user.UserName.Trim(), user.Password, user.RememberMe, lockoutOnFailure: false);
 
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation("Авторизация успешна");
+                    _logger.LogInformation("Вход выполнен: {UserName}", LogMask.Email(user.UserName));
                     await MergeGuestCartAsync(user.UserName.Trim());
                     TempData["SuccessMessage"] = "Рады видеть вас снова!";
                     return RedirectToLocal(returnUrl);
                 }
 
-                _logger.LogInformation("Ошибка авторизации по логину/паролю");
+                // Предупреждение — по таким записям видно подбор паролей
+                _logger.LogWarning("Неудачная попытка входа: {UserName}", LogMask.Email(user.UserName));
                 ModelState.AddModelError(string.Empty, "Неверный email или пароль");
                 return View("Index", user);
             }
@@ -106,7 +108,7 @@ namespace OnlineShopWebApp.Controllers
                 var token = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var url = Url.Action(nameof(ResetPassword), "Authorization", new { email = user.Email, token }, Request.Scheme)!;
                 await _notifications.PasswordResetAsync(user.Email, url);
-                _logger.LogInformation("Запрошено восстановление пароля для {Email}", user.Email);
+                _logger.LogInformation("Запрошено восстановление пароля для {Email}", LogMask.Email(user.Email));
             }
 
             // Одинаковый ответ, есть пользователь или нет: так нельзя узнать, зарегистрирован ли email

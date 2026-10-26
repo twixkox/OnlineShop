@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using OnlineShopWebApp.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db.Models;
@@ -28,13 +29,13 @@ namespace OnlineShopWebApi.Controllers.Admin
             var roles = await _roleManager.Roles.ToListAsync();
             try
             {
-                _logger.LogInformation($"Получение списка ролей успешно");
+                _logger.LogDebug("Получение списка ролей успешно");
 
                 return Ok(roles);
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Произошла ошибка при получение ролей");
+                _logger.LogWarning(ex, "Произошла ошибка при получение ролей");
 
                 return BadRequest();
             }
@@ -46,7 +47,7 @@ namespace OnlineShopWebApi.Controllers.Admin
         {
             var roleName = await _roleManager.RoleExistsAsync(role.Name);
 
-            _logger.LogInformation($"Получение роли {role.Name}");
+            _logger.LogDebug("Получение роли {RoleName}", role.Name);
 
             var existingRole = new IdentityRole(role.Name);
 
@@ -55,7 +56,7 @@ namespace OnlineShopWebApi.Controllers.Admin
             {
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation($"Создание роли {role.Name}");
+                    _logger.LogInformation("Создание роли {RoleName}", role.Name);
                     return Created();
                 }
 
@@ -63,7 +64,7 @@ namespace OnlineShopWebApi.Controllers.Admin
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Ошибка добавления роли {role.Name}");
+                _logger.LogWarning(ex, "Ошибка добавления роли {RoleName}", role.Name);
 
                 return BadRequest();
             }
@@ -76,18 +77,18 @@ namespace OnlineShopWebApi.Controllers.Admin
             var existingRole = await _roleManager.FindByIdAsync(roleId);
             if (existingRole == null)
             {
-                _logger.LogInformation($"Роль не найдена");
+                _logger.LogInformation("Роль не найдена");
 
                 return Conflict($"Роль не найдена");
             }
 
             var usersInRole = await _userManager.GetUsersInRoleAsync(existingRole.Name);
 
-            _logger.LogInformation($"Проверка наличия у пользоваталей роли - {existingRole.Name}");
+            _logger.LogDebug("Проверка наличия у пользоваталей роли - {ExistingRoleName}", existingRole.Name);
 
             if (usersInRole.Any())
             {
-                _logger.LogWarning($"Удаление роли {existingRole.Name} невозможно, {usersInRole.Count} имеют данную роль");
+                _logger.LogWarning("Удаление роли {ExistingRoleName} невозможно, {UsersInRoleCount} имеют данную роль", existingRole.Name, usersInRole.Count);
 
                 return Conflict($"Удаление роли {existingRole.Name} невозможно");
             }
@@ -97,14 +98,14 @@ namespace OnlineShopWebApi.Controllers.Admin
             {
                 if (result.Succeeded)
                 {
-                    _logger.LogInformation($"Роль {existingRole.Name} удалена");
+                    _logger.LogInformation("Роль {ExistingRoleName} удалена", existingRole.Name);
                 }
 
                 return NoContent();
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Ошибка удаления роли {roleId}");
+                _logger.LogWarning(ex, "Ошибка удаления роли {RoleId}", roleId);
 
                 return BadRequest();
             }
@@ -116,14 +117,14 @@ namespace OnlineShopWebApi.Controllers.Admin
             var existingUser = await _userManager.FindByIdAsync(userId);
             if (existingUser == null)
             {
-                _logger.LogError($"Не удалось найти пользователю с id - {userId}");
+                _logger.LogError("Не удалось найти пользователю с id - {UserId}", userId);
 
                 return BadRequest();
             }
 
             var userRole = await _userManager.GetRolesAsync(existingUser);
 
-            _logger.LogInformation($"Получение роли пользователя {userId}");
+            _logger.LogDebug("Получение роли пользователя {UserId}", userId);
 
             var currentRole = userRole.FirstOrDefault();
 
@@ -155,7 +156,7 @@ namespace OnlineShopWebApi.Controllers.Admin
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Ошибка изменения роли пользователя {userId}");
+                _logger.LogWarning(ex, "Ошибка изменения роли пользователя {UserId}", userId);
 
                 return BadRequest();
             }
@@ -166,7 +167,7 @@ namespace OnlineShopWebApi.Controllers.Admin
         {
             var user = await _userManager.FindByIdAsync(model.UserId);
 
-            _logger.LogInformation($"Поиск пользователя с ID {model.UserId}");
+            _logger.LogDebug("Поиск пользователя с ID {UserId}", model.UserId);
 
             if (user == null)
             {
@@ -178,7 +179,7 @@ namespace OnlineShopWebApi.Controllers.Admin
 
             if (selectionRole == null)
             {
-                _logger.LogWarning($"Роль не найдена");
+                _logger.LogWarning("Роль не найдена");
                 return BadRequest();
             }
 
@@ -188,12 +189,12 @@ namespace OnlineShopWebApi.Controllers.Admin
                 if (currentRoles.Any())
                 {
                     var removeRole = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-                    _logger.LogInformation($"Удаление роли пользователя {user.Id}");
+                    _logger.LogInformation("Удаление роли пользователя {UserId}", user.Id);
                     if (!removeRole.Succeeded)
                     {
                         foreach (var error in removeRole.Errors)
                         {
-                            _logger.LogWarning($"Ошибка удаления роли у пользователя {user.Id}");
+                            _logger.LogWarning("Ошибка удаления роли у пользователя {UserId}", user.Id);
                         }
                         return BadRequest();
                     }
@@ -203,7 +204,7 @@ namespace OnlineShopWebApi.Controllers.Admin
 
                 if (addRole.Succeeded)
                 {
-                    _logger.LogInformation($"Пользователю {user.UserName} назначена роль - {selectionRole.Name}");
+                    _logger.LogInformation("Пользователю {UserName} назначена роль - {SelectionRoleName}", LogMask.Email(user.UserName), selectionRole.Name);
 
                     return Ok();
                 }
@@ -212,7 +213,7 @@ namespace OnlineShopWebApi.Controllers.Admin
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, $"Ошибка при назначении роли пользователя {model.UserId}");
+                _logger.LogWarning(ex, "Ошибка при назначении роли пользователя {UserId}", model.UserId);
 
                 return BadRequest();
             }

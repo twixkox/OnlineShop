@@ -27,11 +27,11 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
 
         public async Task<IActionResult> Index()
         {
-            _logger.LogInformation("Запрос списка всех категорий");
+            _logger.LogDebug("Запрос списка всех категорий");
             var category = await _category.GetAll();
             try
             {
-                _logger.LogInformation($"Получено {category.Count} категорий");
+                _logger.LogDebug("Получено {CategoryCount} категорий", category.Count);
                 return View(category.ToListCategoryViewModels());
             }
             catch (Exception ex)
@@ -44,11 +44,11 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Add()
         {
-            _logger.LogInformation("Запрос списка всех категорий");
+            _logger.LogDebug("Запрос списка всех категорий");
             var category = await _category.GetAll();
             try
             {
-                _logger.LogInformation($"Получено {category.Count} категорий");
+                _logger.LogDebug("Получено {CategoryCount} категорий", category.Count);
                 ViewBag.Categories = category;
 
                 return View();
@@ -73,7 +73,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             {
                 if (category.UploadedFile != null)
                 {
-                    _logger.LogInformation($"Сохранение изображения для категории {category.Name} для метода Add");
+                    _logger.LogInformation("Сохранение изображения для категории {CategoryName} для метода Add", category.Name);
                     var path = await _fileProvider.SaveImageAsync(category.UploadedFile, "category");
                     var existingCategory = new Category
                     {
@@ -84,7 +84,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     };
 
                     await _category.Add(existingCategory);
-                    _logger.LogInformation($"Категория {existingCategory.Name} успешно добавлена");
+                    _logger.LogInformation("Категория {ExistingCategoryName} успешно добавлена", existingCategory.Name);
 
                     return RedirectToAction("Index");
                 }
@@ -98,29 +98,29 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     };
 
                     await _category.Add(existingCategory);
-                    _logger.LogInformation($"Категория {existingCategory.Name} успешно добавлена");
+                    _logger.LogInformation("Категория {ExistingCategoryName} успешно добавлена", existingCategory.Name);
 
                     return RedirectToAction("Index");
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка при добавлении категории {category.Name}. Category/Add");
+                _logger.LogError(ex, "Ошибка при добавлении категории {CategoryName}. Category/Add", category.Name);
                 return View("Error");
             }
         }
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
-            _logger.LogInformation($"Получение категории с Id - {id}");
+            _logger.LogDebug("Получение категории с Id - {Id}", id);
             var existingCategory = await _category.TryGetById(id);
             if (existingCategory == null)
             {
-                _logger.LogError($"Категория с Id - {id} не найдена");
+                _logger.LogError("Категория с Id - {Id} не найдена", id);
                 return View("Error");
             }
 
-            _logger.LogInformation("Получение списка всех категорий");
+            _logger.LogDebug("Получение списка всех категорий");
             var category = await _category.GetAll();
             try
             {
@@ -130,7 +130,7 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка при загрузке категории для редактирования Id - {id}. Category/Edit");
+                _logger.LogError(ex, "Ошибка при загрузке категории для редактирования Id - {Id}. Category/Edit", id);
                 return View("Error");
             }
         }
@@ -168,13 +168,13 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
                     };
                     await _category.Edit(categoryDb);
                 }
-                _logger.LogInformation($"Категория с Id - {category.Id} успешно изменена");
+                _logger.LogInformation("Категория с Id - {CategoryId} успешно изменена", category.Id);
 
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка при обновлении категории с Id = {category.Id}. Category/Edit");
+                _logger.LogError(ex, "Ошибка при обновлении категории с Id = {CategoryId}. Category/Edit", category.Id);
                 return View("Error");
             }
         }
@@ -182,16 +182,16 @@ namespace OnlineShopWebApp.Areas.Admin.Controllers
         [HttpGet]
         public async Task<IActionResult> Delete(string id)
         {
-            _logger.LogInformation($"Удаление категории с Id = {id}");
+            _logger.LogInformation("Удаление категории с Id = {Id}", id);
             await _category.Delete(id);
             try
             {
-                _logger.LogInformation($"Категория с Id = {id} успешно удалена");
+                _logger.LogInformation("Категория с Id = {Id} успешно удалена", id);
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Ошибка при удалении категории с Id = {id}. Category/Delete");
+                _logger.LogError(ex, "Ошибка при удалении категории с Id = {Id}. Category/Delete", id);
                 return View("Error");
             }
         }
