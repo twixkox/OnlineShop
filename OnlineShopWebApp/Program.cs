@@ -12,6 +12,7 @@ using System.Globalization;
 using Microsoft.AspNetCore.Localization;
 using OnlineShopWebApp.Services;
 using OnlineShopWebApp.Logging;
+using OnlineShopWebApp.Helpers;
 
 LoggingSetup.CreateBootstrapLogger();
 
@@ -19,7 +20,10 @@ try
 {
 var builder = WebApplication.CreateBuilder(args);
 
-string connection = builder.Configuration.GetConnectionString("OnlineShop");
+// На сервере строка подключения хранится в appsettings.Production.json (его нет в репозитории
+// и публикация его не затирает); appsettings.json содержит только значение для разработки
+string connection = builder.Configuration.GetConnectionString("OnlineShop")
+    ?? throw new InvalidOperationException("Не задана строка подключения ConnectionStrings:OnlineShop. На сервере создайте appsettings.Production.json рядом с appsettings.json (образец — deploy/iis/appsettings.Production.example.json).");
 #region PathToFiles
 var webRootPath = builder.Environment.WebRootPath;
 var uploadPaths = new[]
@@ -111,8 +115,23 @@ using (var scope = app.Services.CreateScope())
         // иначе база «мигрировала» при каждом создании контекста, а dotnet ef не мог создать новую миграцию
         var identityContext = services.GetRequiredService<IdentityContext>();
         var context = services.GetRequiredService<DatabaseContext>();
-        await DatabaseMigrator.MigrateAsync(identityContext);
-        await DatabaseMigrator.MigrateAsync(context);
+        var db = DatabaseInfo.Describe(connection);
+        Log.Information("База данных: {Database}", db);
+        if (!app.Environment.IsDevelopment() && DatabaseInfo.IsLocalDb(connection))
+        {
+            Log.Warning("Строка подключения указывает на LocalDB — под IIS она работает только при особой настройке пула. Укажите SQL Server в appsettings.Production.json");
+        }
+        try
+        {
+            await DatabaseMigrator.MigrateAsync(identityContext);
+            await DatabaseMigrator.MigrateAsync(context);
+        }
+        catch (Exception ex) when (ex is Microsoft.Data.SqlClient.SqlException or InvalidOperationException)
+        {
+            throw new InvalidOperationException(
+                $"Не удалось подготовить базу ({db}) от имени {Environment.UserDomainName}\\{Environment.UserName}: {ex.Message} " +
+                "Проверьте строку подключения в appsettings.Production.json и права этой учётной записи в базе (для обновления схемы нужна роль db_owner).", ex);
+        }
 
         await IdentityInitializer.InitializeAsync(userManager, roleManager);
         await ShopDbInitilizer.InitializeAsync(context, services.GetRequiredService<ILoggerFactory>().CreateLogger("ShopDbInitializer"));

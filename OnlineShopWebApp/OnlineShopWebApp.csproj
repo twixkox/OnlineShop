@@ -28,7 +28,13 @@
 
   <ItemGroup>
     <Folder Include="Areas\Admin\Views\Shared\" />
-    <Folder Include="Logs\" />
+  </ItemGroup>
+
+  <!-- Не попадают в сборку для сервера: локальные журналы, письма, настройки разработки -->
+  <ItemGroup>
+    <Content Remove="Logs\**;App_Data\**" />
+    <None Remove="Logs\**;App_Data\**" />
+    <Content Update="appsettings.Development.json;appsettings.Production.json" CopyToPublishDirectory="Never" />
   </ItemGroup>
 
   <ItemGroup>

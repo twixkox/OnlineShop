@@ -220,6 +220,37 @@ docker compose up --build
    Миграции применятся автоматически. В базу добавятся тестовые категории, товары с характеристиками и промокоды `SPRING10` и `GARDEN15`.
 4. Откройте http://localhost:5078.
 
+### На сервере с IIS
+**Один раз на сервере**
+1. Установите [.NET 10 Hosting Bundle](https://dotnet.microsoft.com/download/dotnet/10.0) и выполните `iisreset`.
+2. Создайте в IIS сайт и пул приложений. Для пула выберите `.NET CLR version: No Managed Code`.
+3. Дайте учётной записи пула роль `db_owner` в базе: при обновлении сайт сам меняет схему. Учётная запись пула — `IIS APPPOOL\ИмяПула`, а если SQL Server на другой машине, то `ДОМЕН\ИМЯСЕРВЕРА$`.
+
+**Сборка.** В Visual Studio: правой кнопкой по `OnlineShopWebApp` → **Publish** → профиль **IIS** → **Publish**. Из командной строки:
+```bash
+dotnet publish OnlineShopWebApp -p:PublishProfile=IIS
+```
+В `OnlineShopWebApp/bin/Publish/IIS` появятся папка `site` и скрипт `deploy.ps1`.
+
+**Обновление.** Скопируйте эту папку на сервер и запустите PowerShell от администратора:
+```powershell
+.\deploy.ps1 -SitePath "C:\inetpub\OnlineShop" -AppPool "OnlineShop" `
+  -ConnectionString "Server=.\SQLEXPRESS;Database=OnlineShop;Trusted_Connection=True;TrustServerCertificate=True;"
+```
+Параметр `-ConnectionString` нужен только в первый раз. Скрипт сохраняет строку в `appsettings.Production.json`, и дальше она хранится там.
+
+Что делает скрипт:
+- проверяет .NET 10 и подключение к базе;
+- делает резервную копию сайта;
+- на время копирования показывает посетителям страницу «Обновляем магазин»;
+- копирует новые файлы, не трогая загруженные картинки, журналы и `appsettings.Production.json`;
+- выдаёт пулу права на запись в `Logs`, `App_Data` и `wwwroot\uploads`;
+- открывает сайт, а если тот не запустился, показывает причину из журнала.
+
+> Все серверные настройки храните в `appsettings.Production.json`: строку подключения, почту, ЮKassa. Образец — [`deploy/iis/appsettings.Production.example.json`](deploy/iis/appsettings.Production.example.json). Файл `appsettings.json` перезаписывается при каждой публикации.
+
+Если вместо сайта появилась ошибка **500.30**, откройте `Logs\app-ГГГГММДД.log` в папке сайта. В последней записи `Fatal` указано, к какому серверу и базе и от чьего имени сайт пытался подключиться и что пошло не так.
+
 ### Web API
 Для API нужен секретный ключ JWT длиной не меньше 32 символов. Для локальной разработки он уже лежит в `appsettings.Development.json`; на сервере задайте переменную окружения `Jwt__Key`.
 
