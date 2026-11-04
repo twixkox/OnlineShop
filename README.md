@@ -154,6 +154,11 @@
 - При восстановлении пароля нельзя узнать, зарегистрирован ли email.
 - Секреты (JWT-ключ API, пароль SMTP, ключ ЮKassa) не хранятся в репозитории и задаются переменными окружения.
 
+> Перед открытой публикацией необходимо обновить `SixLabors.ImageSharp`: у версии `3.1.12`
+> есть известные уязвимости обработки изображений. Версии `3.2+` требуют подходящей лицензии
+> Six Labors. После получения лицензии обновите пакет и повторите
+> `dotnet list OnlineShop.sln package --vulnerable --include-transitive`.
+
 ---
 
 ## Технологии
@@ -196,13 +201,30 @@ OnlineShop.sln
 
 ## Установка и запуск
 
-### Через Docker (проще всего)
+### Через Docker (production)
 ```bash
 git clone https://github.com/twixkox/OnlineShop.git
 cd OnlineShop
-docker compose up --build
+cp .env.example .env
 ```
-Сайт откроется на http://localhost:8080. Вместе с ним поднимется SQL Server, а загруженные фото сохранятся в томе `uploads`.
+Заполните в `.env` как минимум `DB_PASSWORD` и `ADMIN_PASSWORD` (не короче 12 символов),
+домен в `ALLOWED_HOSTS`, а также `YANDEX_MAPS_API_KEY`, если нужна карта. Почта и ЮKassa
+необязательны. Файл `.env` исключён из Git и Docker-образа.
+
+```bash
+docker compose up -d --build
+```
+Сайт откроется на http://localhost:8081. По умолчанию он доступен только через `127.0.0.1`
+для публикации через Nginx. Для прямого доступа по IP задайте `BIND_ADDRESS=0.0.0.0` и
+ограничьте порт брандмауэром. SQL Server не публикуется наружу.
+
+Данные SQL Server, загруженные фото, журналы и ключи аутентификации сохраняются в named volumes.
+Обновление и журналы:
+```bash
+git pull
+docker compose up -d --build
+docker compose logs -f --tail=100 web
+```
 
 ### Локально
 1. Установите [.NET 10 SDK](https://dotnet.microsoft.com/download) и SQL Server (подойдёт LocalDB).
@@ -221,7 +243,8 @@ docker compose up --build
 4. Откройте http://localhost:5078.
 
 ### Web API
-Для API нужен секретный ключ JWT длиной не меньше 32 символов. Для локальной разработки он уже лежит в `appsettings.Development.json`; на сервере задайте переменную окружения `Jwt__Key`.
+Для API нужен секретный ключ JWT длиной не меньше 32 символов. Задайте его переменной окружения
+`Jwt__Key` перед локальным или серверным запуском; ключ не хранится в репозитории.
 
 ---
 
@@ -285,9 +308,12 @@ GitHub Actions (`.github/workflows/build.yml`) собирает решение �
 
 ## Тестовые данные
 
-**Администратор**
+**Администратор при локальной разработке**
 - Email: `admin@gmail.com`
 - Пароль: `Admin12345!`
+
+В production этот пароль не используется: при первом запуске администратор создаётся с паролем
+из `ADMIN_PASSWORD` в `.env`.
 
 **Пользователь** — зарегистрируйтесь на сайте.
 

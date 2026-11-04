@@ -7,3 +7,12 @@
 .vs
 docs
 OnlineShop.Tests
+**/App_Data
+**/*.user
+.env
+.env.*
+!.env.example
+*.pfx
+*.p12
+*.pem
+*.key

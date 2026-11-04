@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OnlineShop.Db;
@@ -18,6 +19,11 @@ LoggingSetup.CreateBootstrapLogger();
 try
 {
 var builder = WebApplication.CreateBuilder(args);
+
+var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "App_Data", "keys");
+Directory.CreateDirectory(dataProtectionKeysPath);
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
 
 string connection = builder.Configuration.GetConnectionString("OnlineShop");
 #region PathToFiles
@@ -114,7 +120,7 @@ using (var scope = app.Services.CreateScope())
         await DatabaseMigrator.MigrateAsync(identityContext);
         await DatabaseMigrator.MigrateAsync(context);
 
-        await IdentityInitializer.InitializeAsync(userManager, roleManager);
+        await IdentityInitializer.InitializeAsync(userManager, roleManager, builder.Configuration, builder.Environment.IsDevelopment());
         await ShopDbInitilizer.InitializeAsync(context, services.GetRequiredService<ILoggerFactory>().CreateLogger("ShopDbInitializer"));
     }
     // Ошибка подготовки базы больше не «проглатывается»: сайт без базы не запускается,

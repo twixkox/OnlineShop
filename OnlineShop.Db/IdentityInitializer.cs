@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using OnlineShop.Db.Models;
 using OnlineShopWebApp;
 
@@ -6,10 +7,9 @@ namespace OnlineShop.Db
 {
     public class IdentityInitializer
     {
-        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public static async Task InitializeAsync(UserManager<User> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, bool isDevelopment)
         {
             var adminEmail = "admin@gmail.com";
-            var adminPassword = "Admin12345!";
 
             string[] roles = { "Admin", "Manager", "User" };
 
@@ -35,14 +35,22 @@ namespace OnlineShop.Db
 
             if (await userManager.FindByNameAsync(adminEmail) == null)
             {
+                var adminPassword = configuration["Admin:Password"];
+                if (string.IsNullOrWhiteSpace(adminPassword))
+                {
+                    if (!isDevelopment)
+                        throw new InvalidOperationException("Для первого запуска задайте Admin:Password (не короче 12 символов).");
+                    adminPassword = "Admin12345!";
+                }
+                if (!isDevelopment && adminPassword.Length < 12)
+                    throw new InvalidOperationException("Пароль первого администратора должен содержать не менее 12 символов.");
+
                 var admin = new User { Email = adminEmail, UserName = adminEmail, FirstName = "Admin",LastName = "Admin", PhoneNumber = "1123",CreationDateTime = DateTime.Now, ProfileImage = "" };
 
                 var result = await userManager.CreateAsync(admin, adminPassword);
-
-                if (result.Succeeded)
-                {
-                    await userManager.AddToRoleAsync(admin, Constants.AdminRoleName);
-                }
+                if (!result.Succeeded)
+                    throw new InvalidOperationException($"Не удалось создать администратора: {string.Join("; ", result.Errors.Select(e => e.Description))}");
+                await userManager.AddToRoleAsync(admin, Constants.AdminRoleName);
             }
         }
     }

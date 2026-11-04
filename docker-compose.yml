@@ -1,11 +1,12 @@
-# Запуск сайта вместе с SQL Server одной командой:  docker compose up --build
-# Сайт откроется на http://localhost:8080
+name: onlineshop
+
 services:
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
+    restart: unless-stopped
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "${DB_PASSWORD:-PlantShop_Dev_2026!}"
+      MSSQL_SA_PASSWORD: "${DB_PASSWORD:?Set DB_PASSWORD in .env}"
     volumes:
       - sqldata:/var/opt/mssql
     healthcheck:
@@ -16,15 +17,19 @@ services:
 
   web:
     build: .
+    restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "${BIND_ADDRESS:-127.0.0.1}:${APP_PORT:-8081}:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      ConnectionStrings__OnlineShop: "Server=db;Database=OnlineShop;User Id=sa;Password=${DB_PASSWORD:-PlantShop_Dev_2026!};TrustServerCertificate=True"
-      # Почта и оплата (необязательно):
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+      AllowedHosts: "${ALLOWED_HOSTS:-localhost}"
+      ConnectionStrings__OnlineShop: "Server=db;Database=OnlineShop;User Id=sa;Password=${DB_PASSWORD:?Set DB_PASSWORD in .env};TrustServerCertificate=True"
+      Admin__Password: "${ADMIN_PASSWORD:?Set ADMIN_PASSWORD in .env}"
+      YandexMaps__ApiKey: "${YANDEX_MAPS_API_KEY:-}"
       Smtp__Host: "${SMTP_HOST:-}"
       Smtp__UserName: "${SMTP_USER:-}"
       Smtp__Password: "${SMTP_PASSWORD:-}"
@@ -33,10 +38,12 @@ services:
       YooKassa__ShopId: "${YOOKASSA_SHOP_ID:-}"
       YooKassa__SecretKey: "${YOOKASSA_SECRET_KEY:-}"
     volumes:
+      - appdata:/app/App_Data
       - uploads:/app/wwwroot/uploads
       - logs:/app/Logs
 
 volumes:
+  appdata:
   sqldata:
   uploads:
   logs:
